@@ -1055,7 +1055,7 @@ function canAccess(slug) {
       var name = slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : "She";
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
-      else if (isBusy) disc = "In use. " + mult + "×.";
+      else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
       else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".") : "");
       else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".";
       var old = document.getElementById("ddsDpsConfirm");
