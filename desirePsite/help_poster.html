@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Need Help? • Desi Desire Syndicate</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050308;
+      font-family: 'Inter', sans-serif;
+      padding: 1rem;
+    }
+
+    .poster {
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      width: 980px;
+      max-width: 100%;
+      min-height: 560px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 80, 140, 0.35);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.7),
+        0 30px 90px rgba(0,0,0,0.9),
+        0 0 80px rgba(255, 40, 100, 0.18),
+        0 0 40px rgba(180, 40, 200, 0.12);
+    }
+
+    /* LEFT — image panel */
+    .left {
+      position: relative;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(8,4,10,0.12) 0%,
+          rgba(8,4,12,0.5) 65%,
+          rgba(10,6,16,0.92) 100%
+        ),
+        url('https://i.ibb.co/0VtJqZzC/f2fcbb50-6865-47da-bde7-af0bbe2b8b1b-65e3d908-e03c-44ed-8008-f87cf7e90db0.png')
+        center center / cover no-repeat;
+      min-height: 560px;
+    }
+
+    .left::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 40, 100, 0.08) 0%,
+        transparent 40%,
+        rgba(120, 20, 80, 0.22) 100%
+      );
+      pointer-events: none;
+    }
+
+    .neon-strip {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(
+        180deg,
+        #ff4d9a,
+        #c44dff,
+        #ff2d6f,
+        #ff8c42
+      );
+      box-shadow:
+        0 0 12px #ff4d9a,
+        0 0 28px rgba(255, 77, 154, 0.7),
+        0 0 50px rgba(196, 77, 255, 0.4);
+    }
+
+    /* RIGHT — content */
+    .right {
+      background: linear-gradient(165deg, #120a14 0%, #0a0610 50%, #0e0814 100%);
+      padding: 2.2rem 2.1rem 1.8rem 2.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 80% 15%, rgba(255, 50, 120, 0.12), transparent 50%),
+        radial-gradient(ellipse at 15% 90%, rgba(160, 40, 200, 0.1), transparent 45%);
+      pointer-events: none;
+    }
+
+    .brand {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1rem;
+    }
+
+    .brand span {
+      font-size: 0.68rem;
+      letter-spacing: 0.32em;
+      font-weight: 600;
+      color: #ff9ec8;
+      background: rgba(255, 40, 100, 0.12);
+      border: 1px solid rgba(255, 100, 160, 0.35);
+      padding: 0.32rem 0.75rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(255, 100, 160, 0.6);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.12;
+      margin-bottom: 0.35rem;
+      text-shadow:
+        0 0 20px rgba(255, 80, 140, 0.35),
+        0 2px 12px rgba(0,0,0,0.6);
+    }
+
+    .subtitle {
+      position: relative;
+      z-index: 1;
+      color: #ffb4d0;
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.4rem;
+      text-shadow: 0 0 12px rgba(255, 120, 180, 0.35);
+    }
+
+    .help-box {
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 100, 160, 0.4);
+      border-radius: 12px;
+      padding: 1.15rem 1.4rem;
+      margin-bottom: 1.35rem;
+      background: rgba(255, 40, 100, 0.08);
+      box-shadow:
+        0 0 20px rgba(255, 60, 120, 0.15),
+        inset 0 0 30px rgba(255, 40, 100, 0.05);
+      text-align: center;
+    }
+
+    .help-cmd {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #ffd06a;
+      text-shadow:
+        0 0 8px #ffd06a,
+        0 0 18px #e8b040,
+        0 0 32px rgba(232, 176, 64, 0.55),
+        0 0 48px rgba(255, 80, 140, 0.25);
+      animation: neonPulse 2.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.3); }
+    }
+
+    .body-text {
+      position: relative;
+      z-index: 1;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #f2e4ee;
+      margin-bottom: 0.85rem;
+    }
+
+    .body-text strong {
+      color: #ff6eb4;
+      font-weight: 700;
+      text-shadow:
+        0 0 6px #ff6eb4,
+        0 0 14px rgba(255, 77, 154, 0.55);
+    }
+
+    .assist {
+      position: relative;
+      z-index: 1;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #e8d4e0;
+      margin-bottom: 1.4rem;
+    }
+
+    .assist .neon {
+      color: #d070ff;
+      font-weight: 600;
+      text-shadow:
+        0 0 6px #d070ff,
+        0 0 14px rgba(176, 64, 255, 0.5);
+    }
+
+    .footer-block {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255, 80, 140, 0.25);
+      padding-top: 0.9rem;
+    }
+
+    .club {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      color: #ffb4d0;
+      font-weight: 500;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 120, 180, 0.4);
+    }
+
+    @media (max-width: 780px) {
+      .poster {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .left {
+        min-height: 240px;
+      }
+      .right {
+        padding: 1.6rem 1.4rem;
+      }
+      h1 { font-size: 2rem; }
+      .help-cmd { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <!-- LEFT IMAGE -->
+    <div class="left">
+      <div class="neon-strip"></div>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="right">
+      <div class="brand"><span>Desi Desire Syndicate</span></div>
+
+      <h1>Need Help?</h1>
+      <div class="subtitle">Stuck or unsure which slut to choose?</div>
+
+      <div class="help-box">
+        <div class="help-cmd">#HELP</div>
+      </div>
+
+      <p class="body-text">
+        Anytime during the game, type <strong>#HELP</strong><br>
+        and ask your questions.
+      </p>
+
+      <p class="assist">
+        <span class="neon">Desire Scout</span> will assist you with recommendations,
+        rules, or if you’re stuck with a model.
+      </p>
+
+      <div class="footer-block">
+        <div class="club">Desi Desire Gentlemen's Club</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

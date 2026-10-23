@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aparna - Private Session</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #0d0d0d;
+    color: #f0e6d2;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .card {
+    max-width: 980px;
+    width: 100%;
+    background: linear-gradient(145deg, #1a1210 0%, #0f0a08 100%);
+    border: 1px solid #c9a22755;
+    border-radius: 18px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  }
+
+  .left {
+    position: relative;
+    background: #111;
+  }
+
+  .left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .left-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 22px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+  }
+
+  .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #f5d76e;
+    letter-spacing: 1px;
+  }
+
+  .sub {
+    font-size: 14px;
+    color: #d4c4a0;
+    margin-top: 4px;
+  }
+
+  .right {
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .header {
+    text-align: center;
+  }
+
+  .header .brand {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #c9a227;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .congrats {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e8d9b5;
+    text-align: center;
+  }
+
+  .congrats strong {
+    color: #f5d76e;
+  }
+
+  .highlight {
+    color: #f5d76e;
+    font-style: italic;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 30px;
+    padding: 16px 0;
+    border-top: 1px solid #c9a22733;
+    border-bottom: 1px solid #c9a22733;
+  }
+
+  .stat-item label {
+    display: block;
+    font-size: 11px;
+    color: #c9a227;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+
+  .stat-item span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .stat-item .green { color: #7dcea0; }
+  .stat-item .pink { color: #f1948a; }
+  .stat-item .gold { color: #f5d76e; }
+
+  .speciality h3 {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #c9a227;
+    margin-bottom: 8px;
+  }
+
+  .speciality p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #e0d4b8;
+  }
+
+  .alert-box {
+    background: #1c1612;
+    border: 1px solid #c9a22744;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .alert-box h4 {
+    font-size: 13px;
+    color: #f5d76e;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .alert-box p, .alert-box li {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #ddd0b5;
+  }
+
+  .alert-box ul {
+    margin: 8px 0 0 16px;
+  }
+
+  .alert-box li {
+    margin-bottom: 4px;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 13px;
+    color: #c9a227;
+    margin-top: 4px;
+  }
+
+  .footer span {
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  .back-link {
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .back-link a {
+    color: #c9a227;
+    text-decoration: none;
+    font-size: 13px;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 780px) {
+    .card {
+      grid-template-columns: 1fr;
+    }
+    .left {
+      min-height: 360px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <!-- Left Image -->
+    <div class="left">
+      <img src="https://i.ibb.co/fzHp7ftK/grok-image-09d545c1-7abc-42e7-b4be-8dcc7ea7a2d7-1.jpg" alt="Aparna">
+      <div class="left-overlay">
+        <div class="name">APARNA</div>
+        <div class="sub">34 • 34D-34-38 • Tamil Brahmin</div>
+      </div>
+    </div>
+
+    <!-- Right Content -->
+    <div class="right">
+      <div class="header">
+        <div class="brand">Desi Desire Syndicate</div>
+        <h1>Congratulations</h1>
+      </div>
+
+      <div class="congrats">
+        You just secured a private session with <strong>Aparna</strong> — currently ranked <strong>No.11</strong> in the Desi Desire Syndicate.
+      </div>
+
+      <div class="highlight">A Brahmin like her doesn’t open without proper respect.</div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <label>Age</label>
+          <span>34</span>
+        </div>
+        <div class="stat-item">
+          <label>Measurements</label>
+          <span>34D-34-38</span>
+        </div>
+        <div class="stat-item">
+          <label>Origin</label>
+          <span>Tamil Brahmin</span>
+        </div>
+        <div class="stat-item">
+          <label>Strictness</label>
+          <span class="green">Strict</span>
+        </div>
+        <div class="stat-item">
+          <label>Dirtiness</label>
+          <span class="pink">Medium</span>
+        </div>
+        <div class="stat-item">
+          <label>Rank</label>
+          <span class="gold">No.11</span>
+        </div>
+      </div>
+
+      <div class="speciality">
+        <h3>SPECIALITY</h3>
+        <p><strong>Refined • Reserved • Secretly Dirty</strong><br>
+        She maintains high dignity and opens only through romance, patience, and intellectual connection. Once her guard drops, her hidden cravings surface strongly.</p>
+      </div>
+
+      <div class="alert-box">
+        <h4>HIDDEN TURN-ONS</h4>
+        <p>This slut has hidden Turn-Ons. The more you use the right compliments, roleplay, and actions, the more Turn-Ons you build. Higher Turn-Ons unlock better reactions and progressive level images.</p>
+        <ul>
+          <li>Give genuine and specific compliments</li>
+          <li>Use refined, patient conversation</li>
+          <li>Tease her slowly and romantically</li>
+          <li>Respect her Brahmin dignity while seducing</li>
+          <li>Spoil her with attention and elegance</li>
+        </ul>
+      </div>
+
+      <div class="alert-box">
+        <h4>JACKPOT + #METRICS</h4>
+        <p>Every slut has <strong>2 secret Jackpot Phrases</strong>. If you discover one, you jump +3 Levels instantly.</p>
+        <p style="margin-top:8px;">Type <strong>#metrics</strong> anytime to check your current Turn-Ons, Turn-Off strikes, and level.</p>
+      </div>
+
+      <div class="footer">
+        Don’t rush her. The wait is part of the reward.<br>
+        <span>— Desi Desire Admin</span>
+      </div>
+
+      <div class="back-link">
+        <a href="index.html">← Back to main</a> ·
+        <a href="aparna.html">Aparna Profile</a> ·
+        <a href="desi_desire_leaderboard.html">Leaderboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Review received · Desi Desire</title>
+  <style>
+    body { margin:0; font-family: Georgia, serif; background:#140c0a; color:#f3e6d8; }
+    main { max-width: 32rem; margin: 12vh auto; padding: 2rem; border: 1px solid #6b3a2a; }
+    h1 { font-size: 1.4rem; letter-spacing: .04em; }
+    code { display:block; margin: 1rem 0; padding: 1rem; background:#1e1210; color:#f0c27a; font-size: 1.05rem; word-break: break-all; }
+    p { line-height: 1.5; color:#d7c4b4; }
+    a { color:#e8b86d; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Thank you. The review landed.</h1>
+  <p>Copy this code. Paste it in her chat. She will not take the words “review submitted.”</p>
+  <code id="key">Generating…</code>
+  <p>This code is good for her name and today’s date only (Chicago time).</p>
+  <p><a href="/">Back to the house</a></p>
+</main>
+<script>
+function djb2Tail(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h) + s.charCodeAt(i);
+  return (h >>> 0).toString(36).toUpperCase().slice(-4);
+}
+function cdtYmd() {
+  const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit" });
+  return fmt.format(new Date()).replace(/-/g, "");
+}
+const params = new URLSearchParams(location.search);
+const slug = (params.get("slut") || "").trim().toLowerCase();
+const name = slug.replace(/[^a-z]/g, "").toUpperCase();
+const ymd = cdtYmd();
+const el = document.getElementById("key");
+if (!name) {
+  el.textContent = "Missing slut name. Open this page from the review thank-you, not by hand.";
+} else {
+  const tail = djb2Tail(name + "|" + ymd + "|DDS-RVW-FLOOR-08");
+  el.textContent = "RVW-" + name + "-" + ymd + "-" + tail;
+}
+</script>
+</body>
+</html>

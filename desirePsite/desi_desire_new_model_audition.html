@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desi Desire Syndicate • New Model Audition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@300;400;500;600&amp;display=swap');
+        
+        :root {
+            --gold: #C5A46E;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .luxury-bg {
+            background: linear-gradient(145deg, #0f0f0f, #1a1614);
+        }
+
+        .section-card {
+            background: #1f1b18;
+            border: 1px solid #3a3028;
+        }
+
+        .gold-text {
+            color: #C5A46E;
+        }
+
+        .form-input {
+            background: #2a2520;
+            border: 1px solid #4a4035;
+            color: #e8d9c2;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #C5A46E;
+            box-shadow: 0 0 0 3px rgba(197, 164, 110, 0.1);
+            outline: none;
+        }
+
+        .scout-header {
+            background: linear-gradient(to right, #1a1614, #2c2520);
+            border-bottom: 1px solid #3a3028;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .photo-placeholder {
+            background: #2a2520;
+            border: 2px dashed #4a4035;
+            transition: all 0.3s ease;
+        }
+
+        .photo-placeholder:hover {
+            border-color: #C5A46E;
+            background: #322c26;
+        }
+
+        .evaluation-section {
+            display: none;
+        }
+
+        .status-pill {
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="luxury-bg text-[#e8d9c2] min-h-screen">
+    <!-- Header -->
+    <header class="scout-header border-b border-[#3a3028]">
+        <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <div class="w-11 h-11 bg-[#C5A46E] flex items-center justify-center rounded-full">
+                    <i class="fa-solid fa-gem text-[#1a1614] text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="heading-serif text-3xl tracking-tighter">DESI DESIRE</h1>
+                    <p class="text-[#C5A46E] text-xs tracking-[2px] -mt-1">SYNDICATE</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-3">
+                <div class="px-4 py-1.5 bg-[#2a2520] rounded-full flex items-center gap-x-2 text-sm">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="font-medium">Scout Online</span>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold">Desi Desire Scout</div>
+                    <div class="text-[#8a7560] text-xs">Screening Division</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-8 py-10">
+        
+        <!-- Page Title -->
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <h2 class="heading-serif text-5xl tracking-tighter">New Model Audition</h2>
+                <p class="text-[#8a7560] mt-1">Confidential Screening Portal • Internal Use Only</p>
+            </div>
+            <div class="text-right">
+                <div class="inline-flex items-center gap-x-2 px-4 py-2 bg-[#2a2520] rounded-2xl text-sm">
+                    <i class="fa-solid fa-user-plus text-[#C5A46E]"></i>
+                    <span class="font-medium">New Submission</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: Submission Form -->
+            <div class="lg:col-span-5">
+                <div class="section-card rounded-3xl p-8">
+                    <div class="flex items-center gap-x-3 mb-6">
+                        <i class="fa-solid fa-file-lines text-[#C5A46E] text-xl"></i>
+                        <h3 class="font-semibold text-xl">Candidate Submission</h3>
+                    </div>
+                    
+                    <form id="auditionForm" class="space-y-6">
+                        
+                        <!-- Basic Info -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="metric-label text-[#8a7560] block mb-1.5">Full Name</label>
+                                <input type="text" id="fullName" class="form-input w-full px-4 py-3 rounded-2xl text-sm" placeholder="Rhitika Sharma" required>
+                            </div>
+                            <div>
+                                <label class="metric-label text-[#8a7560] block mb-1.5">Age</label>
+                                <input type="number" id="age" class="form-input w-full px-4 py-3 rounded-2xl text-sm" placeholder="32" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="metric-label text-[#8a7560] block mb-1.5">Current City</label>
+                            <input type="text" id="city" class="form-input w-full px-4 py-3 rounded-2xl text-sm" placeholder="Delhi, India" required>
+                        </div>
+
+                        <!-- Body Stats -->
+                        <div>
+                            <label class="metric-label text-[#8a7560] block mb-3">Body Measurements</label>
+                            
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <div class="text-xs text-[#8a7560] mb-1">Bust</div>
+                                    <div class="flex items-center">
+                                        <input type="text" id="bust" class="form-input w-full px-3 py-2.5 rounded-2xl text-sm text-center" placeholder="36" required>
+                                        <span class="ml-2 text-[#8a7560] text-xs">in</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-[#8a7560] mb-1">Waist</div>
+                                    <div class="flex items-center">
+                                        <input type="text" id="waist" class="form-input w-full px-3 py-2.5 rounded-2xl text-sm text-center" placeholder="32" required>
+                                        <span class="ml-2 text-[#8a7560] text-xs">in</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-[#8a7560] mb-1">Hips</div>
+                                    <div class="flex items-center">
+                                        <input type="text" id="hips" class="form-input w-full px-3 py-2.5 rounded-2xl text-sm text-center" placeholder="40" required>
+                                        <span class="ml-2 text-[#8a7560] text-xs">in</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mt-3">
+                                <div>
+                                    <div class="text-xs text-[#8a7560] mb-1">Height</div>
+                                    <input type="text" id="height" class="form-input w-full px-4 py-2.5 rounded-2xl text-sm" placeholder="5'5&quot; / 165 cm">
+                                </div>
+                                <div>
+                                    <div class="text-xs text-[#8a7560] mb-1">Weight</div>
+                                    <input type="text" id="weight" class="form-input w-full px-4 py-2.5 rounded-2xl text-sm" placeholder="62 kg">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photos -->
+                        <div>
+                            <label class="metric-label text-[#8a7560] block mb-2">Photos (4-6 required)</label>
+                            <div class="photo-placeholder rounded-3xl p-6 text-center cursor-pointer" onclick="document.getElementById('photoUpload').click()">
+                                <i class="fa-solid fa-images text-3xl text-[#8a7560] mb-3"></i>
+                                <p class="text-sm font-medium">Click to upload photos</p>
+                                <p class="text-xs text-[#8a7560] mt-1">Face + Full body • Different angles</p>
+                                <input type="file" id="photoUpload" multiple accept="image/*" class="hidden" onchange="handlePhotoUpload(this)">
+                            </div>
+                            <div id="photoPreview" class="mt-3 grid grid-cols-3 gap-2"></div>
+                        </div>
+
+                        <button type="button" onclick="submitForScreening()"
+                                class="w-full bg-[#C5A46E] hover:bg-[#d4b47e] transition-colors text-[#1a1614] font-semibold py-4 rounded-2xl flex items-center justify-center gap-x-2">
+                            <i class="fa-solid fa-search"></i>
+                            <span>SUBMIT FOR SCREENING</span>
+                        </button>
+                        
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Evaluation Panel -->
+            <div class="lg:col-span-7">
+                <div class="section-card rounded-3xl p-8 h-full" id="evaluationPanel" style="display: none;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="font-semibold text-xl">Scout Evaluation</h3>
+                            <p class="text-[#8a7560] text-sm" id="candidateNameHeader"></p>
+                        </div>
+                        <div id="overallStatus" class="status-pill px-4 py-1 text-sm font-bold"></div>
+                    </div>
+
+                    <!-- Independent Analysis -->
+                    <div class="mb-8">
+                        <div class="flex items-center gap-x-2 mb-3">
+                            <i class="fa-solid fa-magnifying-glass text-[#C5A46E]"></i>
+                            <span class="font-semibold">Independent Analysis</span>
+                        </div>
+                        
+                        <div class="bg-[#2a2520] rounded-2xl p-5 space-y-4 text-sm">
+                            <div>
+                                <span class="text-[#8a7560] text-xs block mb-1">FACE &amp; CAMERA PRESENCE</span>
+                                <div id="faceAnalysis" class="leading-snug"></div>
+                            </div>
+                            <div>
+                                <span class="text-[#8a7560] text-xs block mb-1">BODY SHAPE &amp; PROPORTIONS</span>
+                                <div id="bodyAnalysis" class="leading-snug"></div>
+                            </div>
+                            <div>
+                                <span class="text-[#8a7560] text-xs block mb-1">PHOTO QUALITY &amp; CONSISTENCY</span>
+                                <div id="photoConsistency" class="leading-snug"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats vs Photos Check -->
+                    <div class="mb-8">
+                        <div class="flex items-center gap-x-2 mb-3">
+                            <i class="fa-solid fa-ruler-horizontal text-[#C5A46E]"></i>
+                            <span class="font-semibold">Body Stats Verification</span>
+                        </div>
+                        <div class="bg-[#2a2520] rounded-2xl p-5">
+                            <div id="statsVerification" class="text-sm leading-snug"></div>
+                        </div>
+                    </div>
+
+                    <!-- Final Recommendation -->
+                    <div>
+                        <div class="flex items-center gap-x-2 mb-3">
+                            <i class="fa-solid fa-gavel text-[#C5A46E]"></i>
+                            <span class="font-semibold">Final Recommendation</span>
+                        </div>
+                        <div id="finalRecommendation" 
+                             class="rounded-2xl p-5 text-sm leading-snug border border-[#3a3028]">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="section-card rounded-3xl p-8 flex flex-col items-center justify-center h-full min-h-[420px]">
+                    <i class="fa-solid fa-user-clock text-5xl text-[#4a4035] mb-4"></i>
+                    <p class="text-[#8a7560]">Submit candidate details on the left to begin screening.</p>
+                    <p class="text-xs text-[#4a4035] mt-1">Independent analysis will appear here.</p>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent-gold', '#C5A46E');
+        }
+        
+        let uploadedPhotos = [];
+
+        function handlePhotoUpload(input) {
+            const previewContainer = document.getElementById('photoPreview');
+            previewContainer.innerHTML = '';
+            uploadedPhotos = [];
+            
+            if (input.files.length > 0) {
+                Array.from(input.files).slice(0, 6).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-square rounded-2xl overflow-hidden border border-[#4a4035]';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover">
+                            <button onclick="removePhoto(this, ${index})" 
+                                    class="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-red-600 text-white text-[10px] rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                        uploadedPhotos.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        function removePhoto(element, index) {
+            element.parentElement.remove();
+            uploadedPhotos.splice(index, 1);
+        }
+
+        function submitForScreening() {
+            const name = document.getElementById('fullName').value.trim();
+            const age = document.getElementById('age').value;
+            const city = document.getElementById('city').value.trim();
+            const bust = document.getElementById('bust').value;
+            const waist = document.getElementById('waist').value;
+            const hips = document.getElementById('hips').value;
+            const height = document.getElementById('height').value;
+            const weight = document.getElementById('weight').value;
+
+            if (!name || !age || !city || !bust || !waist || !hips) {
+                alert("Please fill in all required fields (Name, Age, City, and Body Measurements).");
+                return;
+            }
+
+            if (uploadedPhotos.length < 3) {
+                alert("Please upload at least 3 photos for proper screening.");
+                return;
+            }
+
+            // Show evaluation panel
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('evaluationPanel').style.display = 'block';
+            
+            // Populate header
+            document.getElementById('candidateNameHeader').innerHTML = `${name} • ${age} • ${city}`;
+
+            // Run independent analysis
+            runIndependentAnalysis(name, age, bust, waist, hips, height, weight);
+        }
+
+        function runIndependentAnalysis(name, age, bust, waist, hips, height, weight) {
+            const bustNum = parseInt(bust);
+            const waistNum = parseInt(waist);
+            const hipsNum = parseInt(hips);
+
+            // Face & Presence Analysis (professional tone here)
+            let faceHTML = '';
+            if (bustNum >= 36 && hipsNum >= 38) {
+                faceHTML = `Strong facial structure with good camera presence. The candidate has a mature, approachable look that can work well for teacher/aunty corruption arcs. Expression appears natural but may need training for more seductive intensity.`;
+            } else {
+                faceHTML = `Average facial appeal with decent camera presence. The look is pleasant and relatable but lacks strong erotic magnetism in the provided photos. May require significant styling and expression coaching.`;
+            }
+            document.getElementById('faceAnalysis').innerHTML = faceHTML;
+
+            // Body Analysis (can be more direct here)
+            let bodyHTML = '';
+            const hipToWaist = hipsNum / waistNum;
+            
+            if (bustNum >= 36 && hipToWaist >= 1.25) {
+                bodyHTML = `Body shows decent curves. Bust and hip measurements suggest a feminine silhouette. However, overall thickness appears moderate compared to top performers. Stomach and waist definition is average.`;
+            } else {
+                bodyHTML = `Body proportions are relatively average. Limited bust and hip volume visible. The overall shape lacks the heavy, voluptuous quality that performs well in our high-value scenes. Softness around midsection is noticeable.`;
+            }
+            document.getElementById('bodyAnalysis').innerHTML = bodyHTML;
+
+            // Photo Consistency
+            let photoHTML = `Photos show consistent lighting and decent quality. However, there is a noticeable difference in styling between the modest traditional looks and the more revealing beach-style shot. This inconsistency needs to be addressed for branding.`;
+            document.getElementById('photoConsistency').innerHTML = photoHTML;
+
+            // Stats Verification (direct but professional)
+            let statsHTML = '';
+            if (bustNum < 34 || hipsNum < 36) {
+                statsHTML = `<span class="text-amber-400 font-medium">⚠️ Stats vs Photos Mismatch:</span> Claimed measurements appear optimistic. The visual evidence in the photos shows a slimmer, less curvaceous figure than the numbers suggest. This discrepancy will be noted.`;
+            } else {
+                statsHTML = `<span class="text-emerald-400 font-medium">✓ Stats appear reasonably consistent</span> with the body type shown in the photos. No major red flags in measurement claims.`;
+            }
+            document.getElementById('statsVerification').innerHTML = statsHTML;
+
+            // Final Recommendation
+            const recommendationBox = document.getElementById('finalRecommendation');
+            
+            if (bustNum >= 36 && hipsNum >= 38 && hipToWaist >= 1.2) {
+                recommendationBox.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1"><i class="fa-solid fa-check-circle text-emerald-400 text-xl"></i></div>
+                        <div>
+                            <span class="font-bold text-emerald-400">RECOMMENDED WITH NOTES</span><br>
+                            <span class="text-sm">Candidate shows basic viability. Stronger curves and more seductive expression training recommended before full onboarding. Can be considered for supporting roles.</span>
+                        </div>
+                    </div>
+                `;
+                recommendationBox.style.borderColor = '#166534';
+                document.getElementById('overallStatus').innerHTML = 'PASS - NOTES';
+                document.getElementById('overallStatus').className = 'status-pill bg-emerald-900 text-emerald-300';
+            } else {
+                recommendationBox.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1"><i class="fa-solid fa-times-circle text-red-400 text-xl"></i></div>
+                        <div>
+                            <span class="font-bold text-red-400">NOT RECOMMENDED</span><br>
+                            <span class="text-sm">The candidate does not currently meet the visual and physical standards required for our roster. Body lacks sufficient volume and erotic presence compared to existing models.</span>
+                        </div>
+                    </div>
+                `;
+                recommendationBox.style.borderColor = '#7f1d1d';
+                document.getElementById('overallStatus').innerHTML = 'REJECTED';
+                document.getElementById('overallStatus').className = 'status-pill bg-red-900 text-red-300';
+            }
+        }
+
+        // Initialize
+        function init() {
+            initializeTailwind();
+            
+            // Optional: Pre-fill demo data for testing
+            // document.getElementById('fullName').value = 'Rhitika Sharma';
+            // document.getElementById('age').value = '32';
+            // etc.
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anu Nair · desk trainer</title>
+<link rel="icon" href="favicon-32.png">
+<script>
+  if (/[?&]desk=1\b/.test(location.search) || /[?&]thread=/.test(location.search)) {
+    document.documentElement.classList.add("anu-desk");
+  }
+</script>
+<style>
+  html.anu-desk #gate, html.anu-desk #app, html.anu-desk #desk { display:none !important; }
+  html.anu-desk #deskLock { display:block !important; }
+  html.anu-open #deskLock, html.anu-open #gate, html.anu-open #app { display:none !important; }
+  html.anu-open #desk { display:block !important; }
+  :root { --bg:#140e1c; --card:#24182f; --line:#5c3d86; --gold:#e7c98a; --pink:#e7a6d8; --text:#f4eef8; --muted:#b9a8c8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#070506; color:var(--text); font:14px/1.4 Georgia, serif; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); background:#1b1226; }
+  header b { color:var(--pink); font-size:18px; }
+  header span, .muted { color:var(--muted); font-size:12px; }
+  a { color:var(--gold); }
+  button { background:#6d3d96; color:#fff; border:0; border-radius:8px; padding:8px 10px; cursor:pointer; }
+  button.gold { background:#8a6a32; }
+  button.ghost { background:transparent; color:var(--gold); border:1px solid var(--line); }
+  button.bad { background:#7a3040; }
+  .stage { display:flex; min-height:calc(100vh - 52px); }
+  .gallery { flex:0 0 42%; width:42%; padding:.4rem; overflow:auto; background:#070506; }
+  .shot { min-height:70vh; border:1px solid var(--line); border-radius:8px; background:#2c2038 center top / cover; }
+  .pane { flex:1; width:58%; min-width:280px; display:flex; flex-direction:column; border-left:1px solid var(--line); background:#0c090a; }
+  .headbar { display:flex; gap:10px; align-items:center; padding:8px 10px; border-bottom:1px solid var(--line); background:#1b1226; }
+  .headbar img { width:42px; height:42px; border-radius:50%; object-fit:cover; border:1px solid var(--pink); }
+  .headbar b { color:#e7a6d8; font-size:16px; }
+  #log, #dlog { flex:1; overflow:auto; padding:.4rem .5rem; display:flex; flex-direction:column; gap:.35rem; font-size:.8rem; }
+  .b { max-width:94%; padding:7px 9px; border-radius:12px; white-space:pre-wrap; }
+  .b.anu { align-self:flex-end; background:#4a2a62; }
+  .b.you { align-self:flex-start; background:#2a2233; border:1px solid #4a3b58; }
+  .b .who { display:block; font-size:12px; font-weight:700; margin-bottom:2px; color:#e7a6d8; }
+  .b.you .who { color:#e7c98a; }
+  form, .bar { display:flex; gap:6px; padding:8px; border-top:1px solid var(--line); }
+  textarea, input { width:100%; background:#1c1426; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px; font:inherit; }
+  .gate { max-width:720px; margin:28px auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; }
+  .gate h1 { margin:0 0 8px; color:var(--pink); }
+  .hidden { display:none !important; }
+  .door { color:var(--gold); padding:8px 10px; border-bottom:1px solid var(--line); font-size:12px; }
+  .board { display:grid; grid-template-columns:230px 1fr; min-height:calc(100vh - 52px); }
+  .rail { border-right:1px solid var(--line); overflow:auto; padding:8px; background:#120c18; }
+  .man { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px; margin:0 0 8px; }
+  .man.on { border-color:var(--pink); }
+  .man.wait { box-shadow:inset 3px 0 0 var(--gold); }
+  .man b { color:var(--pink); }
+  .acts { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+  .acts button { padding:5px 7px; font-size:11px; }
+  @media (max-width:800px) { .stage, .board { display:block; } .gallery, .pane { width:100%; } .shot { min-height:42vh; } }
+</style>
+</head>
+<body>
+<header>
+  <div><b>Anu Nair</b> <span id="headSub">· desk trainer</span></div>
+  <div class="muted">No spin. No review. No affinity meter.</div>
+</header>
+<main id="gate" class="gate">
+  <h1>Anu Nair</h1>
+  <p>Desk trainer. Not a lineup door. Not a night.</p>
+  <div id="step0">
+    <p><strong>How this check works. Read it.</strong></p>
+    <p>This looks like a model room. It is not one. No spin, no review, no affinity meter.</p>
+    <p>A good line is who you are, why you are here, and one ask. Orders like strip or nude do not work.</p>
+    <p><button type="button" id="yes0">Yes I Agree</button> <button type="button" id="no0" class="gold">No I am not skilled</button></p>
+  </div>
+  <div id="step1" class="hidden">
+    <ul>
+      <li>You are 21 or older and you consent to adult roleplay.</li>
+      <li>She can explain affinity, strikes, and a review. She does not run them here.</li>
+      <li>No levels. No spin. No review code. No own.</li>
+      <li>About ten minutes. Laptop or tablet is better than a phone.</li>
+      <li>Chat is generated. No real person is portrayed.</li>
+    </ul>
+    <p id="whoLine" class="door"></p>
+    <p id="gateErr1" style="color:#e7a6a6"></p>
+    <p><button type="button" id="yes1">Yes I Agree</button> <button type="button" id="no1" class="gold">I decline</button></p>
+  </div>
+  <div id="step2" class="hidden">
+    <p>Name and age. 21+ only.</p>
+    <input id="pname" placeholder="Name">
+    <input id="page" placeholder="Age" inputmode="numeric" style="margin-top:8px">
+    <p><button type="button" id="enterBtn">Enter</button></p>
+  </div>
+</main>
+<main id="app" class="hidden">
+  <div class="headbar"><img id="face" alt=""><div><b>Anu Nair</b><div class="muted" id="doorLine">Desk trainer · Kerala Nair</div></div></div>
+  <div class="stage">
+    <aside class="gallery"><div class="shot" id="shot"></div></aside>
+    <section class="pane">
+      <div id="log"></div>
+      <div class="bar"><button type="button" id="openRoom" class="hidden">Open her room</button></div>
+      <form id="sendForm"><textarea id="box" rows="3" placeholder="Talk to Anu"></textarea><button>Send</button></form>
+    </section>
+  </div>
+</main>
+<main id="deskLock" class="gate hidden">
+  <h1>Anu desk</h1>
+  <p>Trainer window. Not a player room.</p>
+  <form id="deskLockForm">
+    <input id="deskPass" type="password" placeholder="Desk password" autocomplete="current-password">
+    <p id="deskErr" style="color:#e7a6a6"></p>
+    <p><button type="submit" id="deskGo">Open as Anu</button></p>
+  </form>
+</main>
+<script>
+  window.anuUnlock = function (e) {
+    if (e) e.preventDefault();
+    var pass = (document.getElementById("deskPass").value || "");
+    var err = document.getElementById("deskErr");
+    if (pass !== (CONFIG.adminPass || "")) {
+      if (err) err.textContent = "Wrong password. Try again. This stays the desk.";
+      document.getElementById("deskPass").value = "";
+      document.getElementById("deskPass").focus();
+      return false;
+    }
+    document.documentElement.classList.add("anu-open");
+    var lock = document.getElementById("deskLock");
+    var desk = document.getElementById("desk");
+    if (lock) lock.classList.add("hidden");
+    if (desk) desk.classList.remove("hidden");
+    if (window.anuDeskReady) window.anuDeskReady();
+    return false;
+  };
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.getElementById("deskLockForm");
+    if (form) form.onsubmit = window.anuUnlock;
+  });
+</script>
+<main id="desk" class="hidden">
+  <div class="board">
+    <aside class="rail">
+      <p class="muted">One window. New men are added here. Explain affinity or a review in words. Do not open those buttons.</p>
+      <p><button type="button" id="copyAll" class="gold">Copy waiting lines</button></p>
+      <div id="rail"></div>
+    </aside>
+    <section class="stage">
+      <aside class="gallery"><div class="shot" id="deskShot"></div></aside>
+      <section class="pane">
+        <div class="headbar"><img id="deskFace" alt=""><div><b>Anu Nair</b><div class="muted" id="deskHead">Pick a man.</div></div></div>
+        <div id="dlog"></div>
+        <form id="deskForm"><textarea id="dbox" rows="3" placeholder="Type to him. Enter sends."></textarea><button type="submit" id="anuSend">Send</button><button type="button" id="anuImg">Add still</button><input id="anuFile" type="file" accept="image/*" hidden><button type="button" id="endTrain" class="bad">End training</button></form>
+      </section>
+    </section>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const CONFIG = { supabaseUrl: "https://axavugukoesqkfykprur.supabase.co", supabaseAnon: "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I", adminPass: "", house: "https://desireclubhouse.netlify.app/" };
+const LIVE = ["preethi","meghana","esther","meenakshi","tharini","ayesha","diya","natasha","kiara","kavya","lahari","sravani"];
+const qs = new URLSearchParams(location.search);
+const door = (qs.get("door") || "").toLowerCase().replace(/[^a-z]/g, "");
+const isDesk = qs.get("desk") === "1" || qs.has("thread");
+const playerId = qs.get("p") || "";
+if (isDesk) {
+  const g = document.getElementById("gate");
+  const app = document.getElementById("app");
+  const lock = document.getElementById("deskLock");
+  if (g) g.classList.add("hidden");
+  if (app) app.classList.add("hidden");
+  if (lock) lock.classList.remove("hidden");
+}
+const sb = supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnon);
+async function loadArt() {
+  let url = "";
+  try {
+    const { data } = await sb.from("site_images").select("url").eq("slug", "anu").eq("slot", "profile").limit(1);
+    url = data && data[0] && data[0].url;
+  } catch (e) {}
+  if (!url) url = "anu-nair.jpg";
+  ["face", "deskFace"].forEach(id => { const el = $(id); if (el) el.src = url; });
+  ["shot", "deskShot"].forEach(id => { const el = $(id); if (el) el.style.backgroundImage = "url('" + url + "')"; });
+}
+loadArt();
+function $(id) { return document.getElementById(id); }
+function nice(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : "player"; }
+function esc(s) { return String(s || "").replace(/[&<>]/g, c => ({ "&":"&","<":"<",">":">" }[c])); }
+function accountKey() {
+  if (playerId) return "p:" + playerId;
+  let k = localStorage.getItem("anu_account");
+  if (!k) { k = "local-" + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("anu_account", k); }
+  return k;
+}
+if (!isDesk && !/^[0-9a-f-]{36}$/i.test(playerId)) {
+  $("gate").innerHTML = "<h1>Log in first</h1><p>Anu trains logged-in men only.</p><p><a href='" + CONFIG.house + "account.html'>Login or create account</a></p>";
+  throw new Error("anu-login");
+}
+function playHref() { return LIVE.includes(door) ? CONFIG.house + door + ".html" : CONFIG.house; }
+function bubble(m, who) {
+  const body = String(m.body || "");
+  const scout = /^DESIRE SCOUT/i.test(body) || /^DDS1\|/i.test(body);
+  if (!isDesk && scout) return null;
+  const d = document.createElement("div");
+  d.className = "b " + (m.sender === "player" ? "you" : "anu");
+  const img = body.match(/IMG\s+(https?:\/\/\S+)/i);
+  const text = body.replace(/IMG\s+https?:\/\/\S+/ig, "").trim();
+  d.innerHTML = "<span class='who'>" + (scout ? "Desire Scout" : (m.sender === "player" ? (who || "You") : "Anu Nair")) + "</span>" +
+    (text ? esc(text) : "") +
+    (img ? "<img src='" + img[1] + "' alt='' style='display:block;max-width:100%;margin-top:6px;border-radius:8px'>" : "");
+  if (img) {
+    const shot = $(isDesk ? "deskShot" : "shot");
+    if (shot) shot.style.backgroundImage = "url('" + img[1] + "')";
+  }
+  return d;
+}
+async function draw() {
+  if (!thread) return;
+  const { data, error } = await sb.from("anu_messages").select("id,sender,body,created_at").eq("thread_id", thread.id).order("created_at");
+  if (error || data === null) {
+    document.body.innerHTML = "<main class='gate'><h1>Thank you</h1><p>This drill is closed.</p><p><a href='" + CONFIG.house + "'>Back to the house</a></p></main>";
+    return;
+  }
+  const rows = data || [];
+  if (rows.map(r => r.id).join() === seen) return;
+  seen = rows.map(r => r.id).join();
+  $("log").innerHTML = "";
+  rows.forEach(r => { const b = bubble(r); if (b) $("log").appendChild(b); });
+  $("log").scrollTop = $("log").scrollHeight;
+  $("openRoom").classList.toggle("hidden", rows.filter(r => r.sender === "anu").length < 3);
+  $("openRoom").textContent = LIVE.includes(door) ? "Open " + nice(door) : "Back to the house";
+  $("openRoom").onclick = () => window.open(playHref(), "_blank");
+  if (rows.some(r => /drill is closed/i.test(r.body || ""))) {
+    document.body.innerHTML = "<main class='gate'><h1>Thank you</h1><p>This drill is closed. The house is still there.</p><p><a href='" + CONFIG.house + "'>Back to the house</a></p></main>";
+  }
+}
+async function loadCard() {
+  if (!/^[0-9a-f-]{36}$/i.test(playerId)) return null;
+  try { return (await sb.rpc("player_card", { p_id: playerId, p_model: door || "anu" })).data; } catch (e) { return null; }
+}
+function cardName(data) {
+  const d = Array.isArray(data) ? data[0] : data;
+  const prof = (d && (d.profile || d)) || {};
+  return prof.nick || prof.nickname || prof.display_name || prof.username || "";
+}
+function cardAge(data) {
+  const d = Array.isArray(data) ? data[0] : data;
+  const prof = (d && (d.profile || d)) || {};
+  return Number(prof.age || 0) || 0;
+}
+function ddsLine(data, name, age) {
+  const d = Array.isArray(data) ? data[0] : data;
+  const prof = (d && (d.profile || d)) || {};
+  const n = Number(d && (d.session_count != null ? d.session_count : d.n) || 0) || 0;
+  const line = d && d.scout_line
+    ? String(d.scout_line)
+    : ["DDS1", n > 0 ? "BACK" : "NEW", "m=anu", "door=" + (door || "house"), "nick=" + (name || prof.nick || ""), "age=" + (age || prof.age || ""), "about=" + (prof.about || ""), "likes=" + (prof.likes || ""), "st=" + (prof.desire_status || ""), "n=" + n, "p=" + playerId].join("|");
+  return "DESIRE SCOUT\n" + line + "\nNo score. No nights. No spin. No review. No own.";
+}
+async function bootThread(name, age, card) {
+  const key = accountKey();
+  let { data } = await sb.from("anu_threads").select("*").eq("account_key", key).maybeSingle();
+  if (data && Number(data.drill) === 9) data = null;
+  if (!data) {
+    const ins = await sb.from("anu_threads").insert({ account_key: key, player_name: name, player_age: age || null, door: door || null, drill: 0 }).select().single();
+    data = ins.data;
+    if (!data) { $("gateErr1").textContent = "Desk table is not ready. Run anu_trainer.sql."; return; }
+    await sb.from("anu_messages").insert({ thread_id: data.id, sender: "anu", body: ddsLine(card, name, age) });
+    await sb.from("anu_messages").insert({ thread_id: data.id, sender: "anu", body: "Welcome. I am the trainer. I am here to help you. Let's start with some basics. A good line is who you are, why you are here, and one ask. Say that." });
+  } else {
+    const have = await sb.from("anu_messages").select("id").eq("thread_id", data.id).ilike("body", "DESIRE SCOUT%").limit(1);
+    if (!have.data || !have.data.length) await sb.from("anu_messages").insert({ thread_id: data.id, sender: "anu", body: ddsLine(card, name, age) });
+  }
+  thread = data;
+  $("gate").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("doorLine").textContent = LIVE.includes(door) ? "You clicked " + nice(door) + ". This is not her room." : "Tell Anu which woman you meant.";
+  await draw();
+  setInterval(draw, 5000);
+}
+function decline() {
+  document.body.innerHTML = "<main class='gate'><h1>Thank you</h1><p>This desk is closed for you.</p><p><a href='" + CONFIG.house + "'>Back to the house</a></p></main>";
+}
+if (!isDesk) {
+  $("yes0").onclick = () => { $("step0").classList.add("hidden"); $("step1").classList.remove("hidden"); };
+  $("no0").onclick = decline;
+  $("no1").onclick = decline;
+  $("yes1").onclick = async () => {
+    const card = await loadCard();
+    const name = cardName(card);
+    if (name) { $("whoLine").textContent = "Welcome " + name + "."; await bootThread(name, cardAge(card), card); return; }
+    $("step1").classList.add("hidden");
+    $("step2").classList.remove("hidden");
+  };
+  $("enterBtn").onclick = async () => {
+    const name = $("pname").value.trim();
+    const age = Number($("page").value);
+    if (!name || !age || age < 21) { decline(); return; }
+    await bootThread(name, age, await loadCard());
+  };
+  $("sendForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const body = $("box").value.trim();
+    if (!body || !thread) return;
+    $("box").value = "";
+    await sb.from("anu_messages").insert({ thread_id: thread.id, sender: "player", body });
+    await sb.from("anu_threads").update({ updated_at: new Date().toISOString() }).eq("id", thread.id);
+    seen = "";
+    await draw();
+  };
+  $("box").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("sendForm").requestSubmit(); }
+  });
+}
+function waitingLine(p) {
+  const lastPlayer = (p.msgs || []).filter(m => m.sender === "player").slice(-1)[0];
+  const lastAnu = (p.msgs || []).filter(m => m.sender === "anu" && !/^DDS1\|/i.test(m.body || "")).slice(-1)[0];
+  return { waiting: !!(lastPlayer && (!lastAnu || lastPlayer.created_at > lastAnu.created_at)), lastPlayer };
+}
+function ddsBlob(p) {
+  const dds = (p.msgs || []).find(m => /^DDS1\|/i.test(m.body || ""));
+  return "REPLY TO: " + nice(p.player_name) + "\nDoor: " + (p.door || "none") + "\n" + (dds ? dds.body : "DDS1|TRAIN|nick=" + (p.player_name || "")) + "\nNo spin. No review button. No affinity meter. Explain those in words if he asks.";
+}
+async function refreshDds(p) {
+  const key = String(p.account_key || "");
+  const id = key.indexOf("p:") === 0 ? key.slice(2) : "";
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return;
+  let card = null;
+  try { card = (await sb.rpc("player_card", { p_id: id, p_model: p.door || "anu" })).data; } catch (e) { return; }
+  const line = ddsLine(card, p.player_name, p.player_age);
+  const have = (p.msgs || []).find(m => /^DESIRE SCOUT/i.test(m.body || "") || /^DDS1\|/i.test(m.body || ""));
+  if (!have) {
+    await sb.from("anu_messages").insert({ thread_id: p.id, sender: "anu", body: line });
+    p.msgs = (p.msgs || []).concat([{ sender: "anu", body: line, created_at: new Date().toISOString() }]);
+  } else if (have.body !== line) {
+    await sb.from("anu_messages").update({ body: line }).eq("id", have.id);
+    have.body = line;
+  }
+}
+async function loadPeople() {
+  const { data } = await sb.from("anu_threads").select("id,account_key,player_name,player_age,door,drill,wait_node,updated_at").order("updated_at", { ascending: false }).limit(20);
+  const rows = (data || []).filter(p => Number(p.drill) !== 9);
+  for (const p of rows) {
+    p.msgs = (await sb.from("anu_messages").select("id,sender,body,created_at").eq("thread_id", p.id).order("created_at")).data || [];
+    await refreshDds(p);
+  }
+  people = rows;
+  if (!active && people[0]) active = people[0].id;
+  paintRail();
+  paintActive();
+}
+function paintRail() {
+  $("rail").innerHTML = people.map(p => {
+    const w = waitingLine(p);
+    return "<div class='man " + (p.id === active ? "on" : "") + (w.waiting ? " wait" : "") + "'><b>" + esc(p.player_name || "player") + "</b><div class='muted'>" + esc(p.door || "no door") + " · " + (w.waiting ? "waiting" : "answered") + (p.wait_node ? " · wait node" : "") + "</div><div class='acts'><button data-open='" + p.id + "'>Open</button><button data-dds='" + p.id + "' class='gold'>Copy DDS</button><button data-wait='" + p.id + "' class='" + (p.wait_node ? "gold" : "ghost") + "'>" + (p.wait_node ? "Wait node on" : "Wait node") + "</button><button data-done='" + p.id + "' class='ghost'>Done</button><button data-bad='" + p.id + "' class='bad'>Remove</button></div></div>";
+  }).join("") || "<p class='muted'>No men yet.</p>";
+  $("rail").querySelectorAll("button").forEach(b => b.onclick = () => onRail(b));
+}
+async function onRail(b) {
+  const id = b.dataset.open || b.dataset.dds || b.dataset.done || b.dataset.bad || b.dataset.wait;
+  const p = people.find(x => x.id === id);
+  if (!p) return;
+  if (b.dataset.open) { active = id; paintRail(); paintActive(); }
+  if (b.dataset.dds) { try { await navigator.clipboard.writeText(ddsBlob(p)); } catch (e) {} b.textContent = "Copied"; }
+  if (b.dataset.wait) {
+    const next = !p.wait_node;
+    await sb.from("anu_threads").update({ wait_node: next, updated_at: new Date().toISOString() }).eq("id", id);
+    p.wait_node = next;
+    paintRail();
+    paintActive();
+    return;
+  }
+  if (b.dataset.done) removePlayer(id, "done");
+  if (b.dataset.bad && confirm("Remove him for how he talked?")) removePlayer(id, "bad");
+}
+function paintActive() {
+  const p = people.find(x => x.id === active);
+  $("dlog").innerHTML = "";
+  if (!p) { $("deskHead").textContent = "Pick a man."; return; }
+  $("deskHead").textContent = nice(p.player_name) + " · " + (p.door || "no door") + (p.wait_node ? " · wait node on" : "") + " · no spin, no review, no meter";
+  (p.msgs || []).forEach(m => { const b = bubble(m, nice(p.player_name)); if (b) $("dlog").appendChild(b); });
+  $("dlog").scrollTop = $("dlog").scrollHeight;
+}
+async function removePlayer(id, why) {
+  const note = why === "bad" ? "This drill is closed. You were removed for how you talked." : "This drill is closed. You can open the woman you clicked.";
+  await sb.from("anu_messages").insert({ thread_id: id, sender: "anu", body: note });
+  await sb.from("anu_threads").update({ drill: 9, updated_at: new Date().toISOString() }).eq("id", id);
+  if (active === id) active = "";
+  await loadPeople();
+}
+async function desk() {
+  $("gate").classList.add("hidden");
+  $("deskLock").classList.remove("hidden");
+  $("deskPass").focus();
+  async function tryOpen() {
+    const pass = $("deskPass").value;
+    if (pass !== CONFIG.adminPass) {
+      $("deskErr").textContent = "Wrong password. Try again. This stays the desk.";
+      $("deskPass").value = "";
+      $("deskPass").focus();
+      return;
+    }
+    try {
+      if (pass !== CONFIG.adminPass) {
+        $("deskErr").textContent = "Wrong password. Try again. This stays the desk.";
+        $("deskPass").value = "";
+        $("deskPass").focus();
+        return;
+      }
+      document.documentElement.classList.add("anu-open");
+      $("deskLock").classList.add("hidden");
+      $("desk").classList.remove("hidden");
+      if ($("headSub")) $("headSub").textContent = "· training window";
+      await loadPeople();
+    } catch (err) {
+      document.documentElement.classList.remove("anu-open");
+      $("deskErr").textContent = String((err && err.message) || err || "Could not open.");
+      return;
+    }
+    $("copyAll").onclick = async () => {
+      const blocks = people.filter(p => waitingLine(p).waiting).map(p => ddsBlob(p) + "\n" + nice(p.player_name) + ": " + waitingLine(p).lastPlayer.body);
+      try { await navigator.clipboard.writeText(blocks.join("\n\n") || "No waiting lines."); } catch (e) {}
+      $("copyAll").textContent = "Copied";
+      setTimeout(() => { $("copyAll").textContent = "Copy waiting lines"; }, 1200);
+    };
+    $("deskForm").onsubmit = async (e) => {
+      e.preventDefault();
+      if (!active && people[0]) active = people[0].id;
+      const p = people.find(x => x.id === active);
+      const body = $("dbox").value.trim();
+      if (!p) { $("deskHead").textContent = "No man open. Wait for him to enter."; return; }
+      if (!body) return;
+      $("dbox").value = "";
+      const named = body;
+      const ins = await sb.from("anu_messages").insert({ thread_id: p.id, sender: "anu", body: named });
+      if (ins.error) { alert(ins.error.message); $("dbox").value = body; return; }
+      await sb.from("anu_threads").update({ updated_at: new Date().toISOString() }).eq("id", p.id);
+      await loadPeople();
+      $("dbox").focus();
+    };
+    $("dbox").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        $("deskForm").requestSubmit();
+      }
+    });
+    $("endTrain").onclick = () => {
+      if (!active && people[0]) active = people[0].id;
+      if (!active) return;
+      if (!confirm("End training for this man?")) return;
+      removePlayer(active, "done");
+    };
+    await loadPeople();
+    setInterval(loadPeople, 8000);
+    $("anuImg").onclick = () => $("anuFile").click();
+    $("anuFile").onchange = async () => {
+      const p = people.find(x => x.id === active);
+      const file = $("anuFile").files && $("anuFile").files[0];
+      $("anuFile").value = "";
+      if (!p || !file) return;
+      const path = "anu/" + p.id + "/" + Date.now() + ".jpg";
+      const up = await sb.storage.from("chat-images").upload(path, file, { upsert: false });
+      if (up.error) { alert(up.error.message); return; }
+      const pub = sb.storage.from("chat-images").getPublicUrl(path);
+      const url = pub.data && pub.data.publicUrl;
+      if (!url) return;
+      await sb.from("anu_messages").insert({ thread_id: p.id, sender: "anu", body: "IMG " + url });
+      await sb.from("anu_threads").update({ updated_at: new Date().toISOString() }).eq("id", p.id);
+      await loadPeople();
+    };
+  }
+  document.getElementById("deskLockForm").onsubmit = window.anuUnlock;
+  window.anuDeskReady = async function () {
+    if (window.anuDeskStarted) return;
+    window.anuDeskStarted = true;
+    await tryOpen();
+  };
+}
+if (isDesk) desk();
+</script>
+</body>
+</html>

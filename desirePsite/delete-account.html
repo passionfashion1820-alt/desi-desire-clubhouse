@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delete account · Desi Desire</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { margin:0; font-family: Georgia, serif; background:#140c0a; color:#f3e6d8; }
+    main { max-width: 34rem; margin: 8vh auto; padding: 2rem; border: 1px solid #6b3a2a; }
+    h1 { font-size: 1.35rem; letter-spacing: .03em; margin: 0 0 .8rem; }
+    p, li { line-height: 1.55; color:#d7c4b4; }
+    label { display:block; margin: .9rem 0 .3rem; font-size:.92rem; color:#e8c97a; }
+    input { width:100%; box-sizing:border-box; padding:.65rem .7rem; background:#1e1210; color:#f3e6d8; border:1px solid #6b3a2a; font: inherit; }
+    button { margin-top:1rem; background:#c45a3a; color:#1a1008; border:0; padding:.7rem 1.1rem; font-weight:800; cursor:pointer; font-family:inherit; }
+    button[disabled] { opacity:.5; cursor:not-allowed; }
+    .ghost { background:transparent; color:#e8b86d; border:1px solid #6b3a2a; margin-left:.4rem; }
+    a { color:#e8b86d; }
+    .warn { color:#f0a070; }
+    .ok { color:#c8e0a8; }
+    code { background:#1e1210; padding:.1rem .35rem; color:#f0c27a; }
+    ul { padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Delete my house account</h1>
+  <p>This removes your Desire Club house profile. It cannot be undone.</p>
+  <ul>
+    <li>Your name, about, likes, and house card go.</li>
+    <li>Open rooms tied to this account close. Chat in those rooms is wiped.</li>
+    <li>DPS / Desire Status on this account does not come back.</li>
+    <li>Gift codes on this name stop working.</li>
+    <li>You can still play later as a new player. That is a new account, not this one.</li>
+  </ul>
+  <p>Paste the player id from your room link. It is the <code>?p=</code> value Desire Admin sent you.</p>
+  <label for="pid">House player id</label>
+  <input id="pid" autocomplete="off" spellcheck="false" placeholder="uuid from ?p=" />
+  <label for="confirm">Type DELETE to confirm</label>
+  <input id="confirm" autocomplete="off" placeholder="DELETE" />
+  <p>
+    <button type="button" id="go">Delete my account</button>
+    <a class="ghost" href="/" style="display:inline-block;padding:.7rem 1.1rem;text-decoration:none;">Back to the house</a>
+  </p>
+  <p id="msg"></p>
+</main>
+<script>
+const CONFIG = {
+  supabaseUrl: "https://axavugukoesqkfykprur.supabase.co",
+  supabaseAnon: "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I"
+};
+const params = new URLSearchParams(location.search);
+const pidEl = document.getElementById("pid");
+const confEl = document.getElementById("confirm");
+const msg = document.getElementById("msg");
+const go = document.getElementById("go");
+pidEl.value = (params.get("p") || params.get("id") || "").trim();
+
+go.addEventListener("click", async () => {
+  const id = (pidEl.value || "").trim();
+  const confirm = (confEl.value || "").trim();
+  msg.className = "warn";
+  if (!/^[0-9a-f-]{32,36}$/i.test(id)) {
+    msg.textContent = "That is not a house player id. Copy the ?p= value from your room link.";
+    return;
+  }
+  if (confirm.toUpperCase() !== "DELETE") {
+    msg.textContent = "Type DELETE in the confirm box.";
+    return;
+  }
+  if (!window.confirm("Delete this house account for good?")) return;
+  go.disabled = true;
+  msg.textContent = "Deleting…";
+  try {
+    const sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnon);
+    const { data, error } = await sb.rpc("delete_player_account", { p_id: id, p_confirm: "DELETE" });
+    if (error) throw error;
+    const row = data || {};
+    if (!row.ok) {
+      msg.textContent = row.error === "confirm"
+        ? "Confirm word was not accepted."
+        : "Delete did not run. Ask Desire Admin.";
+      go.disabled = false;
+      return;
+    }
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (/^(chat_|pip_|gate_|dps_|house_)/i.test(k)) localStorage.removeItem(k);
+      });
+    } catch (e) {}
+    msg.className = "ok";
+    msg.textContent = "Account deleted. Rooms closed. This id will not open a house card again.";
+    go.disabled = true;
+  } catch (err) {
+    msg.textContent = "Delete failed. Ask Desire Admin to run desi_player_delete_account.sql, then try once more.";
+    go.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PURPLE · Chat and Strip</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png" />
+  <link rel="apple-touch-icon" href="favicon-180.png" />
+  <style>
+    :root { --gold:#c084fc; --text:#f3e9d7; --muted:#b9a892; --border:#5a3a6a; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; height:100%; background:#0a0809; color:var(--text); font-family:Inter,system-ui,sans-serif; }
+    .page { max-width:1100px; margin:0 auto; padding:.8rem .8rem 1.4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:.7rem; margin-bottom:.7rem; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:.55rem; text-decoration:none; color:var(--gold); }
+    .brand img { width:36px; height:36px; object-fit:cover; border-radius:8px; border:1px solid var(--border); }
+    .brand span { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-family:Georgia,serif; }
+    .back { background:var(--gold); color:#1a0a18; text-decoration:none; font-weight:700; font-size:.78rem; padding:.4rem .7rem; border-radius:8px; }
+    h1 { color:var(--gold); font-family:Georgia,serif; font-size:1.15rem; margin:0 0 .25rem; }
+    .lede { color:var(--muted); font-size:.8rem; margin:0 0 .7rem; }
+    .stage { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#120e10; min-height:560px; position:relative; }
+    header.bar { display:flex; align-items:center; gap:.4rem; padding:.35rem .55rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    header.bar img { width:32px; height:32px; object-fit:cover; border-radius:6px; }
+    header.bar h2 { margin:0; font-size:.88rem; color:var(--gold); font-family:Georgia,serif; }
+    header.bar .nick { font-size:.62rem; color:#e0c4ff; }
+    .cardbtn { background:var(--gold); color:#1a0a18; font-weight:800; font-size:.72rem; padding:.28rem .6rem; border-radius:8px; text-decoration:none; }
+    .chip { font-size:.68rem; font-weight:700; border:1px solid var(--gold); border-radius:8px; padding:.22rem .45rem; color:var(--muted); }
+    .chip b { color:#ffe566; }
+    .chip.off b { color:#ff8a8a; }
+    .clock { margin-left:auto; font-size:.72rem; font-weight:700; padding:.22rem .5rem; border-radius:99px; border:1px solid var(--border); color:#b9a892; font-variant-numeric:tabular-nums; }
+    .dps { font-size:.68rem; font-weight:800; padding:.22rem .5rem; border-radius:99px; background:#ffe566; color:#1a1408; }
+    .live { font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .45rem; border-radius:99px; background:#ffd36a; color:#1a1408; }
+    #board { padding:.35rem .6rem .4rem; border-bottom:1px solid var(--border); display:grid; grid-template-columns:auto 1fr; gap:.4rem .6rem; align-items:center; }
+    .lvl { width:2.5rem; height:2.5rem; border-radius:9px; background:radial-gradient(circle at 30% 20%,#f0d4ff,#c084fc 55%,#6b3aa0); color:#1a0a18; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; }
+    .lvl b { font-size:1.05rem; line-height:1; }
+    .lvl span { font-size:.4rem; letter-spacing:.1em; }
+    .aff-row { display:flex; justify-content:space-between; font-size:.68rem; color:#e0c4ff; }
+    .aff-row strong { color:#ffe566; }
+    .heat { height:10px; border-radius:99px; background:#2a2214; border:1px solid #5a4a20; overflow:hidden; margin-top:.15rem; }
+    .heat i { display:block; height:100%; width:4%; background:linear-gradient(90deg,#ffe566 0%,#ffc44d 35%,#ff6a2a 70%,#ff1a1a 100%); transition:width .7s ease; }
+    .next { font-size:.62rem; color:var(--muted); margin-top:.15rem; }
+    .body { display:flex; min-height:400px; }
+    #gal { flex:0 0 62%; background:#070506; padding:.45rem; display:flex; flex-wrap:wrap; gap:.35rem; align-content:flex-start; }
+    #gal img { width:calc(33.33% - .3rem); height:210px; object-fit:cover; object-position:top; border:2px solid var(--gold); border-radius:8px; background:#111; }
+    #log { flex:1; border-left:1px solid var(--border); padding:.4rem; display:flex; flex-direction:column; gap:.35rem; overflow:auto; }
+    .bubble { max-width:92%; padding:.35rem .45rem; border-radius:8px; font-size:.74rem; line-height:1.35; }
+    .bubble.model { align-self:flex-end; background:#2a1520; border:1px solid #c45a8a; }
+    .bubble.player { align-self:flex-start; background:#2a2214; border:1px solid #c084fc; }
+    .bubble.scout { align-self:flex-end; background:#12202c; border:1px solid #5aa8ff; }
+    .who { font-size:.55rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.12rem; }
+    .model .who { color:#ff8ac4; }
+    .player .who { color:#ffd36a; }
+    .scout .who { color:#7ec8ff; }
+    #pop { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); }
+    #pop.on { display:flex; }
+    #pop .card { background:radial-gradient(circle at 50% 0%, #3a2a10, #120e10 70%); border:2px solid var(--gold); border-radius:16px; padding:1.15rem 1.2rem; text-align:center; min-width:14rem; animation:popBounce .5s cubic-bezier(.2,1.6,.3,1); }
+    #pop.alert .card { border-color:#ff4d4d; animation:popShake .45s ease-out; }
+    #pop .k { font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:#e0c4ff; }
+    #pop h4 { margin:.15rem 0 0; color:#fff6e8; font-family:Georgia,serif; font-size:2rem; }
+    #pop p { margin:.2rem 0 0; color:var(--muted); font-size:.78rem; }
+    @keyframes popBounce { 0% { transform:scale(.4); opacity:0; } 60% { transform:scale(1.12); } 100% { transform:scale(1); opacity:1; } }
+    @keyframes popShake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-8px); } 75% { transform:translateX(8px); } }
+    nav.nav, .dds-drawer, .dds-burger, .dds-img-tip { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <a class="brand" href="https://desireclubhouse.netlify.app/">
+        <img src="https://desireclubhouse.netlify.app/favicon.svg" alt="" onerror="this.onerror=null;this.remove();" />
+        <span>PURPLE</span>
+      </a>
+      <a class="back" href="https://desireclubhouse.netlify.app/">← Back to House</a>
+    </div>
+    <h1>PURPLE · Chat and Strip</h1>
+    <p class="lede">Self-playing walkthrough. Refresh cycles Preethi, Diya, and Meghana. Gate is skipped. Not a live player.</p>
+    <div class="stage" id="stage">
+      <header class="bar">
+        <img id="thumb" alt="" />
+        <div>
+          <h2 id="whoName">Preethi</h2>
+          <div class="nick" id="whoNick">Ass queen · Chennai Tamil</div>
+        </div>
+        <a class="cardbtn" id="cardBtn" href="https://desireclubhouse.netlify.app/session.html?slut=preethi" target="_blank" rel="noopener">Preethi card</a>
+        <div class="chip off">Strikes <b id="strikes">0/3</b></div>
+        <div class="chip">Open <b id="open">Closed</b></div>
+        <div class="chip">Status <b id="status">Stranger</b></div>
+        <div class="clock" id="clock">59:12</div>
+        <div class="dps" id="dps">DPS 21 · Member</div>
+        <div class="live">DEMO</div>
+      </header>
+      <div id="board">
+        <div class="lvl"><b id="lvl">0</b><span>LEVEL</span></div>
+        <div>
+          <div class="aff-row"><span>Affinity</span><strong id="aff">0 / 38</strong></div>
+          <div class="heat"><i id="fill"></i></div>
+          <div class="next" id="next">Level 1 needs 38 more affinity</div>
+        </div>
+      </div>
+      <div class="body">
+        <div id="gal"></div>
+        <div id="log"></div>
+      </div>
+      <div id="pop"><div class="card"><div class="k" id="popK">Level</div><h4 id="popT">Yay</h4><p id="popS"></p></div></div>
+    </div>
+  </div>
+  <script>
+    const PACKS = {
+      preethi: {
+        name: "Preethi",
+        nick: "Ass queen · Chennai Tamil",
+        slug: "preethi",
+        art: "https://axavugukoesqkfykprur.supabase.co/storage/v1/object/public/dds-art/profile/preethi-1789090292102.png",
+        stills: ["demo_still_nighty.jpg", "demo_still_bra.jpg", "demo_still_sofa.jpg"],
+        floor: [38, 90, 160],
+        lines: [
+          ["scout", "Desire Scout", "Welcome Arjun. She is getting ready for you and will be with you shortly."],
+          ["model", "Preethi", "Thank you for being with the house, Arjun. Sit. Don’t make the first minute cheap."],
+          ["player", "You", "You still look so composed in that look. I’m not here to bark take it off."],
+          ["model", "Preethi", "That lands softer than the men who walk in already undressing me."],
+          ["player", "You", "Stay in that blouse. I want the climb, not a command."],
+          ["model", "Preethi", "If you keep talking like that I might forget I was going to send you out."],
+          ["player", "You", "Stay on the sofa. I want that cream look, not a rush to bare."]
+        ]
+      },
+      diya: {
+        name: "Diya",
+        nick: "Innocent face · Madurai",
+        slug: "diya",
+        art: "demo_diya_4.jpg",
+        stills: ["demo_diya_4.jpg", "demo_diya_3.jpg", "demo_diya_2.jpg", "demo_diya_1.jpg"],
+        floor: [55, 125, 230],
+        lines: [
+          ["scout", "Desire Scout", "Welcome Shaam. Diya is on the terrace. Don’t rush her first look."],
+          ["model", "Diya", "You came quiet. That helps. This cream saree stays on until you earn the next still."],
+          ["player", "You", "You still look so soft even like this. I’m not asking you to drop it."],
+          ["model", "Diya", "Soft is not permission. Sit on the step with me and talk like you mean it."],
+          ["player", "You", "Keep the pallu. I want the climb across that terrace, not a strip order."],
+          ["model", "Diya", "Then stay. The blouse can wait. You don’t get the wrap-off for barking."],
+          ["player", "You", "That midriff is enough for now. I can wait for the rest."]
+        ]
+      },
+      meghana: {
+        name: "Meghana",
+        nick: "Curve Queen · Kannadiga",
+        slug: "meghana",
+        art: "demo_meghana_1.jpg",
+        stills: ["demo_meghana_1.jpg", "demo_meghana_2.jpg", "demo_meghana_3.jpg", "demo_meghana_4.jpg"],
+        floor: [45, 105, 190],
+        lines: [
+          ["scout", "Desire Scout", "Welcome Arjun. Meghana is in the office. Don’t cheap the first look."],
+          ["model", "Meghana", "Thank you for the house, Arjun. Beige stays tied. You earn the pallu, you don’t order it."],
+          ["player", "You", "You still look so expensive in that maroon blouse. I’m not here to bark take it off."],
+          ["model", "Meghana", "Expensive is not permission. Talk like you mean the climb."],
+          ["player", "You", "Keep the knot. I want the office still first, not a strip command."],
+          ["model", "Meghana", "Then stay. The blouse can wait. You don’t get the wrap-off for rushing."],
+          ["player", "You", "That hip line is enough for now. I can wait for the rest."]
+        ]
+      }
+    };
+    const ORDER = ["preethi", "diya", "meghana"];
+    let last = "";
+    try { last = localStorage.getItem("demoWhich") || ""; } catch (e) {}
+    let pick = ORDER[(ORDER.indexOf(last) + 1) % ORDER.length];
+    if (ORDER.indexOf(last) < 0) pick = ORDER[Math.floor(Math.random() * ORDER.length)];
+    try { localStorage.setItem("demoWhich", pick); } catch (e) {}
+    const pack = PACKS[pick];
+    document.getElementById("whoName").textContent = pack.name;
+    document.getElementById("whoNick").textContent = pack.nick;
+    document.getElementById("cardBtn").textContent = pack.name + " card";
+    document.getElementById("cardBtn").href = "https://desireclubhouse.netlify.app/session.html?slut=" + pack.slug;
+    function demoVerifiedFlag() {
+      try {
+        var q = new URLSearchParams(location.search || "");
+        if (q.get("v") === "1" || q.get("verified") === "1") {
+          sessionStorage.setItem("demo_verified", "1");
+          return true;
+        }
+        if (sessionStorage.getItem("demo_verified") === "1") return true;
+      } catch (e) {}
+      try {
+        var a = JSON.parse(localStorage.getItem("dds_account") || "null");
+        var v = a && a.verified;
+        if (a && (a.id || a.username) && (v === true || v === 1 || v === "1" || v === "true")) return true;
+      } catch (e) {}
+      return false;
+    }
+    function demoGuest() {
+      return !demoVerifiedFlag();
+    }
+    function fog(img) {
+      if (!img) return;
+      if (demoGuest()) img.style.setProperty("filter", "blur(14px)", "important");
+      else img.style.removeProperty("filter");
+    }
+    function fogAll() {
+      fog(document.getElementById("thumb"));
+      document.querySelectorAll("#gal img").forEach(fog);
+    }
+    document.getElementById("thumb").src = pack.art;
+    document.getElementById("thumb").onerror = function () { this.src = pack.stills[0]; fog(this); fogAll(); };
+    fog(document.getElementById("thumb"));
+    const STILL0 = pack.stills[0];
+    const STILL1 = pack.stills[1];
+    const STILL2 = pack.stills[2];
+    const STILL3 = pack.stills[3] || pack.stills[2];
+    const log = document.getElementById("log");
+    const gal = document.getElementById("gal");
+    function bubble(kind, who, text) {
+      const el = document.createElement("div");
+      el.className = "bubble " + kind;
+      el.innerHTML = "<div class='who'>" + who + "</div>" + text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+    }
+    function board(lv, aff, floor, more, open, status) {
+      document.getElementById("lvl").textContent = lv;
+      document.getElementById("aff").textContent = aff + " / " + floor;
+      document.getElementById("fill").style.width = Math.max(4, Math.min(100, Math.round(aff / floor * 100))) + "%";
+      document.getElementById("next").textContent = "Level " + (Number(lv) + 1) + " needs " + more + " more affinity";
+      if (open) document.getElementById("open").textContent = open;
+      if (status) document.getElementById("status").textContent = status;
+    }
+    function setDps(n, label) {
+      document.getElementById("dps").textContent = "DPS " + n + " · " + (label || "Member");
+    }
+    function still(src) {
+      const img = document.createElement("img");
+      img.className = "dds-tease";
+      img.src = src;
+      img.alt = "";
+      gal.appendChild(img);
+      fog(img);
+    }
+    function pop(k, t, s, ms, alert) {
+      document.getElementById("popK").textContent = k;
+      document.getElementById("popT").textContent = t;
+      document.getElementById("popS").textContent = s || "";
+      document.getElementById("pop").className = alert ? "on alert" : "on";
+      setTimeout(() => { document.getElementById("pop").className = ""; }, ms || 2000);
+    }
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+    async function play() {
+      log.innerHTML = "";
+      gal.innerHTML = "";
+      const f = pack.floor;
+      board(0, 0, f[0], f[0], "Closed", "Stranger");
+      setDps(21, "Member");
+      still(STILL0);
+      bubble(pack.lines[0][0], pack.lines[0][1], pack.lines[0][2]);
+      await wait(1100);
+      setDps(22, "Member");
+      bubble(pack.lines[1][0], pack.lines[1][1], pack.lines[1][2]);
+      await wait(1600);
+      bubble(pack.lines[2][0], pack.lines[2][1], pack.lines[2][2]);
+      board(0, Math.round(f[0] * 0.45), f[0], Math.round(f[0] * 0.55), "Closed", "Stranger");
+      await wait(1500);
+      bubble(pack.lines[3][0], pack.lines[3][1], pack.lines[3][2]);
+      board(0, Math.round(f[0] * 0.82), f[0], Math.round(f[0] * 0.18), "Closed", "Stranger");
+      await wait(1400);
+      bubble(pack.lines[4][0], pack.lines[4][1], pack.lines[4][2]);
+      board(1, f[0] + 8, f[1], f[1] - f[0] - 8, "Opening", "Stranger");
+      setDps(27, "Member");
+      pop("Level", "Yay", "Level 1", 2200);
+      still(STILL1);
+      await wait(2400);
+      bubble(pack.lines[5][0], pack.lines[5][1], pack.lines[5][2]);
+      board(1, Math.round(f[1] * 0.7), f[1], Math.round(f[1] * 0.3), "Opening", "Stranger");
+      await wait(1500);
+      bubble(pack.lines[6][0], pack.lines[6][1], pack.lines[6][2]);
+      board(2, f[1] + 10, f[2], f[2] - f[1] - 10, "Opening", "Known");
+      setDps(30, "Member");
+      pop("Level", "Yay", "Level 2", 2000);
+      still(STILL2);
+      await wait(1800);
+      if (pack.stills[3]) still(STILL3);
+      pop("Level", "Congrats", "10 DPS", 1800);
+      await wait(2200);
+      play();
+    }
+    play();
+  </script>
+</body>
+</html>

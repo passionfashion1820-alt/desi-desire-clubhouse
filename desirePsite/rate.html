@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rate a session • PURPLE</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+    body{background:#120814;color:#f3e9d7;font-family:Inter,system-ui,sans-serif;margin:0}
+    .wrap{max-width:560px;margin:0 auto;padding:1.2rem}
+    h1{font-family:"Playfair Display",Georgia,serif}
+    label{display:block;margin:.8rem 0 .25rem;color:#cbb6e8;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+    input,select,textarea{width:100%;background:#1a0f22;color:#f3e9d7;border:1px solid #3a2a44;border-radius:8px;padding:.55rem .65rem}
+    button{margin-top:1rem;background:#b794f6;color:#1a0830;border:0;border-radius:8px;padding:.6rem 1rem;font-weight:700;cursor:pointer}
+    a{color:#b794f6}
+    .hint{color:#b9a892;font-size:.88rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="hint"><a href="/">← House</a></p>
+    <h1>Rate a session</h1>
+    <p class="hint">Write a real comment. Copy-paste of an old line is dropped. Mid / end room reviews still go through chat.</p>
+    <form id="rateBox" autocomplete="off" onsubmit="return false;">
+    <label>Model</label>
+    <select id="slut" autocomplete="off"></select>
+    <label>Stars</label>
+    <select id="stars" autocomplete="off">
+      <option value="5">5</option>
+      <option value="4">4</option>
+      <option value="3">3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
+    <label>What happened</label>
+    <textarea id="body" name="dds_rate_note" maxlength="600" rows="5" placeholder="What worked. What did not." autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"></textarea>
+    <button type="button" id="go">Submit review</button>
+    </form>
+    <p class="hint" id="msg"></p>
+  </div>
+  <script src="supabase-config.js"></script>
+  <script>
+    var SLUGS = ["preethi","meghana","diya","meenakshi","sravani","ayesha","esther","kiara","natasha","tharini","kavya","lahari","navya","simran","chandana","anu"];
+    var q = (new URLSearchParams(location.search).get("slut") || "").toLowerCase();
+    var sel = document.getElementById("slut");
+    SLUGS.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s; o.textContent = s[0].toUpperCase() + s.slice(1);
+      if (s === q) o.selected = true;
+      sel.appendChild(o);
+    });
+    document.getElementById("body").value = "";
+    document.getElementById("go").onclick = function () {
+      var cfg = window.DDS_SUPABASE || {};
+      var slut = sel.value;
+      var stars = Number(document.getElementById("stars").value || 5);
+      var feedback = document.getElementById("body").value.trim();
+      var msg = document.getElementById("msg");
+      if (feedback.length < 8) { msg.textContent = "Write a bit more."; return; }
+      msg.textContent = "Saving…";
+      var base = String(cfg.url).replace(/\/$/, "");
+      var headers = { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" };
+      if (slut === "anu" || slut === "meenakshi") {
+        var rpc = slut === "anu" ? "anu_review_submit" : "meenakshi_review_submit";
+        fetch(base + "/rest/v1/rpc/" + rpc, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ p_overall: stars, p_comment: feedback })
+        }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j && j.ok) {
+            msg.textContent = "Saved. It will show on her trainer page.";
+            document.getElementById("body").value = "";
+          } else {
+            msg.textContent = (j && j.error) || "Could not save.";
+          }
+        }).catch(function () { msg.textContent = "Could not save."; });
+        return;
+      }
+      fetch(base + "/rest/v1/desk_reviews", {
+        method: "POST",
+        headers: Object.assign(headers, { Prefer: "return=minimal" }),
+        body: JSON.stringify({ slut: slut, overall: stars, feedback: feedback, session_ok: true, please: stars, body: stars, talk: stars, again: stars, cum: stars })
+      }).then(function (r) {
+        if (!r.ok) return r.text().then(function (t) { throw new Error(t); });
+        msg.textContent = "Saved. It will show on her profile.";
+        document.getElementById("body").value = "";
+      }).catch(function () { msg.textContent = "Could not save. Use Account → Feedback if this sticks."; });
+    };
+  </script>
+</body>
+</html>
