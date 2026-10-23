@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meenakshi Pillai · House Trainer · PURPLE</title>
+<link rel="icon" href="favicon-32.png">
+<link rel="stylesheet" href="dds-chrome.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0a0809; --bg-card:#120e10; --gold:#b794f6; --gold-soft:#d8b4fe;
+    --text:#f3e9d7; --text-muted:#b9a892; --border:#4a2c2f;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; line-height:1.55; }
+  a { color:var(--gold); text-decoration:none; }
+  .nav { position:sticky; top:0; z-index:50; background:rgba(10,8,9,.94); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:.85rem 1.25rem; }
+  .nav-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+  .nav-brand { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--gold); }
+  .nav-links { display:flex; flex-wrap:wrap; gap:.35rem 1rem; font-size:.8rem; font-weight:500; text-transform:uppercase; letter-spacing:.06em; }
+  .nav-links a { color:var(--text-muted); }
+  .nav-links a:hover { color:var(--gold); }
+  .wrap { max-width:1100px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  .profile-hero { display:grid; grid-template-columns:minmax(260px,380px) 1fr; gap:0; background:var(--bg-card); border:1px solid var(--border); border-radius:18px; overflow:hidden; margin-bottom:2.25rem; box-shadow:0 20px 50px rgba(0,0,0,.45); }
+  .portrait { position:relative; min-height:420px; background:#111; overflow:hidden; }
+  .portrait img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; transform:scale(1.04); transform-origin:center 28%; animation:breath 16s ease-in-out infinite alternate; }
+  .profile-hero:hover .portrait img { transform:scale(1.13) translate3d(0,-2%,0); animation-play-state:paused; }
+  @keyframes breath { from { transform:scale(1.03) translate3d(0,0,0); } to { transform:scale(1.09) translate3d(0,-1.6%,0); } }
+  .portrait-fade { position:absolute; inset:auto 0 0 0; height:40%; background:linear-gradient(to top, rgba(10,8,9,.92), transparent); pointer-events:none; }
+  .info { padding:2rem 2rem 2.25rem; display:flex; flex-direction:column; gap:1.15rem; justify-content:center; }
+  .rank-pill { display:inline-flex; align-items:center; gap:.4rem; width:fit-content; padding:.28rem .75rem; border-radius:999px; font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; background:rgba(201,162,39,.18); color:var(--gold-soft); border:1px solid rgba(201,162,39,.45); }
+  .info h1 { font-family:'Playfair Display',serif; font-size:clamp(2.4rem,5vw,3.25rem); color:var(--gold); line-height:1.05; letter-spacing:-.01em; }
+  .meta-line { color:var(--gold-soft); font-size:1.05rem; font-weight:500; }
+  .blurb { color:var(--text-muted); font-size:.95rem; max-width:42ch; }
+  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem; margin:.4rem 0; }
+  .stat { background:#161114; border:1px solid var(--border); border-radius:12px; padding:.7rem .8rem; text-align:center; }
+  .stat b { display:block; font-size:1.45rem; color:var(--gold); font-family:'Playfair Display',serif; }
+  .stat span { color:var(--text-muted); font-size:.78rem; }
+  .actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.4rem; }
+  .btn { display:inline-block; background:#6b3a55; color:#fff; border:0; border-radius:10px; padding:.65rem 1.1rem; text-decoration:none; cursor:pointer; font:inherit; font-weight:500; }
+  .btn.gold { background:var(--gold); color:#1a0a14; font-weight:700; }
+  .section { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.4rem 1.5rem; margin:0 0 1.1rem; }
+  .section h2 { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.35rem; margin:0 0 .6rem; }
+  .section p, .section li { color:var(--text-muted); }
+  .section ul { margin:.3rem 0 .2rem 1.2rem; }
+  .hint { color:var(--text-muted); font-size:.9rem; margin-top:.4rem; }
+  .mask { display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); align-items:center; justify-content:center; padding:1rem; z-index:40; }
+  .mask.on { display:flex; }
+  .pop { width:min(420px,96vw); background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.4rem; text-align:center; }
+  .spin { width:42px; height:42px; margin:0 auto .7rem; border-radius:50%; border:3px solid #3a2024; border-top-color:var(--gold); animation:spin .8s linear infinite; }
+  .spin.off { display:none; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (max-width:720px) { .profile-hero { grid-template-columns:1fr; } .portrait { min-height:320px; } .stats-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">PURPLE</a>
+    <div class="nav-links">
+      <a href="index.html">House</a>
+      <a href="account.html">Account</a>
+      <a href="how_to_play.html">How to Play</a>
+    </div>
+  </div>
+</nav>
+<main class="wrap">
+  <section class="profile-hero">
+    <div class="portrait">
+      <img src="https://axavugukoesqkfykprur.supabase.co/storage/v1/object/public/dds-art/session/meenakshi-1789361077578.jpg" alt="Meenakshi" id="meenakshiFace" style="background:#111;">
+      <div class="portrait-fade"></div>
+    </div>
+    <div class="info">
+      <span class="rank-pill">House Trainer</span>
+      <span class="status-badge" id="doorStatus" style="display:none;margin-left:.5rem;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .55rem;border-radius:999px;background:#3a1518;color:#f5c6cb;border:1px solid #8a3a3a;">Closed</span>
+      <h1>Meenakshi Pillai</h1>
+      <p class="meta-line">45 · 36C-34-44 · Tamil · House Trainer</p>
+      <p class="blurb">House trainer. She played as a model in Purple for ten years. More than 500 nights. She knows how players think and how to get them ready for a model door. Anu trained the women. Meenakshi trained the men.</p>
+      <div class="stats-grid">
+        <div class="stat"><b id="askCount">—</b><span>Men asked</span></div>
+        <div class="stat"><b id="roomCount">—</b><span>Rooms opened</span></div>
+        <div class="stat"><b id="heartCount">—</b><span>Hearts</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn gold" type="button" id="trainBtn">Get trained</button>
+        <button class="btn" type="button" id="heartBtn">Send hearts</button>
+        <a class="btn" href="#" data-own-dps="meenakshi">Own her</a>
+      </div>
+      <p class="hint" style="margin-top:12px;color:#c9b3e0;">First time getting trained? Anu Nair is also available. <a href="anu.html" style="color:#e8d5ff;">See Anu Nair</a>.</p>
+      <p id="askMsg" class="hint"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>About Meenakshi Pillai</h2>
+    <p class="about-text">Meenakshi is the house trainer. She played for ten years and has seen every kind of night. She knows how to get a man ready for a model door. She stays covered until he asks to take her. Traditional Tamil heat, held until he earns it.</p>
+    </section>
+
+  <section class="section">
+    <h2>At home</h2>
+    <p class="about-text">She sits at the kitchen desk and watches how a man asks.</p>
+<p class="about-text" style="margin-top:.85rem">She has done the nights. She does not strip unless he names the take.</p>
+    </section>
+
+  <section class="section">
+    <h2>Important Hints</h2>
+    <ul>
+      <li>Default is trainer. Still only if he asks to take her.</li>
+      <li>No Desire score. No rank. No nights.</li>
+      <li>Reward is one extra still at earned clothes.</li>
+      <li>No DPS, night, spin, or skip from training.</li>
+      <li>First look stays covered.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>What you leave with</h2>
+    <ul>
+      <li>How to get ready for the woman you want. She played the nights. She knows the line that opens her.</li>
+      <li>The line that wins her, and the line that wastes the night.</li>
+      <li>A first ask you can carry into that room.</li>
+    </ul>
+    <p class="hint">The desk opens Meenakshi the same way as a trainer. She trains the line. A still only if you ask to take her. Then you take what she taught into the woman you want.</p>
+  </section>
+
+  
+  
+  <section class="section">
+    <h2>House favorites</h2>
+    <p id="favCount">—</p>
+    <div id="favList"></div>
+  </section>
+  <section class="section">
+    <h2>Owned by</h2>
+    <p id="ownCount">—</p>
+    <div id="ownList"></div>
+  </section>
+
+
+  <section class="section">
+    <h2>Hearts and gifts</h2>
+    <p>A heart says you want the setup. A gift is a pack code. The desk credits it after they check the code. Neither one skips a model level.</p>
+    <p class="hint" id="heartMsg"></p>
+  </section>
+</main>
+
+<div class="mask" id="mask">
+  <div class="pop">
+    <div class="spin" id="popSpin"></div>
+    <h2 id="popTitle">Adding you to her room</h2>
+    <p id="popText">Stay on this page. Do not close this tab.</p>
+    <p><a class="btn" id="enter" href="#" target="_blank" rel="noopener" style="display:none">Enter her room</a></p>
+    <p><button class="btn" type="button" id="popClose" style="display:none">Close</button></p>
+  </div>
+</div>
+<div class="mask" id="heartPop">
+  <div class="pop">
+    <h2>Send Meenakshi hearts</h2>
+    <p class="hint">Login and Activate first. Cap 20 a day.</p>
+    <div class="actions">
+      <button class="btn" type="button" data-n="1">1</button>
+      <button class="btn" type="button" data-n="5">5</button>
+      <button class="btn" type="button" data-n="10">10</button>
+    </div>
+    <p class="hint" id="heartPopMsg"></p>
+    <p><button class="btn" type="button" id="heartClose">Close</button></p>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="dds-config.js"></script>
+<script src="dds-inbox.js?v=20261010meenakshi"></script>
+<script src="dds-chrome.js?v=20261023own"></script>
+<script>
+(function () {
+  function cfg() {
+    var c = window.DDS_SUPABASE || {};
+    return { base: String(c.url || "").replace(/\/$/, ""), headers: { apikey: c.anon, Authorization: "Bearer " + c.anon } };
+  }
+  function account() {
+    try { return JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (e) { return null; }
+  }
+  function door() {
+    return (new URLSearchParams(location.search).get("door") || "").toLowerCase();
+  }
+  function showWait(on) {
+    document.getElementById("mask").classList.toggle("on", !!on);
+    document.getElementById("popSpin").classList.toggle("off", !on);
+    document.getElementById("popClose").style.display = on ? "none" : "inline-block";
+    document.getElementById("enter").style.display = "none";
+  }
+  function pop(title, text) {
+    document.getElementById("mask").classList.add("on");
+    document.getElementById("popTitle").textContent = title;
+    document.getElementById("popText").textContent = text;
+  }
+  function ready(url) {
+    document.getElementById("popSpin").classList.add("off");
+    document.getElementById("popTitle").textContent = "Room is ready";
+    document.getElementById("popText").textContent = "Open it, tap Yes I Agree twice, then you are in. Do not reuse an old link after the room ended.";
+    var enter = document.getElementById("enter");
+    enter.href = url;
+    enter.style.display = "inline-block";
+    document.getElementById("popClose").style.display = "inline-block";
+  }
+  function poll(id) {
+    if (!id || !window.DDS_INBOX || !window.DDS_INBOX.get) return;
+    window.DDS_INBOX.get(id).then(function (row) {
+      var url = row && (row.room_url || row.url);
+      if (url) { bumpTrainer(0, 1, 0); ready(url); return; }
+      if (row && (row.status === "declined" || row.status === "busy" || row.status === "deleted")) {
+        document.getElementById("popSpin").classList.add("off");
+        document.getElementById("popTitle").textContent = row.status === "busy" ? "She is busy" : "Not this time";
+        document.getElementById("popText").textContent = row.status === "busy"
+          ? (row.admin_note || "She is in a session. Try again in a little while.")
+          : (row.admin_note || "The desk declined this one. You can ask again.");
+        document.getElementById("popClose").style.display = "inline-block";
+        document.getElementById("trainBtn").disabled = false;
+        return;
+      }
+      setTimeout(function () { poll(id); }, 8000);
+    }).catch(function () { setTimeout(function () { poll(id); }, 8000); });
+  }
+  function loadArt() {
+    var h = cfg();
+    if (!h.base || !h.headers.apikey) return;
+    fetch(h.base + "/rest/v1/site_images?slug=eq.meenakshi&slot=eq.profile&select=url&limit=1", { headers: h.headers })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        var url = rows && rows[0] && rows[0].url;
+        var img = document.getElementById("meenakshiFace");
+        if (url && img) {
+          img.src = url;
+          img.onerror = function () { img.alt = "IMAGE FAILED — REFRESH"; };
+        } else if (img) {
+          img.alt = "No portrait published yet";
+        }
+      }).catch(function () {});
+  }
+  function loadCounts() {
+    var h = cfg();
+    if (!h.base || !h.headers.apikey) return;
+    fetch(h.base + "/rest/v1/trainer_stats?slug=eq.meenakshi&select=men_asked,rooms_opened,hearts&limit=1", { headers: h.headers }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      var row = (rows && rows[0]) || {};
+      document.getElementById("askCount").textContent = String(row.men_asked || 0);
+      document.getElementById("roomCount").textContent = String(row.rooms_opened || 0);
+      document.getElementById("heartCount").textContent = String(row.hearts || 0);
+      return fetch(h.base + "/rest/v1/board?slut=eq.meenakshi&select=hearts,sessions&limit=1", { headers: h.headers });
+    }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (rows) {
+      var b = rows && rows[0];
+      if (!b) return;
+      var heartEl = document.getElementById("heartCount");
+      var askEl = document.getElementById("askCount");
+      var roomEl = document.getElementById("roomCount");
+      if (heartEl && Number(b.hearts || 0) > Number(heartEl.textContent || 0)) heartEl.textContent = String(b.hearts);
+      if (askEl && Number(b.sessions || 0) > Number(askEl.textContent || 0)) askEl.textContent = String(b.sessions);
+      if (roomEl && Number(b.sessions || 0) > Number(roomEl.textContent || 0)) roomEl.textContent = String(b.sessions);
+    }).catch(function () {});
+  }
+  function bumpTrainer(asked, opened, hearts) {
+    var h = cfg();
+    if (!h.base || !h.headers.apikey) return;
+    fetch(h.base + "/rest/v1/rpc/trainer_bump", {
+      method: "POST",
+      headers: Object.assign({"Content-Type":"application/json"}, h.headers),
+      body: JSON.stringify({ p_slug: "meenakshi", p_asked: asked || 0, p_opened: opened || 0, p_hearts: hearts || 0 })
+    }).then(function () { loadCounts(); }).catch(function () {});
+  }
+  function train() {
+    var acc = account();
+    if (!acc || !acc.id || !acc.verified) { location.href = "account.html"; return; }
+    var name = acc.nickname || acc.username || "Player";
+    var age = 21;
+    if (acc.dob) {
+      var d = new Date(acc.dob);
+      if (!isNaN(d.getTime())) age = Math.max(21, new Date().getFullYear() - d.getFullYear());
+    }
+    var btn = document.getElementById("trainBtn");
+    btn.disabled = true;
+    pop("Adding you to her room", "Stay on this page. The desk opens it the same way as a model.");
+    showWait(true);
+    window.DDS_INBOX.create({
+      slut: "meenakshi",
+      player_name: name,
+      player_age: age,
+      status: "open",
+      player_id: acc.id,
+      note: "Training request. door=" + (door() || "house") + (sessionStorage.getItem("dds_room_cost") ? (" dps=" + sessionStorage.getItem("dds_room_cost")) : "")
+    }).then(function (row) {
+      document.getElementById("askMsg").textContent = "Request is with the desk.";
+      poll(row && row.id);
+      bumpTrainer(1, 0, 0);
+      loadArt();
+      loadCounts();
+    }).catch(function (err) {
+      btn.disabled = false;
+      showWait(false);
+      pop("Could not send", String((err && err.message) || err || "Could not send."));
+      document.getElementById("popClose").style.display = "inline-block";
+    });
+  }
+  function checkDoor() {
+    var closed = (window.DDS_CLOSED || []).map(function (s) { return String(s || "").toLowerCase(); });
+    var busy = (window.DDS_UNAVAILABLE || []).map(function (s) { return String(s || "").toLowerCase(); });
+    var badge = document.getElementById("doorStatus");
+    var btn = document.getElementById("trainBtn");
+    var msg = document.getElementById("askMsg");
+    if (closed.indexOf("meenakshi") !== -1) {
+      if (badge) { badge.style.display = "inline-block"; badge.textContent = "Closed"; badge.style.background = "#3a1518"; }
+      if (btn) { btn.textContent = "Help"; btn.disabled = true; btn.title = "Door is closed"; }
+      if (msg) msg.textContent = "Her door is closed. Help is on the desk.";
+      return;
+    }
+    if (busy.indexOf("meenakshi") !== -1) {
+      if (badge) { badge.style.display = "inline-block"; badge.textContent = "Busy"; badge.style.background = "#3a2a15"; badge.style.color = "#f5e6c6"; badge.style.borderColor = "#8a6a3a"; }
+      if (btn) { btn.textContent = "Help"; btn.disabled = true; btn.title = "She is busy"; }
+      if (msg) msg.textContent = "She is in a session. Help is on the desk.";
+      return;
+    }
+    if (badge) badge.style.display = "none";
+    if (btn) { btn.textContent = "Get trained"; btn.disabled = false; btn.title = ""; }
+  }
+  (function () {
+    var acc = account();
+    if (!acc || !acc.id) {
+      setTimeout(function () {
+        if (window.DDS_lure) window.DDS_lure("Meenakshi");
+      }, 200);
+    }
+  })();
+  document.getElementById("trainBtn").addEventListener("click", function () {
+    var acc = account();
+    if (!acc || !acc.id) {
+      if (window.DDS_lure) window.DDS_lure("Meenakshi");
+      else {
+        var wrap = document.createElement("div");
+        wrap.id = "dds-lure";
+        wrap.innerHTML = '<div class="dds-lure-card"><p class="k">PURPLE</p><h2>Sign up to train</h2><p>Create an account. Thirty seconds. Then Activate. Training opens after that.</p><p class="lure-actions"><a class="go" href="account.html#create">Sign up</a><a class="ghost" href="account.html">Login</a></p><p><a class="home" href="index.html">Home</a></p></div>';
+        document.body.appendChild(wrap);
+      }
+      return;
+    }
+    var closed = (window.DDS_CLOSED || []).map(function (s) { return String(s || "").toLowerCase(); });
+    var busy = (window.DDS_UNAVAILABLE || []).map(function (s) { return String(s || "").toLowerCase(); });
+    if (closed.indexOf("meenakshi") !== -1 || busy.indexOf("meenakshi") !== -1) {
+      pop("Door closed", "Her door is closed or she is busy. Help is on the desk.");
+      document.getElementById("popClose").style.display = "inline-block";
+      return;
+    }
+    var acc = account();
+    var myPts = (acc && Number(acc.dps)) || 0;
+    var cost = 25;
+    var old = document.getElementById("ddsTrainerConfirm");
+    if (old) old.remove();
+    var box = document.createElement("div");
+    box.id = "ddsTrainerConfirm";
+    box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
+    if (myPts < cost) {
+      box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
+        '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
+        '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">Meenakshi needs <b>' + cost + '</b> DPS.</p>' +
+        '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">You do not have enough. Buy DPS to continue.</p>' +
+        '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' +
+          '<button type="button" id="ddsTrainerBuy" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">Buy DPS</button>' +
+          '<button type="button" id="ddsTrainerClose" style="flex:1;min-width:100px;background:#2a1a32;color:#fff;padding:.5rem .8rem;border-radius:8px;border:1px solid #4a2c5f">Close</button>' +
+        '</div></div>';
+    } else {
+      box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
+        '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
+        '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">Meenakshi needs <b>' + cost + '</b> DPS.</p>' +
+        '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Proceed?</p>' +
+        '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' +
+          '<button type="button" id="ddsTrainerGo" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">Yes, proceed</button>' +
+          '<button type="button" id="ddsTrainerClose" style="flex:1;min-width:100px;background:#2a1a32;color:#fff;padding:.5rem .8rem;border-radius:8px;border:1px solid #4a2c5f">No</button>' +
+        '</div></div>';
+    }
+    document.body.appendChild(box);
+    var close = document.getElementById("ddsTrainerClose");
+    if (close) close.onclick = function () { box.remove(); };
+    box.onclick = function (ev) { if (ev.target === box) box.remove(); };
+    var go = document.getElementById("ddsTrainerGo");
+    if (go) go.onclick = function () {
+      box.remove();
+      try { sessionStorage.setItem("dds_room_cost", String(cost)); } catch (e) {}
+      train();
+    };
+    var buy = document.getElementById("ddsTrainerBuy");
+    if (buy) buy.onclick = function () {
+      box.remove();
+      if (window.DDS_openBuyRank) window.DDS_openBuyRank();
+    };
+  });
+  setTimeout(checkDoor, 400);
+  setTimeout(checkDoor, 1200);
+  document.getElementById("popClose").addEventListener("click", function () { document.getElementById("mask").classList.remove("on"); });
+  document.getElementById("heartBtn").addEventListener("click", function () { document.getElementById("heartPop").classList.add("on"); });
+  document.getElementById("heartClose").addEventListener("click", function () { document.getElementById("heartPop").classList.remove("on"); });
+  document.querySelectorAll("#heartPop button[data-n]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var n = parseInt(b.getAttribute("data-n") || "1", 10) || 1;
+      bumpTrainer(0, 0, n);
+      var msg = document.getElementById("heartPopMsg");
+      if (msg) msg.textContent = "Sent " + n + ". She felt that.";
+      setTimeout(function () { document.getElementById("heartPop").classList.remove("on"); }, 700);
+    });
+  });
+  loadArt();
+  loadCounts();
+})();
+</script>
+<script src="dds-fan.js?v=20261023join"></script>
+</body>
+</html>

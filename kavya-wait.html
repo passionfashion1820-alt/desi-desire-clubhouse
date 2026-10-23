@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Kavya · Click to play</title>
+  <style>
+    :root { --bg:#0a0809; --card:#140e16; --accent:#c084fc; --text:#f3e9d7; --muted:#b9a892; --border:#5a3a6a; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; }
+    .box { max-width:26rem; margin:8vh auto; padding:1.3rem; background:var(--card); border:1px solid var(--border); border-radius:16px; }
+    h1 { font-family:Georgia,serif; color:var(--accent); margin:0 0 .35rem; font-size:1.4rem; }
+    p { color:var(--muted); line-height:1.45; }
+    label { display:block; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:.7rem 0 .25rem; }
+    input, textarea { width:100%; box-sizing:border-box; background:#161114; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:.6rem .7rem; }
+    textarea { min-height:5rem; }
+    button { margin-top:.9rem; background:var(--accent); color:#1a0a18; border:0; border-radius:8px; padding:.65rem 1rem; font-weight:800; cursor:pointer; }
+    .ok { color:#c4f0c8; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Kavya</h1>
+    <p>She is planned to open on <b>24 September 2026</b>. Leave a note. Desk will see it.</p>
+    <label>Your name</label>
+    <input id="name" maxlength="40"/>
+    <label>How badly do you need her?</label>
+    <input id="need" maxlength="160"/>
+    <label>What do you want to do to her?</label>
+    <textarea id="want" maxlength="600"></textarea>
+    <button type="button" id="go">Send note</button>
+    <p id="msg"></p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const sb = supabase.createClient("https://axavugukoesqkfykprur.supabase.co", "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I");
+    document.getElementById("go").onclick = async () => {
+      const need = document.getElementById("need").value.trim();
+      const want = document.getElementById("want").value.trim();
+      if (!need && !want) { document.getElementById("msg").textContent = "Write something."; return; }
+      const { error } = await sb.from("model_waitlist").insert({
+        model_slug: "kavya",
+        model_name: "Kavya",
+        release_date: "24 September 2026",
+        player_name: document.getElementById("name").value.trim() || null,
+        need, want
+      });
+      document.getElementById("msg").className = "ok";
+      document.getElementById("msg").textContent = error ? error.message : "Noted. She opens 24 September 2026.";
+    };
+  </script>
+</body>
+</html>

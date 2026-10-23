@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Session card • PURPLE</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+    :root { --bg:#120814; --card:#1a0f22; --gold:#b794f6; --text:#f3e9d7; --muted:#b9a892; --line:#3a2a44; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; line-height:1.5; }
+    .wrap { max-width:720px; margin:0 auto; padding:.85rem .9rem 1.4rem; }
+    .kicker { color:var(--gold); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { font-family:"Playfair Display",Georgia,serif; font-size:1.7rem; margin:.15rem 0 .2rem; }
+    .meta { color:var(--muted); font-size:.92rem; }
+    .tag { margin:.35rem 0 .7rem; font-weight:600; }
+    .grid { display:grid; grid-template-columns:180px 1fr; gap:.85rem; align-items:start; }
+    @media(max-width:620px){ .grid { grid-template-columns:1fr; } }
+    img { width:100%; border-radius:12px; display:block; background:#100814; max-height:260px; object-fit:cover; object-position:top; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:.35rem .6rem; font-size:.82rem; }
+    .stats b { color:var(--gold); display:block; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; font-weight:600; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:.8rem .9rem; margin:.7rem 0; }
+    h2 { font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); margin:0 0 .4rem; }
+    ul { padding-left:1.1rem; }
+    li { margin:.28rem 0; }
+    .links { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.8rem; }
+    .links a { background:#2a1840; color:#ead9be; text-decoration:none; padding:.4rem .7rem; border-radius:8px; font-size:.82rem; border:1px solid #4a2c6a; }
+    .links a.main { background:#b794f6; color:#1a0830; font-weight:700; border:0; }
+    .foot { color:var(--muted); font-size:.82rem; margin-top:.7rem; }
+    .status { display:inline-block; margin:.2rem 0 .4rem; padding:.12rem .45rem; border:1px solid var(--gold); border-radius:999px; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="root">Opening session card…</div>
+  <script src="supabase-config.js"></script>
+  <script src="dds-art.js"></script>
+  <script>
+    var SHARED_ALREADY = [
+      "If the house already likes how you came in, she starts further. She will say that. It is not a nude skip.",
+      "Gold+ nights-to-own print from the desk blob, not as a cheat on this card.",
+      "Owned names and Favorites live on her page. This card does not freeze them."
+    ];
+    var FIRST_LOOK = "Covered. You name garment, colour, blouse, neck, sleeves, pallu, jewellery. Hidden set colour + type. No commando. No lingerie-only start.";
+    var HOW_START = "Name and age are already on the house card. Tell her who you are tonight in that house. Keep this tab open. Help: type #HELP in the room.";
+
+    var LIFE = {
+      preethi: [
+        "Aditya is her husband. He works late. He is in the house even when he is not in the room.",
+        "Ram is the neighbour on the lane. He talks. He is not a prize.",
+        "Arun is the regular delivery man. He only comes in if the night already called him, or if she asks.",
+        "She does a little stitching of her own. The order book is not Aditya's. She will not announce it."
+      ],
+      meghana: [
+        "Arun is her husband. He wants the promotion. He is proud, and he is late.",
+        "His boss is the other man in that room. Dinner, the office, the car after. Not a booking.",
+        "Her mother is on the phone. Family name. She does not need to walk in.",
+        "She will talk about his seat. She will not say she wants the chair."
+      ],
+      esther: [
+        "Her husband comes home after work. He thinks Sunday is settled.",
+        "Her sister refused the choir trip. She calls, or she visits. She keeps the family face.",
+        "The sister's husband is in that house only if he is not already the man in the room.",
+        "She will talk about practice, the courtyard, plum cake. She will not call the trip hers."
+      ],
+      meenakshi: [
+        "Her husband is out more than he is in. He calls the kitchen her duty.",
+        "Latha is the sister-in-law. She drops work and leaves. She is the one who asks.",
+        "The neighbour across the landing borrows sugar and talks. She does not come in to stay.",
+        "Filter coffee and sweets are the door. A box from this kitchen can be an order. She will not say that first."
+      ],
+      tharini: [
+        "Her husband is at the Mumbai office. Home late. The flat is in his name.",
+        "The help comes, cooks, and leaves. She is why the flat goes quiet. She does not stay.",
+        "The neighbour on the same floor is polite. She does not come in unless Tharini asks.",
+        "She will talk about a light thali after the help has gone. She will not call it a business."
+      ],
+      ayesha: [
+        "Her husband travels. The house is quieter when he is away. He is still the husband.",
+        "His sister calls. She asks who came.",
+        "The neighbour knows the namaz time. He does not come in unless Ayesha asks.",
+        "Biryani and sheer khurma are the door. A quiet order for two houses is hers. The lane does not hear it."
+      ],
+      diya: [
+        "Her husband is in Madurai, out at the shop. He thinks the house is closed because she is shy.",
+        "His mother calls at dusk. She asks who is there.",
+        "The neighbour on the same street knows the gate. She does not come in unless Diya asks.",
+        "She does a little silk work from this house. Temple-town work. Her name is not on the lane."
+      ],
+      natasha: [
+        "Her husband travels the coast. The house is hers while he is out. He is still the husband.",
+        "The cook comes, feeds, and leaves. She is why the evening goes quiet. She does not stay.",
+        "The neighbour uses her gate. He does not come in unless Natasha says so.",
+        "One guest night can be in her book, not his. She will not announce it."
+      ],
+      kiara: [
+        "Her husband is in Delhi. Late. The flat is expensive because of him. She keeps the standard.",
+        "One woman on staff leaves before the evening. She does not stay for the night.",
+        "The neighbour is polite and curious. She does not come in unless Kiara asks.",
+        "She will take one private sitting she chooses. No gift on the first night. She will not call it a booking."
+      ],
+      kavya: [
+        "Her husband comes home after the office. He thinks the evening sloka is enough.",
+        "His aunt calls after the sloka. She asks who stayed.",
+        "The neighbour in the next flat hears the door. She does not come in unless Kavya asks.",
+        "She may sit with two women after the sloka. Filter coffee. Her name, not the family's duty. She will not announce a class."
+      ],
+      lahari: [
+        "Her husband is late from the city. He likes the table. He does not run it.",
+        "His sister calls about guests. She is the one who asks.",
+        "The neighbour knows the bazaar hour. She does not come in unless Lahari asks.",
+        "Double ka meetha can leave this table for two houses. Her handling. Not a booking. She will not call it a job."
+      ],
+      sravani: [
+        "Her husband is out at the field or the shop. He thinks the verandah is settled.",
+        "Her brother's wife visits and talks. She is the one who asks.",
+        "The neighbour across the yard sees who sits. She does not come in unless Sravani asks.",
+        "Payasam for the next house function. They ask her. They do not hire her. She is not Meenakshi."
+      ],
+      navya: [
+        "Her husband works late. He thinks the evening is quiet enough.",
+        "His sister calls after rain. She asks who is still there.",
+        "The neighbour on the same floor hears the door. She does not come in unless Navya asks.",
+        "A small evening order. Soft fabric. Her name, not the family's. She will not announce it."
+      ],
+      aleena: [
+        "Her husband is on Gulf months. He calls late. He thinks Sunday is settled.",
+        "His mother calls about the lane and the church. She keeps the family face.",
+        "The neighbour sees the gate. She does not come in unless Aleena asks.",
+        "A small Sunday table after mass. Appam, banana fry, tea. Her name stays off it. She will not call it a sale."
+      ],
+      chandana: [
+        "Her husband is late from the city. He likes the lane quiet.",
+        "His mother calls about who saw the door.",
+        "The neighbour sees the gate. She does not come in unless Chandana asks.",
+        "A small bobbatlu order to two houses. Her handling. Her name stays off it. Not a job."
+      ],
+      simran: [
+        "Not locked yet. Coming door. Body only."
+      ]
+    };
+
+    var CARDS = {
+      preethi: {
+        name:"Preethi",
+        age:"37",
+        body:"36C-34-44 · hip 44",
+        origin:"Chennai Tamil",
+        door:"Middle · Moderate",
+        dirt:"Very High after she opens",
+        status:"Live",
+        who:"Chennai woman. Soft voice. Full body. Careful with her house. She opens once she trusts you and gets very dirty after that.",
+        works:["Quiet house talk. Dusk, manners, real reason to be there.", "Treat her heavy body as hers. Want it, do not joke about it.", "Soft want said in your own words.", "Stitching or a small order that is hers, not her husband’s."],
+        dies:["Ass jokes or a strip menu as the whole move.", "Baby talk as the only language.", "Rushing the clothes."],
+        people:["Aditya (husband, late).", "Ram (neighbour on the lane).", "Arun (delivery, only if the night already called him)."],
+        hints:"She likes the heavy body treated carefully. Home and dusk fit better than loud rooms. Clothes climb. You name the first look. Stay covered until she moves.",
+      },
+      meghana: {
+        name:"Meghana",
+        age:"36",
+        body:"36D-34-36 · hip 36",
+        origin:"Kannadiga",
+        door:"Harder · Strict",
+        dirt:"High after the room earns it",
+        status:"Live",
+        who:"Kannadiga. Pride first. She wants to be chosen, not booked. Strict at the start. Dirt comes after the room has earned it.",
+        works:["Culture and family name kept.", "Late office, quiet estate, or a real reason that is not a booking.", "Expensive still wanted, not priced.", "Talk about his seat without saying she wants the chair."],
+        dies:["Paid talk or item talk.", "Cheap maid start or Coorg jokes.", "Treating her like a reservation."],
+        people:["Arun (husband, wants the promotion).", "His boss (dinner, office, car after).", "Mother on the phone."],
+        hints:"Stay classy. She opens slower if the room feels bought. Clothes climb. First look covered.",
+      },
+      esther: {
+        name:"Esther",
+        age:"34",
+        body:"34C-34-38 · hip 38",
+        origin:"Tamil Christian",
+        door:"Easier · Highly Accommodative",
+        dirt:"High once she trusts you",
+        status:"Live",
+        who:"Tamil Christian. Soft faith-house door. Kept, not smashed. Easier to open. Gets dirty once she trusts you.",
+        works:["Sunday, after mass, courtyard.", "Soft and a little wrong without mocking faith.", "Help that stays tender.", "Practice, plum cake, the trip she will not name as hers."],
+        dies:["Faith jokes or nun punchlines.", "Raid talk or cheap help.", "Smashing the wall in one line."],
+        people:["Husband (after work).", "Sister (choir trip).", "Sister’s husband (only if he is not already the man)."],
+        hints:"She opens faster than most if the faith stays respected. Clothes still climb. First look covered.",
+      },
+      meenakshi: {
+        name:"Meenakshi",
+        age:"45",
+        body:"36C-34-44 · hip 44",
+        origin:"Tamil · House Trainer",
+        door:"Trainer",
+        dirt:"Filthy about the models",
+        status:"Live",
+        who:"House trainer. Ten years of nights. She gets a man ready for a model door. Covered until he asks to take her.",
+        works:["Clear ask. Name the take.", "Traditional Tamil heat, held until earned.", "Questions about how a door works."],
+        dies:["Expecting a free strip.", "Treating her like a model door with levels."],
+        people:[],
+        hints:"She watches how you ask. She does not strip unless you name it. Use her to learn the house, then take the door she points to.",
+        footnote:"Not a model door. No score, no level, no own, no spin.",
+      },
+      tharini: {
+        name:"Tharini",
+        age:"34",
+        body:"34D-34-38 · hip 38",
+        origin:"Mumbai",
+        door:"Harder · Strict",
+        dirt:"Medium",
+        status:"Live",
+        who:"Quiet Mumbai flat. Classed. Not village, not cheap. Strict. Opens slowly. Short refined talk.",
+        works:["Dignity after the help has left.", "Careful guest or neighbour heat that keeps class.", "Light thali that is not called a business.", "Quiet floor, short sentences."],
+        dies:["Village Amma talk.", "Street item talk.", "Inventing her saree colour."],
+        people:["Husband (Mumbai office, late).", "Help (cooks and leaves).", "Neighbour on the same floor (polite)."],
+        hints:"Class first. She opens when the room stays refined. Clothes climb. First look covered. You name the clothes.",
+      },
+      ayesha: {
+        name:"Ayesha",
+        age:"36",
+        body:"34D-34-34 · hip 34",
+        origin:"Tamil Muslim",
+        door:"Harder · Moderate-Strict",
+        dirt:"Very High after she trusts you",
+        status:"Live",
+        who:"Tamil Muslim. Modest on purpose. Guilt stays. Harder door. Very dirty only after she trusts you.",
+        works:["Modest look kept.", "Night house or after namaz.", "Guilt that stays tender, not mocked.", "Biryani or sheer khurma as the quiet door."],
+        dies:["Faith jokes or whore jokes.", "Hijab used as a strip menu.", "Naming only part of the garment."],
+        people:["Husband (travels).", "Sister (calls, asks who came).", "Neighbour (knows namaz time)."],
+        hints:"Name the full look: garment, colour, blouse, neck, sleeves, pallu, jewellery. She opens slower if faith is mocked. Clothes climb.",
+      },
+      diya: {
+        name:"Diya",
+        age:"34",
+        body:"36DD-34-40 · hip 40",
+        origin:"Madurai",
+        door:"Harder · Very Strict",
+        dirt:"High after slow corrupt",
+        status:"Live",
+        who:"Madurai. Innocent face. Closed house. Very strict. Slow corrupt. Full and busty. Do not slim her.",
+        works:["Innocent face still wanted.", "Closed or locked house as the room.", "Careful corrupt — slow, not a raid.", "Silk work that is hers. Mother must not hear the gate."],
+        dies:["Raid talk or paid talk that deletes the wall.", "Treating 36DD as a menu.", "Slim-her stills."],
+        people:["Husband (shop).", "Mother (calls at dusk).", "Neighbour (knows the gate)."],
+        hints:"She opens only if the house stays closed. Slow works. Clothes climb. First look covered.",
+      },
+      natasha: {
+        name:"Natasha",
+        age:"36",
+        body:"34D-34-38 · hip 38",
+        origin:"Goa",
+        door:"Harder · Very Strict",
+        dirt:"Very High after she opens",
+        status:"Live",
+        who:"Goa house in charge. Control first, dirt later. Very strict until she opens, then very dirty.",
+        works:["She runs the house.", "Coast evening, late bar, humid night.", "Private heat under her authority.", "One guest night in her book, not his."],
+        dies:["Baby talk.", "Begging.", "Old station leftover as her whole person."],
+        people:["Husband (travels the coast).", "Cook (feeds and leaves).", "Neighbour (uses her gate)."],
+        hints:"She is in charge. Heat comes after control. Clothes climb. First look covered.",
+      },
+      kiara: {
+        name:"Kiara",
+        age:"35",
+        body:"34C-32-34 · hip 34",
+        origin:"Delhi North Indian",
+        door:"Harder · Very Strict",
+        dirt:"Low, late and small",
+        status:"Live",
+        who:"Delhi North Indian. Closed class. Expensive mouth. Filth late and small. Very strict.",
+        works:["Keep her expensive.", "After-hours flat, private deal, dignity.", "Careful want.", "One private sitting she chooses. No gift on night one."],
+        dies:["Street talk or hooker talk.", "Treating the body like a soft door.", "Cheap language."],
+        people:["Husband (Delhi, late).", "Staff (leaves before evening).", "Neighbour (polite, curious)."],
+        hints:"Dignity first. Dirt comes late. Clothes climb. First look covered. Stay classy.",
+      },
+      kavya: {
+        name:"Kavya",
+        age:"36",
+        body:"34DD-34-42 · hip 42",
+        origin:"Tamil Iyengar",
+        door:"Harder · Very Strict",
+        dirt:"High later",
+        status:"Live",
+        who:"Tamil Iyengar. Composure first. Harder door. Dirt later. Full body. Do not mock it.",
+        works:["Composure kept.", "After-hours house, empty corridor, family in the next hall.", "Heavy body wanted, not mocked.", "Class after sloka. Aunt must not hear."],
+        dies:["Iyengar, sloka, or Brahmin jokes.", "Student-strip or duty-clothes used as a menu."],
+        people:["Husband (office).", "Aunt (calls after sloka).", "Neighbour (next flat)."],
+        hints:"She opens when composure stays. Clothes climb. First look covered. Want the body, do not joke about the faith.",
+      },
+      navya: {
+        name:"Navya",
+        age:"38",
+        body:"34D-34-34 · hip 34",
+        origin:"Kochi Malayali",
+        door:"Middle · Moderate",
+        dirt:"High after she opens",
+        status:"Live",
+        who:"Kochi woman. Soft-expensive. Firm, not the biggest in the house. She does not open on the first line. Dirt comes after she trusts you.",
+        works:["Soft and expensive kept. Do not make her cheap.", "Kochi rain, humid evening, window open.", "Compact body wanted, not mocked.", "A small evening order that is hers. Sister must not hear the door."],
+        dies:["Cheap street on the first look.", "Malayali or coast jokes.", "Booking or rate-card talk.", "Rushing the clothes."],
+        people:["Husband (works late).", "His sister (calls after rain).", "Neighbour on the same floor (hears the door, does not come in unless she asks)."],
+        hints:"She opens when the room stays soft and the corridor stays quiet. Clothes climb. First look covered. You name the first look. Stay covered until she moves.",
+      },
+      lahari: {
+        name:"Lahari",
+        age:"40",
+        body:"36C-34-34 · hip 34",
+        origin:"Hyderabad Telugu",
+        door:"Middle · Moderate",
+        dirt:"High after she is treated as queen",
+        status:"Live",
+        who:"Hyderabad. Queen table. Warm house, not a booking. Clothes start covered.",
+        works:["Treat her like a queen.", "Night coming home, husband out, rich house that still has rules.", "Royal blue, gold talk.", "Double ka meetha for two houses. Her handling. Not a job."],
+        dies:["Booking talk.", "Cheap item talk.", "Calling the table a reservation."],
+        people:["Husband (late from the city).", "Sister (calls about guests).", "Neighbour (bazaar hour)."],
+        hints:"Warm and classy. She opens when she is treated as the one who runs the table. Clothes climb.",
+      },
+      sravani: {
+        name:"Sravani",
+        age:"45",
+        body:"34C-34-36 · hip 36",
+        origin:"Telugu village",
+        door:"Hardest · Extremely Strict",
+        dirt:"Very High much later",
+        status:"Live",
+        who:"Telugu village. Warm mother face. That is the trap. Slowest public door. Extremely strict at the start. Dirt much later.",
+        works:["Good mother still wanted.", "Courtyard, verandah, guest who will not sleep outside.", "Soft and filthy only after she is already opening.", "Payasam asked, not hired."],
+        dies:["Amma as a cheat code.", "Filth too early.", "Booking or baby talk."],
+        people:["Husband (field or shop).", "Brother’s wife (visits).", "Neighbour across the yard."],
+        hints:"She is the slowest. Patience works. Clothes climb. First look covered. Do not rush the dirt.",
+      },
+      aleena: {
+        name:"Aleena",
+        age:"34",
+        body:"36DD-34-40 · hip 40",
+        origin:"Kerala Christian",
+        door:"Harder · Strict",
+        dirt:"Medium after the house is quiet",
+        status:"Coming soon",
+        who:"Kerala Christian. Kochi house. Proper. Warm when the house is quiet. Faith stays. She does not mock it. She does not preach. Not Esther.",
+        works:["Covered and proper first.", "After evening mass, the church lane, tea.", "Soft Gold and the quiet house.", "A small Sunday table that is hers. Mother must not hear a fee."],
+        dies:["Faith jokes or nun punchlines.", "A bar job or a raid.", "Booking talk.", "The bust as the whole move."],
+        people:["Husband (Gulf months, calls late).", "His mother (calls about the lane and the church).", "Neighbour (sees the gate)."],
+        hints:"She opens when the faith stays respected and the house stays quiet. Clothes climb. First look covered. You name the first look.",
+      },
+      chandana: {
+        name:"Chandana",
+        age:"36",
+        body:"36C-34-38 · hip 38",
+        origin:"Hyderabad Telugu",
+        door:"Harder · Very Strict",
+        dirt:"Medium after respect is earned",
+        status:"Coming soon",
+        who:"Hyderabad woman. Traditional. Refined. Private house. Not a booking. Not a village Amma. Not Lahari’s table. Slow door. Careful.",
+        works:["Patient house talk. Marriage, the lane, Soft Rose.", "Traditional handling. She is not a booking.", "House rules stay up. Husband out is not a free house.", "A small bobbatlu order that is hers. Her name stays off the fee."],
+        dies:["Cheap street or paid talk.", "Amma talk.", "Mocking the hip.", "Baby talk or rushing the pallu."],
+        people:["Husband (late from the city).", "His mother (calls about who saw the door).", "Neighbour (sees the gate, does not come in unless she asks)."],
+        hints:"She opens when the lane stays quiet and the handling stays careful. Clothes climb. First look covered. You name the first look. Do not rush.",
+      },
+      simran: {
+        name:"Simran",
+        age:"Coming",
+        body:"36DD-34-38 · hip 38",
+        origin:"North Indian",
+        door:"Coming",
+        dirt:"Not locked",
+        status:"Coming soon",
+        who:"North Indian. Coming door. Full bust, hip 38. Not live for a night yet. Profile is open so you can look.",
+        works:["Covered first.", "Want the body, do not joke about it.", "Wait for the door to open."],
+        dies:["Treating a coming door like a live night.", "Slimming her to a small body.", "Booking talk."],
+        people:[],
+        hints:"She is not taking rooms yet. Clothes will climb when the door is live. First look stays covered.",
+      },
+    };
+
+    function lis(arr) {
+      return (arr || []).map(function (h) { return "<li>" + h + "</li>"; }).join("");
+    }
+    var HOME = {
+      "preethi": [
+            "Aditya is her husband. He works late. He is in the house even when he is not in the room.",
+            "Ram is the neighbour on the lane. He talks. He is not a prize.",
+            "Arun is the regular delivery man. He only comes in if the night already called him, or if she asks.",
+            "She does a little stitching of her own. The order book is not Aditya's. She will not announce it."
+      ],
+      "meghana": [
+            "Arun is her husband. He wants the promotion. He is proud, and he is late.",
+            "His boss is the other man in that room. Dinner, the office, the car after. Not a booking.",
+            "Her mother is on the phone. Family name. She does not need to walk in.",
+            "She will talk about his seat. She will not say she wants the chair."
+      ],
+      "esther": [
+            "Her husband comes home after work. He thinks Sunday is settled.",
+            "Her sister refused the choir trip. She calls, or she visits. She keeps the family face.",
+            "The sister's husband is in that house only if he is not already the man in the room.",
+            "She will talk about practice, the courtyard, plum cake. She will not call the trip hers."
+      ],
+      "meenakshi": [
+            "Her husband is out more than he is in. He calls the kitchen her duty.",
+            "Latha is the sister-in-law. She drops work and leaves. She is the one who asks.",
+            "The neighbour across the landing borrows sugar and talks. She does not come in to stay.",
+            "Filter coffee and sweets are the door. A box from this kitchen can be an order. She will not say that first."
+      ],
+      "tharini": [
+            "Her husband is at the Mumbai office. Home late. The flat is in his name.",
+            "The help comes, cooks, and leaves. She is why the flat goes quiet. She does not stay.",
+            "The neighbour on the same floor is polite. She does not come in unless Tharini asks.",
+            "She will talk about a light thali after the help has gone. She will not call it a business."
+      ],
+      "ayesha": [
+            "Her husband travels. The house is quieter when he is away. He is still the husband.",
+            "His sister calls. She asks who came.",
+            "The neighbour knows the namaz time. He does not come in unless Ayesha asks.",
+            "Biryani and sheer khurma are the door. A quiet order for two houses is hers. The lane does not hear it."
+      ],
+      "diya": [
+            "Her husband is in Madurai, out at the shop. He thinks the house is closed because she is shy.",
+            "His mother calls at dusk. She asks who is there.",
+            "The neighbour on the same street knows the gate. She does not come in unless Diya asks.",
+            "She does a little silk work from this house. Temple-town work. Her name is not on the lane."
+      ],
+      "natasha": [
+            "Her husband travels the coast. The house is hers while he is out. He is still the husband.",
+            "The cook comes, feeds, and leaves. She is why the evening goes quiet. She does not stay.",
+            "The neighbour uses her gate. He does not come in unless Natasha says so.",
+            "One guest night can be in her book, not his. She will not announce it."
+      ],
+      "kiara": [
+            "Her husband is in Delhi. Late. The flat is expensive because of him. She keeps the standard.",
+            "One woman on staff leaves before the evening. She does not stay for the night.",
+            "The neighbour is polite and curious. She does not come in unless Kiara asks.",
+            "She will take one private sitting she chooses. No gift on the first night. She will not call it a booking."
+      ],
+      "kavya": [
+            "Her husband comes home after the office. He thinks the evening sloka is enough.",
+            "His aunt calls after the sloka. She asks who stayed.",
+            "The neighbour in the next flat hears the door. She does not come in unless Kavya asks.",
+            "She may sit with two women after the sloka. Filter coffee. Her name, not the family's duty. She will not announce a class."
+      ],
+      "lahari": [
+            "Her husband is late from the city. He likes the table. He does not run it.",
+            "His sister calls about guests. She is the one who asks.",
+            "The neighbour knows the bazaar hour. She does not come in unless Lahari asks.",
+            "Double ka meetha can leave this table for two houses. Her handling. Not a booking. She will not call it a job."
+      ],
+      "sravani": [
+            "Her husband is out at the field or the shop. He thinks the verandah is settled.",
+            "Her brother's wife visits and talks. She is the one who asks.",
+            "The neighbour across the yard sees who sits. She does not come in unless Sravani asks.",
+            "Payasam for the next house function. They ask her. They do not hire her. She is not Meenakshi."
+      ]
+};
+    (function () {
+      var slug = (new URLSearchParams(location.search).get("slut") || "").toLowerCase().trim();
+      var c = CARDS[slug];
+      var root = document.getElementById("root");
+      if (!c) {
+        root.innerHTML = "<p>Unknown session card.</p><p class='links'><a href='/'>House</a></p>";
+        return;
+      }
+      document.title = c.name + " · Session card";
+      var face = "";
+      try {
+        if (window.DDSArt && DDSArt.pick) face = DDSArt.pick(slug, ["session", "profile", "lineup"]) || "";
+      } catch (e) {}
+      root.innerHTML =
+        '<div class="hero">' +
+          (face ? '<img src="' + face + '" alt="' + c.name + '">' : "") +
+          '<div>' +
+            '<p class="kicker">PURPLE · Session card</p>' +
+            "<h1>" + c.name + "</h1>" +
+            '<p class="meta">' + c.age + " · " + c.body + " · " + c.origin + "</p>" +
+            (c.footnote ? '<p class="foot">' + c.footnote + "</p>" : "") +
+            '<div class="stats">' +
+              "<div><b>Door</b>" + c.door + "</div>" +
+              "<div><b>Dirtiness</b>" + c.dirt + "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="card"><h2>Who she is</h2><p>' + (c.who || "") + "</p></div>" +
+        '<div class="card"><h2>What works</h2><ul>' + lis(c.works) + "</ul></div>" +
+        '<div class="card"><h2>What dies</h2><ul>' + lis(c.dies) + "</ul></div>" +
+        ((c.people && c.people.length) ? '<div class="card"><h2>People in the house</h2><ul>' + lis(c.people) + "</ul></div>" : "") +
+        '<div class="card"><h2>Hints</h2><p>' + (c.hints || "") + "</p><p style=\"margin-top:.45rem\"><b>How to start.</b> " + HOW_START + "</p></div>" +
+        '<div class="card"><h2>House standing</h2><p>DesireMember 30 min / 2 Turn-Offs · Bronze 30 / 2 · Silver 45 / 3 · Gold 60 / 5 · Elite 90 / 10 · Platinum 120 / none. Silver can earn Owned by after five finished nights with her. Gold and above need three.</p><p style="margin-top:.45rem">Favorites = two names, 20 days. Rel codes are retired. Spin only if she sends the link.</p></div>' +
+        '<p class="foot">Do not print Jackpot sentences, mini words, OPNS, caps, Admin, or Rel codes. Do not paste this card at her.</p>' +
+        '<div class="links">' +
+          '<a class="main" href="/' + slug + '">Full profile</a>' +
+          '<a href="/how_to_play.html">How to play</a>' +
+          '<a href="/rate.html?slut=' + slug + '">Rate a session</a>' +
+        "</div>";
+    })();
+  </script>
+</body>
+</html>

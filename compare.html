@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compare • PURPLE</title>
+  <meta name="description" content="Pick two to four women. Rank, body, door, and board scores sit side by side."/>
+  <link rel="icon" href="favicon.svg"/>
+  <link rel="stylesheet" href="dds-chrome.css"/>
+  <style>
+    :root {
+      --bg:#12081a; --card:#1b0f28; --row:#201334;
+      --gold:#e8c56b; --gold-soft:#f3d98a; --purple:#c4a0ff;
+      --text:#f6edff; --muted:#cbb8e6; --line:#4a2f6a;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;line-height:1.45}
+    a{color:var(--gold);text-decoration:none}
+    .wrap{max-width:1180px;margin:0 auto;padding:1.4rem 1.1rem 3rem}
+    .hero{text-align:center;padding:1.2rem 0 1rem;border-bottom:1px solid var(--line);margin-bottom:1.2rem}
+    .hero h1{font-size:clamp(1.7rem,4vw,2.4rem);color:var(--gold);letter-spacing:.04em}
+    .hero p{color:var(--muted);margin-top:.35rem}
+    .picker-label{text-align:center;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);margin:.8rem 0 .55rem}
+    .picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.5rem;margin-bottom:1rem}
+    .pick{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;text-align:center;color:var(--text)}
+    .pick img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center top;display:block;background:#2a1838}
+    .pick span{display:block;padding:.35rem .25rem .45rem;font-size:.78rem}
+    .pick small{display:block;color:var(--muted);font-size:.62rem;margin-top:.08rem}
+    .pick.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+    .pick.locked{opacity:.4;cursor:not-allowed}
+    .toolbar{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;align-items:center;margin:0 0 1.2rem}
+    .hint{font-size:.8rem;color:var(--muted)}
+    .btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.4rem .85rem;border-radius:8px;cursor:pointer;font:inherit;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+    .empty{text-align:center;padding:2rem 1rem;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#221433,#1b0f28);box-shadow:0 12px 40px rgba(0,0,0,.28)}
+    table{width:100%;border-collapse:collapse;min-width:720px}
+    th,td{padding:.75rem .7rem;text-align:center;border-bottom:1px solid rgba(74,47,106,.65);font-size:.84rem;vertical-align:middle}
+    th.rowh,td.rowh{text-align:left;color:var(--purple);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;width:150px;background:#27153a}
+    thead th{background:#3a2154;color:var(--gold)}
+    .col-head{min-width:160px}
+    .col-head a{color:var(--text);display:block}
+    .col-head img{width:92px;height:122px;object-fit:cover;object-position:center top;border-radius:10px;display:block;margin:0 auto .45rem;border:1px solid rgba(232,197,107,.4);background:#2a1838}
+    .col-head b{display:block;font-size:.95rem;color:var(--gold-soft)}
+    .col-head small{display:block;color:var(--muted);font-size:.68rem;margin-top:.1rem}
+    .win{color:var(--gold);font-weight:700;background:rgba(232,197,107,.08)}
+    .result-col{min-width:120px;color:var(--gold-soft);font-weight:700;font-size:.82rem}
+    .soft{color:var(--muted);font-size:.78rem;line-height:1.35}
+    .verdict{margin-top:1.1rem;border:1px solid var(--line);border-radius:16px;background:#160a22;padding:1rem 1.1rem 1.05rem}
+    .verdict h2{font-size:1.05rem;color:var(--gold);letter-spacing:.04em;margin:0 0 .55rem}
+    .verdict .lead{font-size:1rem;color:var(--text);margin:0 0 .7rem;line-height:1.4}
+    .beats{display:grid;gap:.45rem}
+    .beat{background:#201334;border:1px solid #3a2454;border-radius:10px;padding:.55rem .7rem;font-size:.88rem;line-height:1.4;color:#f0e6ff}
+    .beat b{color:var(--gold-soft)}
+    .beat span{color:#d7b36a;text-transform:uppercase;letter-spacing:.06em;font-size:.68rem}
+    footer{text-align:center;padding:1.6rem 1rem;color:var(--muted);font-size:.78rem}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="hero">
+      <h1>Compare</h1>
+      <p>Pick two to four women. Clean scores. Then who the hotter slut is.</p>
+    </div>
+    <p class="picker-label">Select who to put on the table</p>
+    <div class="picker" id="picker"></div>
+    <div class="toolbar">
+      <span class="hint" id="countHint">Select 2–4 women</span>
+      <button class="btn" type="button" id="clearBtn">Clear</button>
+      <button class="btn" type="button" id="topBtn">Top 4</button>
+    </div>
+    <div id="result"></div>
+  </main>
+  <footer>PURPLE · Chat and Strip</footer>
+  <script src="supabase-config.js"></script>
+  <script src="dds-art.js"></script>
+  <script src="dds-chrome.js"></script>
+  <script>
+    var META = {
+      preethi:   { name:"Preethi",   age:37, meas:"36C-34-44", origin:"Chennai Tamil", sf:"Moderate", df:"Very High", door:"Middle", hint:"Careful want. Soft house risk." },
+      diya:      { name:"Diya",      age:34, meas:"36DD-34-40", origin:"Madurai", sf:"Very Strict", df:"Low", door:"Very hard", hint:"Looks innocent. Stays closed." },
+      meghana:   { name:"Meghana",   age:36, meas:"36D-34-36", origin:"Kannadiga", sf:"Strict", df:"High", door:"Harder", hint:"Poised. Chosen, not cheap." },
+      sravani:   { name:"Sravani",   age:45, meas:"34C-34-36", origin:"Telugu village", sf:"Extremely Strict", df:"Extreme", door:"Strictest", hint:"Motherly courtyard Amma." },
+      ayesha:    { name:"Ayesha",    age:36, meas:"34D-34-34", origin:"Tamil Muslim", sf:"Moderate-Strict", df:"Very High", door:"Harder", hint:"Modest first look." },
+      esther:    { name:"Esther",    age:37, meas:"34C-34-38", origin:"Tamil Christian", sf:"Highly Accommodative", df:"High", door:"Easier-mid", hint:"Soft church-house warmth." },
+      kiara:     { name:"Kiara",     age:40, meas:"34C-32-34", origin:"Delhi", sf:"Very Strict", df:"Low", door:"Very hard", hint:"Expensive. Low dirt." },
+      natasha:   { name:"Natasha",   age:36, meas:"34D-34-38", origin:"Goa", sf:"Very Strict", df:"Very High", door:"Very hard", hint:"Pride Queen. House in charge." },
+      tharini:   { name:"Tharini",   age:34, meas:"34D-34-38", origin:"Mumbai", sf:"Strict", df:"Medium", door:"Harder", hint:"Refined middle door." },
+      kavya:     { name:"Kavya",     age:36, meas:"34DD-34-42", origin:"Tamil Iyengar", sf:"Moderate-Strict", df:"High", door:"Harder", hint:"Composure first." },
+      lahari:    { name:"Lahari",    age:40, meas:"36C-34-34", origin:"Hyderabad Telugu", sf:"Moderate", df:"High", door:"Middle", hint:"Hyderabad queen." }
+    };
+    /* Live doors only. Coming soon (Navya, Simran, Chandana, Aleena) and trainers stay out. */
+    var ORDER = ["preethi","diya","meghana","tharini","natasha","sravani","ayesha","esther","kiara","kavya","lahari"];
+
+    var ART = "https://axavugukoesqkfykprur.supabase.co/storage/v1/object/public/dds-art/";
+    var MAX = 4;
+    var sluts = [];
+    var selected = new Set();
+    var picker = document.getElementById("picker");
+    var result = document.getElementById("result");
+    var countHint = document.getElementById("countHint");
+
+    function face(slug) {
+      return ART + "lineup/" + slug + ".jpg";
+    }
+    function imgTag(slug, name) {
+      return '<img data-slut="' + slug + '" data-slot="profile" src="' + face(slug) + '" alt="' + name + '" onerror="this.onerror=null;this.src=\'' + ART + "lineup/" + slug + ".jpg'\">";
+    }
+    function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
+
+    function merge(boardRows) {
+      var map = {};
+      (boardRows || []).forEach(function (b) { map[String(b.slut || "").toLowerCase()] = b; });
+      sluts = ORDER.map(function (id, i) {
+        var m = META[id] || { name: id };
+        var b = map[id] || {};
+        return {
+          id: id,
+          name: m.name,
+          age: m.age,
+          meas: m.meas,
+          origin: m.origin,
+          sf: m.sf,
+          df: m.df,
+          door: m.door,
+          hint: m.hint,
+          rank: i + 1,
+          tier: b.tier || "—",
+          score: num(b.desire_score),
+          sess: num(b.sessions),
+          avg: num(b.avg_rating),
+          poll: num(b.poll_votes),
+          body: num(b.body),
+          cum: num(b.cum),
+          crate: num(b.cum_rate),
+          please: num(b.please),
+          convo: num(b.convo),
+          reatt: num(b.again),
+          reviews: num(b.reviews),
+          hearts: num(b.hearts)
+        };
+      }).sort(function (a, b) { return b.score - a.score; });
+      sluts.forEach(function (s, i) { s.rank = i + 1; });
+    }
+
+    function renderPicker() {
+      picker.innerHTML = sluts.map(function (s) {
+        return '<button type="button" class="pick' + (selected.has(s.id) ? " on" : "") +
+          ((!selected.has(s.id) && selected.size >= MAX) ? " locked" : "") +
+          '" data-id="' + s.id + '">' + imgTag(s.id, s.name) +
+          "<span>" + s.name + "<small>#" + s.rank + " · " + s.tier + "</small></span></button>";
+      }).join("");
+      picker.querySelectorAll(".pick").forEach(function (btn) {
+        btn.addEventListener("click", function () { toggle(btn.getAttribute("data-id")); });
+      });
+      var n = selected.size;
+      countHint.textContent = n === 0 ? "Select 2–4 women" : (n === 1 ? "Pick at least one more" : n + " selected");
+      if (window.DDS_artRefresh) window.DDS_artRefresh();
+    }
+
+    function toggle(id) {
+      if (selected.has(id)) selected.delete(id);
+      else if (selected.size < MAX) selected.add(id);
+      renderPicker();
+      renderTable();
+      var ids = Array.from(selected);
+      history.replaceState(null, "", ids.length ? ("#cmp=" + ids.join(",")) : location.pathname);
+    }
+
+    function best(list, key, higher) {
+      var nums = list.map(function (s) { return s[key]; });
+      return higher ? Math.max.apply(null, nums) : Math.min.apply(null, nums);
+    }
+    function winners(list, key, higher) {
+      var mark = best(list, key, higher);
+      return list.filter(function (s) { return s[key] === mark; }).map(function (s) { return s.name; }).join(" / ");
+    }
+    function cell(val, win) {
+      return '<td class="' + (win ? "win" : "") + '">' + val + "</td>";
+    }
+
+    function filthyBeats(list) {
+      if (list.length < 2) return "";
+      var sorted = list.slice().sort(function (a, b) { return b.score - a.score; });
+      var top = sorted[0];
+      var rest = sorted.slice(1);
+      var lines = [];
+      rest.forEach(function (other) {
+        var bits = [];
+        if (top.score > other.score) bits.push("men want her more");
+        if (top.sess > other.sess) bits.push("more men have been inside her nights");
+        if (top.hearts > other.hearts) bits.push("more men claim her");
+        if (top.avg > other.avg) bits.push("men rate her higher after they finish");
+        if (top.reviews > other.reviews) bits.push("more men write about her body");
+        if (!bits.length) bits.push("she holds the higher place");
+        lines.push("<div class=\"beat\"><b>" + top.name + "</b> beats <b>" + other.name + "</b>. " +
+          bits.slice(0, 3).join(". ").replace(/^./, function (c) { return c.toUpperCase(); }) +
+          ". She is the hotter slut on this table.</div>");
+      });
+      // Category lines
+      var cats = [
+        { k:"score", hi:true, line:function (w, l) { return w + " sits higher on the board. Men keep her hotter."; } },
+        { k:"sess", hi:true, line:function (w, l) { return w + " gets used more. More nights. More men."; } },
+        { k:"hearts", hi:true, line:function (w, l) { return w + " has more men claiming her cunt."; } },
+        { k:"avg", hi:true, line:function (w, l) { return "Men rate " + w + " higher after they cum."; } },
+        { k:"reviews", hi:true, line:function (w, l) { return "More men have written about " + w + "'s body."; } }
+      ];
+      cats.forEach(function (c) {
+        var mark = best(list, c.k, c.hi);
+        var wins = list.filter(function (s) { return s[c.k] === mark; });
+        if (wins.length === 1 && list.length > 1) {
+          var loser = list.filter(function (s) { return s.id !== wins[0].id; })[0];
+          if (loser && wins[0][c.k] > (c.hi ? 0 : -1)) {
+            lines.push("<div class=\"beat\"><span>" + c.k + "</span> · " + c.line(wins[0].name, loser.name) + "</div>");
+          }
+        }
+      });
+      var lead = "<p class=\"lead\"><b>" + top.name + "</b> is the slut who beats this table. Score " + top.score.toFixed(1) + ". " +
+        top.sess + " nights. " + top.hearts + " men claiming her.</p>";
+      return '<div class="verdict"><h2>Who beats who</h2>' + lead + '<div class="beats">' + lines.join("") + "</div></div>";
+    }
+
+    function renderTable() {
+      var list = sluts.filter(function (s) { return selected.has(s.id); });
+      if (list.length < 2) {
+        result.innerHTML = '<div class="empty">Choose at least two women to open the comparison table.</div>';
+        return;
+      }
+      var hi = function (k) { return best(list, k, true); };
+      var lo = function (k) { return best(list, k, false); };
+      function row(label, fmt, resultText) {
+        return "<tr><td class='rowh'>" + label + "</td>" + list.map(fmt).join("") +
+          "<td class='result-col'>" + (resultText || "—") + "</td></tr>";
+      }
+      result.innerHTML =
+        '<div class="table-wrap"><table><thead><tr><th class="rowh">Field</th>' +
+        list.map(function (s) {
+          return '<th class="col-head"><a href="' + s.id + '.html">' + imgTag(s.id, s.name) +
+            "<b>" + s.name + "</b><small>#" + s.rank + " · " + s.tier + "</small></a></th>";
+        }).join("") +
+        '<th class="result-col">Winner</th></tr></thead><tbody>' +
+        row("Rank", function (s) { return cell("No. " + s.rank, s.rank === lo("rank")); }, winners(list, "rank", false)) +
+        row("Tier", function (s) { return "<td>" + s.tier + "</td>"; }, "—") +
+        row("Desire Score", function (s) { return cell(s.score.toFixed(1), s.score === hi("score")); }, winners(list, "score", true)) +
+        row("Sessions", function (s) { return cell(s.sess, s.sess === hi("sess")); }, winners(list, "sess", true)) +
+        row("Avg Rating", function (s) { return cell(s.avg.toFixed(2), s.avg === hi("avg")); }, winners(list, "avg", true)) +
+        row("Hearts", function (s) { return cell(s.hearts, s.hearts === hi("hearts")); }, winners(list, "hearts", true)) +
+        row("Age", function (s) { return "<td>" + s.age + "</td>"; }, "—") +
+        row("Measurements", function (s) { return "<td>" + s.meas + "</td>"; }, "—") +
+        row("Origin", function (s) { return "<td>" + s.origin + "</td>"; }, "—") +
+        row("Door", function (s) { return "<td>" + s.door + "</td>"; }, "—") +
+        row("Reviews", function (s) { return cell(s.reviews, s.reviews === hi("reviews")); }, winners(list, "reviews", true)) +
+        row("How to play", function (s) { return '<td class="soft">' + s.hint + "</td>"; }, "—") +
+        "</tbody></table></div>" + filthyBeats(list);
+      if (window.DDS_artRefresh) window.DDS_artRefresh();
+    }
+
+    document.getElementById("clearBtn").onclick = function () {
+      selected.clear();
+      renderPicker();
+      renderTable();
+      history.replaceState(null, "", location.pathname);
+    };
+    document.getElementById("topBtn").onclick = function () {
+      selected.clear();
+      sluts.slice(0, 4).forEach(function (s) { selected.add(s.id); });
+      renderPicker();
+      renderTable();
+      history.replaceState(null, "", "#cmp=" + sluts.slice(0, 4).map(function (s) { return s.id; }).join(","));
+    };
+
+    merge([]);
+    var hash = (location.hash.match(/cmp=([\w,]+)/) || [])[1];
+    if (hash) hash.split(",").filter(function (id) { return META[id]; }).slice(0, MAX).forEach(function (id) { selected.add(id); });
+    else { selected.add("preethi"); selected.add("diya"); }
+    renderPicker();
+    renderTable();
+
+    (function loadBoard() {
+      var cfg = window.DDS_SUPABASE || {};
+      if (!cfg.url || !cfg.anon) return;
+      fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/board?select=slut,sessions,avg_rating,poll_votes,desire_score,tier,body,convo,please,again,reviews,cum,cum_rate,hearts", {
+        headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon }
+      }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+        merge(rows);
+        var keep = Array.from(selected).filter(function (id) { return sluts.some(function (s) { return s.id === id; }); });
+        selected = new Set(keep.length ? keep : ["preethi", "diya"]);
+        renderPicker();
+        renderTable();
+      }).catch(function () {});
+    })();
+  </script>
+</body>
+</html>

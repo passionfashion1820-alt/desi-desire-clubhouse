@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat & Strip – Private Edition • Desi Desire Syndicate</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050308;
+      font-family: 'Inter', sans-serif;
+      padding: 1rem;
+    }
+
+    .poster {
+      display: grid;
+      grid-template-columns: 0.85fr 1.4fr 0.85fr;
+      width: 1100px;
+      max-width: 100%;
+      min-height: 640px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 80, 140, 0.4);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.7),
+        0 30px 90px rgba(0,0,0,0.9),
+        0 0 80px rgba(255, 40, 100, 0.2),
+        0 0 40px rgba(180, 40, 200, 0.12);
+    }
+
+    /* SIDE IMAGE PANELS */
+    .side {
+      position: relative;
+      min-height: 640px;
+      background-size: cover;
+      background-position: center top;
+    }
+
+    .side.left {
+      background-image:
+        linear-gradient(
+          90deg,
+          rgba(8,4,10,0.08) 0%,
+          rgba(8,4,12,0.35) 55%,
+          rgba(10,6,16,0.92) 100%
+        ),
+        url('https://i.ibb.co/Nn3Dx5zc/5e3ac555-30be-4bfe-9599-f4c697011769-d1f32892-09c9-4c83-a143-618e930dedc9.png');
+    }
+
+    .side.right {
+      background-image:
+        linear-gradient(
+          270deg,
+          rgba(8,4,10,0.08) 0%,
+          rgba(8,4,12,0.35) 55%,
+          rgba(10,6,16,0.92) 100%
+        ),
+        url('https://i.ibb.co/5XnyMG9Y/grok-image-02bc9206-3d34-4000-8a25-f565c8444b1a.jpg');
+    }
+
+    .side::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 40, 100, 0.06) 0%,
+        transparent 40%,
+        rgba(120, 20, 80, 0.2) 100%
+      );
+      pointer-events: none;
+    }
+
+    .neon-strip {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #ff4d9a, #c44dff, #ff2d6f, #ff8c42);
+      box-shadow:
+        0 0 12px #ff4d9a,
+        0 0 28px rgba(255, 77, 154, 0.7),
+        0 0 50px rgba(196, 77, 255, 0.4);
+    }
+
+    .side.left .neon-strip { right: 0; }
+    .side.right .neon-strip { left: 0; }
+
+    /* CENTER CONTENT */
+    .center {
+      background: linear-gradient(165deg, #120a14 0%, #0a0610 50%, #0e0814 100%);
+      padding: 1.6rem 1.5rem 1.4rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .center::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 50, 120, 0.12), transparent 45%),
+        radial-gradient(ellipse at 50% 100%, rgba(160, 40, 200, 0.08), transparent 40%);
+      pointer-events: none;
+    }
+
+    .content { position: relative; z-index: 1; }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .brand span {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      font-weight: 600;
+      color: #ff9ec8;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(255, 100, 160, 0.55);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem;
+      font-weight: 800;
+      text-align: center;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 0.15rem;
+      text-shadow:
+        0 0 18px rgba(255, 80, 140, 0.35),
+        0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .live {
+      text-align: center;
+      color: #ffb4d0;
+      font-size: 0.8rem;
+      margin-bottom: 0.9rem;
+      text-shadow: 0 0 10px rgba(255, 120, 180, 0.35);
+    }
+
+    .live .neon {
+      color: #ff6eb4;
+      font-weight: 700;
+      text-shadow:
+        0 0 6px #ff6eb4,
+        0 0 14px #ff4d9a,
+        0 0 24px rgba(255, 77, 154, 0.55);
+      animation: neonPulse 2.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.28); }
+    }
+
+    .cat-box {
+      border: 1px solid rgba(255, 180, 80, 0.45);
+      border-radius: 10px;
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 1rem;
+      background: rgba(255, 160, 40, 0.06);
+      box-shadow:
+        0 0 22px rgba(255, 160, 40, 0.12),
+        inset 0 0 24px rgba(255, 180, 60, 0.04);
+      text-align: center;
+    }
+
+    .cat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: #ffd06a;
+      text-transform: uppercase;
+      margin-bottom: 0.28rem;
+      text-shadow: 0 0 10px rgba(255, 200, 80, 0.45);
+    }
+
+    .cat-link {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.01em;
+      text-shadow:
+        0 0 8px #ffd06a,
+        0 0 18px rgba(232, 176, 64, 0.5);
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.02rem;
+      color: #ffd06a;
+      margin-bottom: 0.4rem;
+      text-shadow: 0 0 12px rgba(255, 200, 80, 0.35);
+    }
+
+    .book-box {
+      border: 1px solid rgba(255, 100, 160, 0.28);
+      border-radius: 10px;
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 0.9rem;
+      background: rgba(255, 40, 100, 0.05);
+    }
+
+    .book-box ol {
+      margin: 0 0 0.5rem 1.05rem;
+      color: #f2e4ee;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .book-box ol strong {
+      color: #ff6eb4;
+      text-shadow: 0 0 8px rgba(255, 110, 180, 0.4);
+    }
+
+    .examples {
+      font-size: 0.7rem;
+      color: #c8b0c0;
+      margin-bottom: 0.3rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.32rem;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      padding: 0.22rem 0.45rem;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 180, 80, 0.35);
+      color: #ffd06a;
+      background: rgba(255, 180, 60, 0.08);
+      text-shadow: 0 0 8px rgba(255, 200, 80, 0.3);
+    }
+
+    .desc {
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #e8d4e0;
+      margin-bottom: 0.9rem;
+    }
+
+    .desc .neon {
+      color: #ff6eb4;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(255, 110, 180, 0.45);
+    }
+
+    .levels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.2rem 0.7rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.74rem;
+      color: #f0e0ea;
+    }
+
+    .levels span {
+      color: #ff9ec8;
+      font-weight: 600;
+    }
+
+    .profiles {
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #e8d4e0;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer {
+      text-align: center;
+      border-top: 1px solid rgba(255, 80, 140, 0.22);
+      padding-top: 0.6rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #ffb4d0;
+      text-shadow: 0 0 10px rgba(255, 120, 180, 0.35);
+    }
+
+    @media (max-width: 900px) {
+      .poster {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .side {
+        min-height: 220px;
+      }
+      .side.left { order: 0; }
+      .center { order: 1; }
+      .side.right { order: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <!-- LEFT IMAGE -->
+    <div class="side left">
+      <div class="neon-strip"></div>
+    </div>
+
+    <!-- CENTER CONTENT -->
+    <div class="center">
+      <div class="content">
+        <div class="brand"><span>Desi Desire Syndicate</span></div>
+
+        <h1>Chat &amp; Strip – Private Edition</h1>
+        <div class="live">Official Website Now <span class="neon">Live</span></div>
+
+        <div class="cat-box">
+          <div class="cat-label">Visit the Catalogue</div>
+          <div class="cat-link">desireclubhouse.netlify.app</div>
+        </div>
+
+        <h2>How to Book a Session</h2>
+        <div class="book-box">
+          <ol>
+            <li>Visit the website and explore the catalogue</li>
+            <li>Decide which slut + version you want</li>
+            <li>Return to <strong>Piksor</strong></li>
+            <li>Message <strong>PRIVATE ADMINS</strong> with your choice</li>
+          </ol>
+          <div class="examples">Examples:</div>
+          <div class="tags">
+            <span class="tag">I want Maid Tejasvi</span>
+            <span class="tag">I want Hooker Preetha</span>
+            <span class="tag">I want Doctor Kavitha</span>
+          </div>
+        </div>
+
+        <h2>What is this game?</h2>
+        <p class="desc">
+          A slow-burn erotic roleplay experience. You choose a slut, build
+          <span class="neon">Turn-Ons</span> through careful conversation, and unlock progressive
+          stripping levels. Real images are generated as you advance.
+          Patience and the right approach decide how far she opens.
+        </p>
+
+        <h2>10 Stripping Levels</h2>
+        <div class="levels">
+          <div><span>1.</span> Sleeveless + Back Show</div>
+          <div><span>2.</span> Navel Show + Cleavage</div>
+          <div><span>3.</span> Cleavage – Sweaty</div>
+          <div><span>4.</span> Pallu Off + Hot Thighs</div>
+          <div><span>5.</span> Bra only + Saree draped</div>
+          <div><span>6.</span> Bra + Saree below waist</div>
+          <div><span>7.</span> Topless + Saree below waist</div>
+          <div><span>8.</span> Ass Naked</div>
+          <div><span>9.</span> Full Naked</div>
+          <div><span>10.</span> Blowjob</div>
+        </div>
+
+        <h2>Slut Profiles &amp; Versions</h2>
+        <p class="profiles">
+          Browse every available slut on the website. Each profile shows
+          her origin, strictness, measurements, and available versions
+          (Normal, Doctor, Maid, Hooker, Teacher…). Click any slut to see
+          full details and choose the exact version you want.
+        </p>
+
+        <div class="footer">Desi Desire Gentlemen's Club</div>
+      </div>
+    </div>
+
+    <!-- RIGHT IMAGE -->
+    <div class="side right">
+      <div class="neon-strip"></div>
+    </div>
+  </div>
+</body>
+</html>

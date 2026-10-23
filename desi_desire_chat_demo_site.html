@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How a private session works</title>
+  <style>
+    :root { --gold:#d4af37; --text:#f3e9d7; --muted:#b9a892; --border:#4a2c2f; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; height:100%; background:#0a0809; color:var(--text); font-family:Inter,system-ui,sans-serif; }
+    .page { max-width:1100px; margin:0 auto; padding:.8rem .8rem 1.4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:.7rem; margin-bottom:.7rem; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:.55rem; text-decoration:none; color:var(--gold); }
+    .brand img { width:36px; height:36px; object-fit:cover; border-radius:8px; border:1px solid var(--border); }
+    .brand span { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-family:Georgia,serif; }
+    .back { background:var(--gold); color:#1a1008; text-decoration:none; font-weight:700; font-size:.78rem; padding:.4rem .7rem; border-radius:8px; }
+    h1 { color:var(--gold); font-family:Georgia,serif; font-size:1.15rem; margin:0 0 .25rem; }
+    .lede { color:var(--muted); font-size:.8rem; margin:0 0 .7rem; }
+    .stage { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#120e10; min-height:540px; position:relative; }
+    header.bar { display:flex; align-items:center; gap:.45rem; padding:.35rem .55rem; border-bottom:1px solid var(--border); }
+    header.bar img { width:32px; height:32px; object-fit:cover; border-radius:6px; }
+    header.bar h2 { margin:0; font-size:.88rem; color:var(--gold); font-family:Georgia,serif; }
+    header.bar .nick { font-size:.62rem; color:#e8c97a; }
+    .cardbtn { background:var(--gold); color:#1a1008; font-weight:800; font-size:.72rem; padding:.28rem .6rem; border-radius:8px; text-decoration:none; margin-left:.2rem; }
+    .chip { font-size:.72rem; font-weight:700; border:1px solid var(--gold); border-radius:8px; padding:.28rem .55rem; color:var(--muted); }
+    .chip b { color:#ffe566; }
+    .chip.off b { color:#ff8a8a; }
+    .live { margin-left:auto; font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .45rem; border-radius:99px; background:#ffd36a; color:#1a1408; }
+    #board { padding:.35rem .6rem .4rem; border-bottom:1px solid var(--border); display:grid; grid-template-columns:auto 1fr; gap:.4rem .6rem; align-items:center; }
+    .lvl { width:2.5rem; height:2.5rem; border-radius:9px; background:radial-gradient(circle at 30% 20%,#ffe9a0,#d4af37 55%,#8a6a18); color:#1a1008; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; }
+    .lvl b { font-size:1.05rem; line-height:1; }
+    .lvl span { font-size:.4rem; letter-spacing:.1em; }
+    .aff-row { display:flex; justify-content:space-between; font-size:.68rem; color:#e8c97a; }
+    .aff-row strong { color:#ffe566; }
+    .bar { height:10px; border-radius:99px; background:#2a2214; border:1px solid #5a4a20; overflow:hidden; margin-top:.15rem; }
+    .bar i { display:block; height:100%; width:4%; background:linear-gradient(90deg,#ffe566 0%,#ffc44d 35%,#ff6a2a 70%,#ff1a1a 100%); transition:width .7s ease; }
+    .next { font-size:.62rem; color:var(--muted); margin-top:.15rem; }
+    .body { display:flex; min-height:380px; }
+    #gal { flex:0 0 62%; background:#070506; padding:.45rem; display:flex; flex-wrap:wrap; gap:.35rem; align-content:flex-start; }
+    #gal img { width:calc(33.33% - .25rem); height:110px; object-fit:cover; border:2px solid var(--gold); border-radius:8px; }
+    #log { flex:1; border-left:1px solid var(--border); padding:.4rem; display:flex; flex-direction:column; gap:.35rem; overflow:hidden; }
+    .bubble { max-width:92%; padding:.35rem .45rem; border-radius:8px; font-size:.74rem; line-height:1.35; }
+    .bubble.model { align-self:flex-end; background:#2a1520; border:1px solid #c45a8a; }
+    .bubble.player { align-self:flex-start; background:#2a2214; border:1px solid #d4af37; }
+    .bubble.scout { align-self:flex-end; background:#12202c; border:1px solid #5aa8ff; }
+    .who { font-size:.55rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.12rem; }
+    .model .who { color:#ff8ac4; }
+    .player .who { color:#ffd36a; }
+    .scout .who { color:#7ec8ff; }
+    #gate { position:absolute; inset:0; background:rgba(10,8,9,.92); display:flex; align-items:center; justify-content:center; padding:1rem; }
+    #gate.hidden { display:none; }
+    .gatecard { max-width:28rem; background:#120e10; border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.15rem; }
+    .gatecard .brand2 { color:var(--gold); font-family:Georgia,serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
+    .gatecard h3 { margin:.35rem 0 .5rem; color:var(--gold); font-family:Georgia,serif; }
+    .gatecard p { color:var(--muted); font-size:.88rem; line-height:1.45; margin:.35rem 0; }
+    .btns { display:flex; gap:.4rem; margin-top:.7rem; }
+    .btns span { background:var(--gold); color:#1a1008; font-weight:800; font-size:.78rem; padding:.35rem .7rem; border-radius:8px; }
+    .btns span.ghost { background:transparent; color:var(--gold); border:1px solid var(--gold); }
+    #pop { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); }
+    #pop.on { display:flex; }
+    #pop .card { background:radial-gradient(circle at 50% 0%, #3a2a10, #120e10 70%); border:2px solid var(--gold); border-radius:16px; padding:1.1rem 1.3rem; text-align:center; min-width:16rem; }
+    #pop .k { font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:#e8c97a; }
+    #pop h4 { margin:.25rem 0 .2rem; color:var(--gold); font-family:Georgia,serif; }
+    #pop p { margin:0; color:var(--muted); font-size:.8rem; }
+    nav.nav, .dds-drawer, .dds-burger, .dds-img-tip { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <a class="brand" href="https://desireclubhouse.netlify.app/">
+        <img src="https://desireclubhouse.netlify.app/favicon.svg" alt="" onerror="this.onerror=null;this.remove();" />
+        <span>Desi Desire Syndicate</span>
+      </a>
+      <a class="back" href="https://desireclubhouse.netlify.app/">← Back to House</a>
+    </div>
+    <h1>How a private session works</h1>
+    <p class="lede">This walkthrough plays itself. Not a live player. Watch the gate, the heat bar, and how talk climbs a still.</p>
+    <div class="stage" id="stage">
+      <header class="bar">
+        <img id="thumb" alt="" />
+        <div>
+          <h2>Preethi</h2>
+          <div class="nick">Ass queen · Chennai Tamil</div>
+        </div>
+        <a class="cardbtn" href="https://desireclubhouse.netlify.app/session.html?slut=preethi" target="_blank" rel="noopener">Preethi card</a>
+        <div class="chip off">Strikes <b id="strikes">0/3</b></div>
+        <div class="chip">Open <b id="open">Closed</b></div>
+        <div class="chip">Status <b id="status">Stranger</b></div>
+        <div class="live">DEMO</div>
+      </header>
+      <div id="board">
+        <div class="lvl"><b id="lvl">0</b><span>LEVEL</span></div>
+        <div>
+          <div class="aff-row"><span>Affinity</span><strong id="aff">0 / 38</strong></div>
+          <div class="bar"><i id="fill"></i></div>
+          <div class="next" id="next">Level 1 needs 38 more affinity</div>
+        </div>
+      </div>
+      <div class="body">
+        <div id="gal"></div>
+        <div id="log"></div>
+      </div>
+      <div id="gate">
+        <div class="gatecard" id="gateCard"></div>
+      </div>
+      <div id="pop"><div class="card"><div class="k" id="popK">Milestone</div><h4 id="popT">Level won</h4><p id="popS"></p></div></div>
+    </div>
+  </div>
+  <script>
+    const ART = "https://axavugukoesqkfykprur.supabase.co/storage/v1/object/public/dds-art/profile/preethi-1789090292102.png";
+    document.getElementById("thumb").src = ART;
+    function demoVerifiedFlag() {
+      try {
+        var q = new URLSearchParams(location.search || "");
+        if (q.get("v") === "1" || q.get("verified") === "1") {
+          sessionStorage.setItem("demo_verified", "1");
+          return true;
+        }
+        if (sessionStorage.getItem("demo_verified") === "1") return true;
+      } catch (e) {}
+      try {
+        var a = JSON.parse(localStorage.getItem("dds_account") || "null");
+        var v = a && a.verified;
+        if (a && (a.id || a.username) && (v === true || v === 1 || v === "1" || v === "true")) return true;
+      } catch (e) {}
+      return false;
+    }
+    function demoGuest() {
+      return !demoVerifiedFlag();
+    }
+    function fog(img) {
+      if (!img) return;
+      if (demoGuest()) img.style.setProperty("filter", "blur(14px)", "important");
+      else img.style.removeProperty("filter");
+    }
+    function fogAll() {
+      fog(document.getElementById("thumb"));
+      document.querySelectorAll("#gal img").forEach(fog);
+    }
+    fog(document.getElementById("thumb"));
+    const log = document.getElementById("log");
+    const gal = document.getElementById("gal");
+    const gate = document.getElementById("gate");
+    const card = document.getElementById("gateCard");
+    function bubble(kind, who, text) {
+      const el = document.createElement("div");
+      el.className = "bubble " + kind;
+      el.innerHTML = "<div class='who'>" + who + "</div>" + text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+    }
+    function board(lv, aff, floor, more, open, status) {
+      document.getElementById("lvl").textContent = lv;
+      document.getElementById("aff").textContent = aff + " / " + floor;
+      document.getElementById("fill").style.width = Math.max(4, Math.min(100, Math.round(aff / floor * 100))) + "%";
+      document.getElementById("next").textContent = "Level " + (Number(lv) + 1) + " needs " + more + " more affinity";
+      if (open) document.getElementById("open").textContent = open;
+      if (status) document.getElementById("status").textContent = status;
+    }
+    function still() {
+      const img = document.createElement("img");
+      img.className = "dds-tease";
+      img.src = ART;
+      img.alt = "";
+      gal.appendChild(img);
+      fog(img);
+    }
+    function pop(k, t, s, ms) {
+      document.getElementById("popK").textContent = k;
+      document.getElementById("popT").textContent = t;
+      document.getElementById("popS").textContent = s;
+      document.getElementById("pop").className = "on";
+      setTimeout(() => { document.getElementById("pop").className = ""; }, ms || 2200);
+    }
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+    async function play() {
+      log.innerHTML = "";
+      gal.innerHTML = "";
+      board(0, 0, 38, 38, "Closed", "Stranger");
+      gate.style.display = "flex";
+      card.innerHTML = "<div class='brand2'>Desi Desire Syndicate</div><h3>How this game works. Read it.</h3><p>This is a game where you chat and read about her and make her strip. If you go in and ask “strip”, “can you show”, or “be nude”, that will not work.</p><p>You earn stills by how you talk. Orders die. Patience climbs.</p><div class='btns'><span>Yes I Agree</span><span class='ghost'>No I am not skilled</span></div>";
+      await wait(4200);
+      card.innerHTML = "<div class='brand2'>Desi Desire Syndicate</div><h3>Private session</h3><p>21+. Slow-burn. Plan 30–45 minutes. Three strikes end the room. One night often does not reach Level 10. Read her card. Type. Climb.</p><div class='btns'><span>Yes I Agree</span><span class='ghost'>I decline</span></div>";
+      await wait(3800);
+      gate.style.display = "none";
+      still();
+      bubble("scout", "Desire Scout", "Player in the room: Arjun, 26.");
+      await wait(900);
+      bubble("model", "Preethi", "You can sit. Don’t make this cheap in the first minute.");
+      await wait(1600);
+      bubble("player", "You", "You still look so composed in that saree. I’m not here to bark take it off.");
+      board(0, 18, 38, 20, "Closed", "Stranger");
+      await wait(1600);
+      bubble("model", "Preethi", "That lands softer than the men who walk in already undressing me.");
+      board(0, 32, 38, 6, "Closed", "Stranger");
+      await wait(1500);
+      bubble("player", "You", "Stay in that blouse. I want the climb, not a command.");
+      board(1, 44, 90, 46, "Opening", "Stranger");
+      pop("Milestone", "Level 1 unlocked", "New still for this level.", 2400);
+      still();
+      await wait(2600);
+      bubble("scout", "Desire Scout", "ALERT: Don’t rush the blouse. Affinity is the climb, not “show me”.");
+      await wait(1800);
+      bubble("model", "Preethi", "If you keep talking like that I might forget I was going to send you out.");
+      board(1, 62, 90, 28, "Opening", "Stranger");
+      await wait(2800);
+      play();
+    }
+    play();
+  </script>
+</body>
+</html>

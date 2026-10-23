@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact to Play • PURPLE</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600&display=swap');
+    :root { --bg:#0a0809; --card:#140e10; --gold:#b794f6; --soft:#d8b4fe; --text:#f3e9d7; --muted:#b9a892; --border:#4a2c2f; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { min-height:100vh; background:#0a0809; color:var(--text); font-family:Inter,system-ui,sans-serif; line-height:1.5; }
+    a { color:var(--gold); text-decoration:none; }
+    a:hover { color:var(--soft); }
+    .wrap { max-width:820px; margin:0 auto; padding:2rem 1.2rem 3rem; }
+    h1 { font-family:"Playfair Display",serif; color:var(--soft); font-size:2rem; margin:.2rem 0 .8rem; }
+    h2 { font-family:"Playfair Display",serif; color:var(--gold); font-size:1.15rem; margin:0 0 .4rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.15rem; }
+    .card p { color:var(--muted); margin-bottom:.7rem; }
+    .handle { color:#fff6d8; font-weight:600; word-break:break-word; }
+    form { display:grid; gap:.55rem; }
+    select, input, textarea {
+      width:100%; padding:.65rem .7rem; border-radius:8px; border:1px solid var(--border);
+      background:#12080a; color:var(--text); font:inherit;
+    }
+    textarea { min-height:90px; resize:vertical; }
+    .btn {
+      display:inline-block; margin:.2rem .35rem .2rem 0; padding:.6rem .9rem;
+      background:linear-gradient(180deg,#6d28d9,#4c1d95); color:#f8e7b0;
+      border:1px solid var(--gold); border-radius:4px; font-weight:600; cursor:pointer; font:inherit;
+    }
+    .mask {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.78); z-index:40;
+      align-items:center; justify-content:center; padding:1rem;
+    }
+    .mask.on { display:flex; }
+    body.wait-only .wrap { display:none; }
+    body.wait-only footer { display:none; }
+    .pop {
+      width:min(420px,100%); background:#140e0c; border:1px solid var(--gold);
+      border-radius:12px; padding:1.4rem 1.2rem; text-align:center;
+    }
+    .pop h3 { font-family:"Playfair Display",serif; color:var(--gold); margin:.3rem 0 .4rem; }
+    .pop p { color:var(--muted); margin:0 0 .8rem; }
+    .spin {
+      width:36px; height:36px; margin:0 auto .8rem; border-radius:50%;
+      border:3px solid #3a2024; border-top-color:var(--gold); animation:spin .8s linear infinite;
+    }
+    .spin.off { display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    footer { text-align:center; color:var(--muted); font-size:.8rem; padding:1.4rem; }
+  </style>
+  <link rel="stylesheet" href="dds-chrome.css" />
+</head>
+<body>
+  <main class="wrap">
+    <h1>Contact to Play</h1>
+    <div class="card">
+      <h2>Ask for a private room</h2>
+      <p id="askLead">Your house card is enough. Stay here until the desk sends the room.</p>
+      <form id="askForm">
+        <input type="hidden" id="slutField" name="slut" value=""/>
+        <select id="slutPick" name="slut_pick" required>
+          <option value="">Choose her</option>
+          <option value="preethi">Preethi</option>
+          <option value="diya">Diya</option>
+          <option value="meghana">Meghana</option>
+          <option value="kiara">Kiara</option>
+          <option value="sravani">Sravani</option>
+          <option value="ayesha">Ayesha</option>
+          <option value="esther">Esther</option>
+          <option value="natasha">Natasha</option>
+          <option value="tharini">Tharini</option>
+          <option value="kavya">Kavya</option>
+          <option value="lahari">Lahari</option>
+          <option value="navya">Navya</option>
+          <option value="simran">Simran</option>
+          <option value="chandana">Chandana · coming soon</option>
+          <option value="aleena">Aleena · coming soon</option>
+          <option value="anu">Anu Nair · trainer</option>
+          <option value="meenakshi">Meenakshi Pillai · house trainer</option>
+        </select>
+        <button class="btn" type="submit">Click Here To Play</button>
+      </form>
+      <p id="askMsg" class="handle"></p>
+      <p id="enterBox" style="display:none;margin-top:.8rem">
+        <a class="btn" id="enterLink" href="#" target="_blank" rel="noopener">Enter her room</a>
+        <span class="handle" style="display:block;margin-top:.45rem">No extra login. Open the link, tap Yes I Agree twice, then you are in the room. Do not reuse an old link after the room ended.</span>
+      </p>
+    </div>
+    <div class="card" id="resetBox" style="display:none;margin-top:1rem">
+      <h2>Ask to reset the 20-minute wait</h2>
+      <p>Only if the room link was wrong. Give a real reason.</p>
+      <textarea id="resetReason" placeholder="Why should the desk clear the wait?"></textarea>
+      <button class="btn" type="button" id="resetAsk">Send reset request</button>
+      <p id="resetMsg" class="handle"></p>
+    </div>
+  </main>
+  <div class="mask" id="mask">
+    <div class="pop">
+      <div class="spin" id="popSpin"></div>
+      <h3 id="popTitle">Adding you to her room</h3>
+      <p id="popText">Stay on this page. Do not close this tab.</p>
+      <p><a class="btn" id="roomBtn" href="#" target="_blank" rel="noopener" style="display:none">Click Here To Play</a></p>
+      <button class="btn" type="button" id="popRetry" style="display:none">Retry</button>
+      <button class="btn" type="button" id="popCheck" style="display:none">Check again</button>
+      <button class="btn" type="button" id="popClose" style="display:none">Close</button>
+    </div>
+  </div>
+  <footer>PURPLE</footer>
+  <script src="supabase-config.js"></script>
+  <script src="dds-config.js"></script>
+  <script src="dds-inbox.js?v=20260927b"></script>
+  <script src="dds-chrome.js?v=20261023own"></script>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var slut = (q.get("slut") || "").trim().toLowerCase();
+      if (slut) {
+        document.getElementById("slutField").value = slut;
+        var pick = document.getElementById("slutPick");
+        if (pick) pick.value = slut;
+        var mask = document.getElementById("mask");
+        if (mask) mask.classList.add("on");
+        var spin = document.getElementById("popSpin");
+        if (spin) spin.classList.remove("off");
+        var title = document.getElementById("popTitle");
+        if (title) title.textContent = "Adding you to her room";
+        var text = document.getElementById("popText");
+        if (text) text.textContent = slut === "anu"
+          ? "Waiting for Anu. Do not close this tab."
+          : "Waiting for " + slut + ". Do not close this tab.";
+        if (slut === "anu") {
+          var doorName = (q.get("door") || "").trim();
+          var h1 = document.querySelector("h1");
+          var h2 = document.querySelector(".card h2");
+          if (h1) h1.textContent = "Train with Anu";
+          if (h2) h2.textContent = "Get trained about the game";
+          var lead0 = document.getElementById("askLead");
+          if (lead0) lead0.textContent = doorName
+            ? "Anu checks how you talk, then you open " + doorName + ". Stay here until the desk sends her chat."
+            : "Anu checks how you talk about the game. Stay here until the desk sends her chat.";
+          if (pick) pick.disabled = true;
+          var btn0 = document.querySelector("#askForm .btn");
+          if (btn0) btn0.textContent = "Click to get trained";
+        } else {
+          if (pick) pick.style.display = "none";
+          var btn1 = document.querySelector("#askForm .btn");
+          if (btn1) btn1.style.display = "none";
+        }
+      }
+      var myIp = "";
+      var lastId = window.DDS_INBOX.ticket();
+      var pollTimer = 0;
+      var pollStop = 0;
+      var lastSig = "";
+      var waiting = false;
+      var MAX_WAIT_MS = window.DDS_pollMs ? window.DDS_pollMs("playerWait", 180) : 180000;
+      var RETRY_MAX = 3;
+      var RETRY_WAIT_MS = 5 * 60 * 1000;
+      var RETRY_N = "dds_retry_n";
+      var RETRY_UNTIL = "dds_retry_until";
+      function retryCount() { try { return Number(localStorage.getItem(RETRY_N) || 0) || 0; } catch (e) { return 0; } }
+      function retryUntil() { try { return Number(localStorage.getItem(RETRY_UNTIL) || 0) || 0; } catch (e) { return 0; } }
+      function setRetryCount(n) { try { localStorage.setItem(RETRY_N, String(n)); } catch (e) {} }
+      function setRetryUntil(ts) { try { localStorage.setItem(RETRY_UNTIL, String(ts)); } catch (e) {} }
+      function retryBlocked() {
+        var until = retryUntil();
+        if (until && until > Date.now()) return until;
+        if (until && until <= Date.now()) { setRetryUntil(0); setRetryCount(0); }
+        return 0;
+      }
+      function takeRetry() {
+        var until = retryBlocked();
+        if (until) return { ok: false, until: until, n: retryCount() };
+        var n = retryCount() + 1;
+        if (n > RETRY_MAX) {
+          var next = Date.now() + RETRY_WAIT_MS;
+          setRetryUntil(next);
+          return { ok: false, until: next, n: RETRY_MAX };
+        }
+        setRetryCount(n);
+        return { ok: true, n: n };
+      }
+      function retryWaitText(until) {
+        var mins = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+        return "Retry limit reached. Try after " + mins + " minute" + (mins === 1 ? "" : "s") + ".";
+      }
+      function hidePop() {
+        var mask = document.getElementById("mask");
+        if (mask) mask.classList.remove("on");
+      }
+      function markOpened(id) {
+        try { if (id) localStorage.setItem("dds_opened_ticket", id); } catch (e) {}
+      }
+      function wasOpened(id) {
+        try { return id && localStorage.getItem("dds_opened_ticket") === id; } catch (e) { return false; }
+      }
+      function liveRoomUrl(url) {
+        var raw = String(url || "");
+        var m = raw.match(/[?&]r=([^&]+)/i);
+        if (!m) return "";
+        var r = decodeURIComponent(m[1] || "").toLowerCase();
+        if (!r || /^(preethi|diya|meghana|kiara|sravani|meenakshi|ayesha|esther|natasha|tharini|kavya|lahari|navya|simran|chandana|aleena)$/.test(r)) return "";
+        return window.DDS_chatUrl ? window.DDS_chatUrl(raw) : raw;
+      }
+      function enterRoom(url, ticketId) {
+        var href = liveRoomUrl(url);
+        if (!href) return false;
+        hidePop();
+        markOpened(ticketId || lastId);
+        showEnter(href);
+        var win = null;
+        try { win = window.open(href, "_blank", "noopener"); } catch (e) { win = null; }
+        if (!win) {
+          var link = document.getElementById("enterLink");
+          if (link) { link.href = href; link.target = "_blank"; link.rel = "noopener"; }
+          document.getElementById("askMsg").textContent = "Room is ready. Click Enter her room. It opens in a new tab. This page stays.";
+          return true;
+        }
+        return true;
+      }
+      function showEnter(url) {
+        var box = document.getElementById("enterBox");
+        var link = document.getElementById("enterLink");
+        if (!box || !link) return;
+        var href = liveRoomUrl(url);
+        if (href) {
+          link.href = href;
+          box.style.display = "block";
+        } else {
+          link.href = "#";
+          box.style.display = "none";
+        }
+      }
+      function pop(title, text, room) {
+        document.getElementById("mask").classList.add("on");
+        document.getElementById("popTitle").textContent = title;
+        document.getElementById("popText").textContent = text;
+        var btn = document.getElementById("roomBtn");
+        var close = document.getElementById("popClose");
+        var spin = document.getElementById("popSpin");
+        var check = document.getElementById("popCheck");
+        var retry = document.getElementById("popRetry");
+        if (retry) retry.style.display = "none";
+        if (room) {
+          var href = liveRoomUrl(room);
+          if (!href) {
+            btn.style.display = "none";
+            close.style.display = "inline-block";
+            if (check) check.style.display = "none";
+            if (spin) spin.classList.add("off");
+            showEnter("");
+          } else {
+            btn.href = href;
+            btn.style.display = "inline-block";
+            close.style.display = "inline-block";
+            if (check) check.style.display = "none";
+            if (spin) spin.classList.add("off");
+            showEnter(href);
+          }
+        } else {
+          btn.style.display = "none";
+          var waitingPop = /adding you/i.test(title);
+          close.style.display = waitingPop ? "none" : "inline-block";
+          if (check) check.style.display = /check again|still waiting|try after/i.test(title + " " + text) ? "inline-block" : "none";
+          if (spin) {
+            spin.classList.toggle("off", !waitingPop);
+            if (!waitingPop) spin.classList.add("off");
+          }
+        }
+      }
+      document.getElementById("popClose").onclick = function () {
+        hidePop();
+      };
+      document.getElementById("roomBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        var href = this.getAttribute("href") || "";
+        if (!enterRoom(href, lastId)) hidePop();
+      });
+      document.getElementById("enterLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        var href = this.getAttribute("href") || "";
+        if (!enterRoom(href, lastId)) hidePop();
+      });
+      document.getElementById("popCheck").onclick = function () {
+        if (!lastId) return;
+        document.getElementById("popCheck").textContent = "Checking…";
+        window.DDS_INBOX.get(lastId).then(function (row) {
+          document.getElementById("popCheck").textContent = "Check again";
+          applyRow(row, false);
+          if (waiting || (row && row.status === "open")) {
+            document.getElementById("askMsg").textContent = "Still waiting. Auto-check stays off. Tap Check again later.";
+          }
+        }).catch(function () {
+          document.getElementById("popCheck").textContent = "Check again";
+        });
+      };
+      function applyRow(row, forceWait) {
+        if (!row) return;
+        lastId = row.id;
+        var sig = (row.status || "") + "|" + (row.room_url || "") + "|" + (row.admin_note || "");
+        document.getElementById("resetBox").style.display = (row.status === "sent") ? "block" : "none";
+        var lockOn = row.lock_until && Date.parse(row.lock_until) > Date.now();
+        if (row.admin_note === "WAIT_CLEARED" || !lockOn) {
+          if (window.DDS_INBOX.clearLocalLock) window.DDS_INBOX.clearLocalLock();
+        }
+        if (row.admin_note === "WAIT_CLEARED") {
+          stopPoll();
+          if (sig !== lastSig) pop("Reset honored", "The 30-minute wait is cleared. Refresh this page and try again.", null);
+          waiting = false;
+          lastSig = sig;
+          document.getElementById("resetBox").style.display = "none";
+          document.getElementById("askMsg").textContent = "Reset honored. Refresh and send a new request.";
+          return;
+        }
+        if (row.status === "sent" && row.room_url) {
+          if (slut && row.slut && String(row.slut).toLowerCase() !== String(slut).toLowerCase()) {
+            stopPoll();
+            waiting = false;
+            document.getElementById("askMsg").textContent = "That live room is " + row.slut + ", not " + slut + ". Desk must wipe it before she gets a new Create and send.";
+            pop("Wrong woman", "This is not " + slut + "’s room. Do not enter it.", null);
+            return;
+          }
+          stopPoll();
+          waiting = false;
+          var liveFn = window.DDS_INBOX.roomLive || function () { return Promise.resolve(!!liveRoomUrl(row.room_url)); };
+          liveFn(row.room_url).then(function (alive) {
+            if (!alive || wasOpened(row.id) || !liveRoomUrl(row.room_url)) {
+              hidePop();
+              showEnter("");
+              lastSig = sig;
+              if (window.DDS_INBOX.clearTicket) window.DDS_INBOX.clearTicket();
+              lastId = "";
+              document.getElementById("askMsg").textContent = "That room has ended. Click to Play again to ask for a new one.";
+              return;
+            }
+            showEnter(row.room_url);
+            if (sig !== lastSig) pop("Your room is ready", "Click below to enter her room.", row.room_url);
+            lastSig = sig;
+            if (!lockOn) document.getElementById("resetBox").style.display = "none";
+          });
+          return;
+        }
+        if (sig === lastSig) return;
+        lastSig = sig;
+        if (row.status === "busy" || row.status === "declined" || row.status === "deleted") {
+          stopPoll();
+          if (window.DDS_INBOX.clearTicket) window.DDS_INBOX.clearTicket();
+          lastId = "";
+          waiting = false;
+          var spin = document.getElementById("popSpin");
+          if (spin) spin.classList.add("off");
+          var title = row.status === "busy" ? "She is busy" : "Declined";
+          var note = row.admin_note || (row.status === "busy" ? window.DDS_INBOX.BUSY : window.DDS_INBOX.DECLINED);
+          pop(title, note, null);
+          if (spin) spin.classList.add("off");
+          document.getElementById("askMsg").textContent = note;
+          return;
+        }
+        if ((row.status === "open" || forceWait) && waiting) {
+          pop("Adding you to her room", "Stay on this page. Do not close this tab.", null);
+        }
+      }
+      function stopPoll() {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = 0; }
+        if (pollStop) { clearTimeout(pollStop); pollStop = 0; }
+      }
+      function timedOut() {
+        stopPoll();
+        waiting = false;
+        if (window.DDS_INBOX.clearLocalLock) window.DDS_INBOX.clearLocalLock();
+        var until = retryBlocked();
+        var used = retryCount();
+        if (until || used >= RETRY_MAX) {
+          if (!until) { until = Date.now() + RETRY_WAIT_MS; setRetryUntil(until); }
+          document.getElementById("askMsg").textContent = retryWaitText(until);
+          pop("Try after 5 minutes", retryWaitText(until) + " This is not the 30-minute room lock.", null);
+          document.getElementById("popRetry").style.display = "none";
+        } else {
+          document.getElementById("askMsg").textContent = "Wait timed out. Retry " + (used + 1) + " of " + RETRY_MAX + ". This does not start the 30-minute lock.";
+          pop("Still waiting", "The desk has not sent a room yet. Tap Retry to keep waiting. You have " + (RETRY_MAX - used) + " retr" + (RETRY_MAX - used === 1 ? "y" : "ies") + " left.", null);
+          document.getElementById("popRetry").style.display = "inline-block";
+        }
+        document.getElementById("popCheck").style.display = "inline-block";
+        document.getElementById("popClose").style.display = "inline-block";
+        var spin = document.getElementById("popSpin");
+        if (spin) spin.classList.add("off");
+      }
+      function retryWait() {
+        var gate = takeRetry();
+        if (!gate.ok) {
+          document.getElementById("askMsg").textContent = retryWaitText(gate.until);
+          pop("Try after 5 minutes", retryWaitText(gate.until) + " This is not the 30-minute room lock.", null);
+          document.getElementById("popRetry").style.display = "none";
+          document.getElementById("popCheck").style.display = "inline-block";
+          document.getElementById("popClose").style.display = "inline-block";
+          return;
+        }
+        document.getElementById("popRetry").textContent = "Retrying…";
+        function startAgain(id) {
+          document.getElementById("popRetry").textContent = "Retry";
+          waiting = true;
+          lastSig = "";
+          document.getElementById("askMsg").textContent = "Retry " + retryCount() + " of " + RETRY_MAX + ". No 30-minute lock.";
+          pop("Adding you to her room", "Stay on this page. Do not close this tab.", null);
+          poll(id, true);
+        }
+        if (!lastId) {
+          document.getElementById("popRetry").textContent = "Retry";
+          document.getElementById("mask").classList.remove("on");
+          document.getElementById("askMsg").textContent = "Send again. Timeout does not lock you.";
+          return;
+        }
+        window.DDS_INBOX.get(lastId).then(function (row) {
+          document.getElementById("popRetry").textContent = "Retry";
+          if (row && row.status === "sent") { applyRow(row, false); return; }
+          if (row && row.status === "open") { startAgain(row.id); return; }
+          waiting = false;
+          document.getElementById("mask").classList.remove("on");
+          document.getElementById("askMsg").textContent = "Send again. Timeout does not lock you.";
+        }).catch(function () {
+          document.getElementById("popRetry").textContent = "Retry";
+          document.getElementById("askMsg").textContent = "Send again. Timeout does not lock you.";
+        });
+      }
+      document.getElementById("popRetry").onclick = retryWait;
+      function poll(id, forceWait) {
+        stopPoll();
+        lastId = id;
+        function tick() {
+          window.DDS_INBOX.get(id).then(function (row) {
+            applyRow(row, forceWait);
+            forceWait = false;
+            if (!waiting && row && row.status && row.status !== "open") stopPoll();
+          }).catch(function () {});
+        }
+        tick();
+        var pollMs = window.DDS_pollMs ? window.DDS_pollMs("player", 15) : 15000;
+        MAX_WAIT_MS = window.DDS_pollMs ? window.DDS_pollMs("playerWait", 180) : 180000;
+        pollTimer = setInterval(tick, pollMs);
+        pollStop = setTimeout(timedOut, MAX_WAIT_MS);
+      }
+      function account() {
+        try { return JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (err) { return null; }
+      }
+
+      function fileAsk(chosen) {
+        if (window.DDS_CFG && window.DDS_CFG.siteDown) {
+          location.href = "account.html";
+          return Promise.resolve();
+        }
+        var pick = (chosen || slut || "").toLowerCase();
+        if (pick !== "anu" && window.DDS_openWant && window.DDS_openWant(pick)) {
+          var msg = document.getElementById("askMsg");
+          if (msg) msg.textContent = "Tell the house how badly you need her.";
+          return Promise.resolve();
+        }
+        var acc = account();
+        var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+        var level = access[pick] || "members";
+        var isGuestDoor = level === "guests";
+        if ((!acc || !acc.id || !acc.verified) && !isGuestDoor) {
+          // Wait a moment for config if it's not ready
+          if (!window.DDS_CFG) {
+            setTimeout(function () { fileAsk(chosen); }, 300);
+            return Promise.resolve();
+          }
+          location.href = "account.html";
+          return Promise.resolve();
+        }
+        if (!acc && isGuestDoor) {
+          acc = { id: null, nickname: "Guest", username: "Guest" };
+        }
+        chosen = (chosen || slut || document.getElementById("slutField").value || "").trim().toLowerCase();
+        if (!chosen) {
+          document.getElementById("askMsg").textContent = "Pick one woman.";
+          return Promise.resolve();
+        }
+        return window.DDS_INBOX.locked(myIp, acc.id, chosen).then(function (lock) {
+          if (lock && lock.pending) {
+            if (lock.foreign) {
+              document.getElementById("askMsg").textContent = "You already asked for " + (lock.slut || "another woman") + ". Wait for the desk to busy, decline, or delete that request.";
+              pop("Already waiting", "That request is not " + chosen + ". The desk has to finish it first.", null);
+              return;
+            }
+            document.getElementById("askMsg").textContent = "Waiting on " + (lock.slut || chosen) + ". The desk has to answer this one first.";
+            if (lock.id) { lastId = lock.id; poll(lock.id, true); }
+            return;
+          }
+          if (lock && lock.locked) {
+            if (lock.foreign || (lock.slut && String(lock.slut).toLowerCase() !== chosen)) {
+              document.getElementById("askMsg").textContent = "A room is still live for " + (lock.slut || "another woman") + ". This click does not open " + chosen + ".";
+              pop("Wait for the desk", "Wipe or wait out that room. Play will not hand you her link.", null);
+              document.getElementById("resetBox").style.display = "block";
+              return;
+            }
+            document.getElementById("askMsg").textContent = "The desk already sent " + chosen + ". Wipe first if you need a new Create and send.";
+            if (lock.room_url) showEnter(lock.room_url);
+            document.getElementById("resetBox").style.display = "block";
+            return;
+          }
+          if (window.DDS_INBOX.clearTicket && lastId) {
+            /* stale declined/busy tickets must not block a new Natasha/etc ask */
+          }
+        var off = window.DDS_UNAVAILABLE || [];
+        if (off.indexOf(chosen) !== -1) {
+          document.getElementById("askMsg").textContent = "She is busy. She should be free in the next 2 to 3 hours.";
+          pop("She is busy", "She is busy. She should be free in the next 2 to 3 hours. Tell the house how badly you need her.", null);
+          return Promise.resolve();
+        }
+        var name = acc.nickname || acc.username || "Player";
+        var age = null;
+        if (acc.dob) {
+          var d = new Date(acc.dob);
+          if (!isNaN(d.getTime())) age = Math.max(18, new Date().getFullYear() - d.getFullYear());
+        }
+        document.getElementById("askMsg").textContent = "Asking the desk…";
+        var lead = document.getElementById("askLead");
+        if (lead) lead.textContent = "Waiting for " + chosen + ". Do not close this tab.";
+        pop("Adding you to her room", "Stay on this page. The desk is opening " + chosen + ".", null);
+        waiting = true;
+        var door = (q.get("door") || "").trim().toLowerCase();
+        var roomCost = "";
+        try { roomCost = sessionStorage.getItem("dds_room_cost") || ""; sessionStorage.removeItem("dds_room_cost"); } catch (e) {}
+        var note = (!acc.id ? "GUEST" : (chosen === "anu" ? ("Train first. door=" + (door || "house")) : (roomCost ? ("dps=" + roomCost) : null)));
+        return window.DDS_INBOX.create({
+          slut: chosen,
+          player_name: name,
+          player_age: age,
+          client_ip: myIp || null,
+          status: "open",
+          player_id: acc.id || null,
+          admin_note: note,
+          door: chosen === "anu" ? (door || "house") : null
+        }).then(function (row) {
+          if (row && row.id && roomCost && Number(roomCost) > 0 && chosen !== "anu") {
+            try {
+              fetch(String(window.DDS_SUPABASE.url).replace(/\/$/, "") + "/rest/v1/rpc/model_add_earned", {
+                method: "POST",
+                headers: { apikey: window.DDS_SUPABASE.anon, Authorization: "Bearer " + window.DDS_SUPABASE.anon, "Content-Type": "application/json" },
+                body: JSON.stringify({ p_slug: chosen, p_amount: Number(roomCost) })
+              });
+            } catch (e) {}
+          }
+          if (!row || !row.id) throw new Error((row && row.message) || "Ticket did not save. Refresh and try again.");
+          lastId = row.id;
+          document.getElementById("askMsg").textContent = "Sent. Waiting for the desk.";
+          poll(row.id, true);
+          return row;
+        }).catch(function (err) {
+          waiting = false;
+          document.getElementById("askMsg").textContent = String((err && err.message) || err || "Could not send.");
+        });
+        });
+      }
+
+      function offerAnuOrFile(slug, acc) {
+        var soon = ["navya", "simran", "chandana", "aleena"];
+        var skipped = false;
+        try { skipped = localStorage.getItem("dds_anu_skip") === "1"; } catch (e) {}
+        if (skipped || soon.indexOf(slug) !== -1) { fileAsk(slug); return; }
+        var cfg = window.DDS_SUPABASE || {};
+        if (!cfg.url || !cfg.anon || !acc.id) { fileAsk(slug); return; }
+        fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/rpc/player_card", {
+          method: "POST",
+          headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_id: acc.id, p_model: slug })
+        }).then(function (r) { return r.json(); }).then(function (j) {
+          var nights = Number(j && (j.n != null ? j.n : (j.nights != null ? j.nights : j.session_count)));
+          if (nights > 0) { fileAsk(slug); return; }
+          showAnuChoice(slug);
+        }).catch(function () { showAnuChoice(slug); });
+      }
+      function showAnuChoice(slug) {
+        var name = slug.charAt(0).toUpperCase() + slug.slice(1);
+        document.body.classList.remove("wait-only");
+        var mask = document.getElementById("mask");
+        if (mask) {
+          mask.classList.remove("on");
+          mask.style.display = "";
+        }
+        var box = document.getElementById("anuChoice");
+        if (!box) {
+          box = document.createElement("div");
+          box.id = "anuChoice";
+          box.className = "card";
+          box.style.marginTop = "1rem";
+          var card = document.querySelector(".card");
+          if (card && card.parentNode) card.parentNode.insertBefore(box, card.nextSibling);
+          else document.querySelector("main").appendChild(box);
+        }
+        box.innerHTML =
+          "<h2>Train first?</h2>" +
+          "<p>Optional. Not required. Anu or Meenakshi checks how you talk, then you open " + name + ". About ten minutes. You can skip.</p>" +
+          "<p style='display:flex;gap:.5rem;flex-wrap:wrap'>" +
+            "<button type='button' class='btn' id='anuYes'>Train with Anu</button>" +
+            "<button type='button' class='btn' id='meenakshiYes'>Train with Meenakshi</button>" +
+            "<button type='button' class='btn' id='anuNo' style='background:transparent;color:#f4e8ef;border:1px solid #6b3a55'>Skip · go to " + name + "</button>" +
+          "</p>";
+        var lead = document.getElementById("askLead");
+        if (lead) lead.textContent = "First night. Trainers are optional. Pick one.";
+        document.getElementById("anuYes").onclick = function () {
+          location.href = "contact_to_play.html?slut=anu&door=" + encodeURIComponent(slug);
+        };
+        document.getElementById("meenakshiYes").onclick = function () {
+          location.href = "contact_to_play.html?slut=meenakshi&door=" + encodeURIComponent(slug);
+        };
+        document.getElementById("anuNo").onclick = function () {
+          try { localStorage.setItem("dds_anu_skip", "1"); } catch (e) {}
+          box.remove();
+          if (mask) mask.classList.add("on");
+          fileAsk(slug);
+        };
+      }
+
+      window.DDS_INBOX.ip().then(function (ip) {
+        myIp = ip;
+        var accNow = account();
+        return window.DDS_INBOX.locked(ip, accNow && accNow.id, slut);
+      }).catch(function () {
+        return { locked: false };
+      }).then(function (lock) {
+        var acc0 = account();
+        var hold = retryBlocked();
+        if (slut && acc0 && acc0.verified && !(lock && lock.locked && lock.room_url && wasOpened(lock.id))) {
+          pop("Adding you to her room", "Stay on this page. Do not close this tab.", null);
+        }
+        if (lock && lock.locked) {
+          if (lock.id && !lock.foreign) lastId = lock.id;
+          var sameWoman = !!(slut && lock.slut && String(lock.slut).toLowerCase() === String(slut).toLowerCase());
+          if (lock.pending && sameWoman) {
+            document.getElementById("askMsg").textContent = "You already asked for " + slut + ". Wait for the desk. Busy, decline, or delete frees the next ask.";
+            pop("Already waiting", "The desk still has your " + slut + " request.", null);
+            if (lock.id) poll(lock.id, true);
+          } else if (lock.pending && !sameWoman) {
+            document.getElementById("askMsg").textContent = "You already asked for " + (lock.slut || "another woman") + ". That is not " + (slut || "this page") + ".";
+            pop("Already waiting", "The desk has to finish that request. This click does not open a new room.", null);
+          } else if (sameWoman && lock.room_url) {
+            if (wasOpened(lock.id) || !liveRoomUrl(lock.room_url)) {
+              hidePop();
+              showEnter("");
+              document.getElementById("askMsg").textContent = "That room already closed. Ask the desk for a new Create and send.";
+            } else {
+              document.getElementById("askMsg").textContent = "The desk already sent " + slut + ".";
+              document.getElementById("resetBox").style.display = "block";
+              showEnter(lock.room_url);
+              pop("Your room is ready", "This is the room the desk already sent for " + slut + ".", lock.room_url);
+            }
+          } else {
+            document.getElementById("askMsg").textContent = "A room is still live" + (lock.slut ? " for " + lock.slut : "") + ". Play will not open " + (slut || "another woman") + " until the desk wipes it.";
+            document.getElementById("resetBox").style.display = "block";
+            pop("Wait for the desk", "That last room is still live. This click does not open a new room.", null);
+          }
+        } else if (hold) {
+          document.getElementById("askMsg").textContent = retryWaitText(hold);
+        } else if (lastId && !slut) {
+          window.DDS_INBOX.get(lastId).then(function (row) {
+            if (!row || row.status === "declined" || row.status === "busy") {
+              if (window.DDS_INBOX.clearTicket) window.DDS_INBOX.clearTicket();
+              lastId = "";
+              return;
+            }
+            poll(lastId, true);
+          });
+        } else if (slut && slut !== "anu" && acc0 && acc0.verified) {
+          if (window.DDS_canAccess && !window.DDS_canAccess(slut)) {
+            var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+            var level = access[slut] || "members";
+            var msg = "This door is open for Members only.";
+            if (level === "silver") msg = "This door is open for Silver and above only.";
+            else if (level === "gold") msg = "This door is open for Gold and above only.";
+            else if (level === "owners") msg = "This door is open for owners only.";
+            else if (level === "soon") msg = "This door is opening soon.";
+            else if (level === "members") msg = "Sign in to play this door.";
+            alert(msg);
+            return;
+          }
+          offerAnuOrFile(slut, acc0);
+        } else if (slut && (!acc0 || !acc0.verified)) {
+          var waitCfg = function (tries) {
+            var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+            if (access[slut] === "guests") {
+              fileAsk(slut);
+              return;
+            }
+            if (tries < 10 && window.DDS_loadCfg) {
+              window.DDS_loadCfg().then(function () { waitCfg(tries + 1); }).catch(function () { location.href = "account.html"; });
+              return;
+            }
+            location.href = "account.html";
+          };
+          waitCfg(0);
+        }
+      });
+      if ((q.get("slut") || "").toLowerCase() === "anu") {
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries += 1;
+          var form = document.getElementById("askForm");
+          if (!form || form.getAttribute("data-anu-sent") === "1") { clearInterval(timer); return; }
+          if (!window.DDS_INBOX || !window.DDS_INBOX.create) {
+            if (tries > 20) clearInterval(timer);
+            return;
+          }
+          form.setAttribute("data-anu-sent", "1");
+          clearInterval(timer);
+          fileAsk("anu");
+        }, 300);
+      }
+      function coolBlocked(cb) {
+        var acc = null;
+        try { acc = JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (e) {}
+        if (!acc || !acc.id) { cb(null); return; }
+        var cfg = window.DDS_SUPABASE || {};
+        fetch(String(cfg.url || "").replace(/\/$/, "") + "/rest/v1/rpc/player_cool_status", {
+          method: "POST",
+          headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_id: acc.id })
+        }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j && j.cool) {
+            var mins = Number(j.minutes || 0);
+            var hrs = Math.floor(mins / 60);
+            var rem = mins % 60;
+            var label = hrs > 0 ? (hrs + " hr" + (hrs === 1 ? "" : "s") + (rem ? " " + rem + " min" : "")) : (mins + " min");
+            cb("Purple Blocked for " + label + ". " + mins + " minute" + (mins === 1 ? "" : "s") + " left before you can play.");
+          } else cb(null);
+        }).catch(function () { cb(null); });
+      }
+      
+      coolBlocked(function (msg) {
+        if (!msg) return;
+        var lead = document.getElementById("askLead");
+        if (lead) lead.textContent = msg;
+        var btn = document.querySelector("#askForm .btn");
+        if (btn) { btn.disabled = true; btn.textContent = "Purple Blocked"; }
+      });
+document.getElementById("askForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var form = e.target;
+        var chosen = (document.getElementById("slutField").value || (form.slut_pick && form.slut_pick.value) || "").trim().toLowerCase();
+        coolBlocked(function (msg) {
+          if (msg) { alert(msg); return; }
+          doSubmit();
+        });
+        function doSubmit() {
+        if (window.DDS_canAccess && chosen && !window.DDS_canAccess(chosen)) {
+          var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+          var level = access[chosen] || "members";
+          var msg = "This door is open for Members only.";
+          if (level === "silver") msg = "This door is open for Silver and above only.";
+          else if (level === "gold") msg = "This door is open for Gold and above only.";
+          else if (level === "owners") msg = "This door is open for owners only.";
+          else if (level === "soon") msg = "This door is opening soon.";
+          else if (level === "members") msg = "Sign in to play this door.";
+          alert(msg);
+          return;
+        }
+        fileAsk(chosen);
+        }
+      });
+      document.getElementById("resetAsk").onclick = function () {
+        var reason = (document.getElementById("resetReason").value || "").trim();
+        if (!reason) { document.getElementById("resetMsg").textContent = "Give a reason."; return; }
+        function send(id) {
+          if (!id) { document.getElementById("resetMsg").textContent = "No ticket to reset."; return; }
+          window.DDS_INBOX.askReset(id, reason).then(function () {
+            document.getElementById("resetMsg").textContent = "Reset asked. Wait for the desk.";
+          }).catch(function () {
+            document.getElementById("resetMsg").textContent = "Reset did not send.";
+          });
+        }
+        if (lastId) send(lastId);
+        else window.DDS_INBOX.locked(myIp).then(function (lock) { send(lock && lock.id); });
+      };
+    })();
+  </script>
+</body>
+</html>

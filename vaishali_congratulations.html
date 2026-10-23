@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaishali - Private Session</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d0d;
+    color: #f0e6d2;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .card {
+    max-width: 980px;
+    width: 100%;
+    background: linear-gradient(145deg, #1a1210 0%, #0f0a08 100%);
+    border: 1px solid #c9a22755;
+    border-radius: 18px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  }
+
+  .left {
+    position: relative;
+    background: #111;
+    min-height: 520px;
+  }
+
+  .left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  .left-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 22px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  }
+
+  .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #f5d76e;
+    letter-spacing: 1px;
+  }
+
+  .sub {
+    font-size: 14px;
+    color: #d4c4a0;
+    margin-top: 4px;
+  }
+
+  .right {
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .header { text-align: center; }
+
+  .header .brand {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #c9a227;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .congrats {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e8d9b5;
+    text-align: center;
+  }
+
+  .congrats strong { color: #f5d76e; }
+
+  .highlight {
+    color: #f5d76e;
+    font-style: italic;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 30px;
+    padding: 16px 0;
+    border-top: 1px solid #c9a22733;
+    border-bottom: 1px solid #c9a22733;
+  }
+
+  .stat-item label {
+    display: block;
+    font-size: 11px;
+    color: #c9a227;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+
+  .stat-item span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .stat-item .gold { color: #f5d76e; }
+  .stat-item .soft { color: #c9a86c; }
+
+  .speciality h3 {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #c9a227;
+    margin-bottom: 8px;
+  }
+
+  .speciality p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #e0d4b8;
+  }
+
+  .alert-box {
+    background: rgba(201, 162, 39, 0.08);
+    border: 1px solid #c9a22744;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #e8d9b5;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #a89060;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  @media (max-width: 780px) {
+    .card { grid-template-columns: 1fr; }
+    .left { min-height: 380px; }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="left">
+      <img src="https://i.ibb.co/hRmF3r2C/grok-image-9b1d7d43-9610-44e2-bf67-5a4ed5bc6e28.jpg" alt="Vaishali" />
+      <div class="left-overlay">
+        <div class="name">VAISHALI</div>
+        <div class="sub">36 · 34DD-34-42 · Tamil Brahmin</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="header">
+        <div class="brand">Desi Desire Syndicate</div>
+        <h1>Congratulations</h1>
+      </div>
+
+      <div class="congrats">
+        You just secured a private session with <strong>Vaishali</strong> — currently ranked <strong>No.15</strong> in the Desi Desire Syndicate.
+        <br/><br/>
+        A composed Brahmin like her doesn’t open for everyone.
+      </div>
+
+      <div class="highlight">Quiet elegance on the surface… deep hunger underneath.</div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <label>Age</label>
+          <span>36</span>
+        </div>
+        <div class="stat-item">
+          <label>Measurements</label>
+          <span>34DD-34-42</span>
+        </div>
+        <div class="stat-item">
+          <label>Origin</label>
+          <span>Tamil Brahmin</span>
+        </div>
+        <div class="stat-item">
+          <label>Rank</label>
+          <span class="gold">No.15 · New</span>
+        </div>
+        <div class="stat-item">
+          <label>Strictness</label>
+          <span class="soft">Moderate–Strict</span>
+        </div>
+        <div class="stat-item">
+          <label>Dirtiness</label>
+          <span>High</span>
+        </div>
+      </div>
+
+      <div class="speciality">
+        <h3>SPECIALITY</h3>
+        <p>
+          <strong style="color:#f5d76e">Composed · Elegant · Secretly Responsive</strong><br/>
+          She carries quiet Brahmin dignity. Shallow compliments bounce off her.
+          Patience, refinement, and soft cultural respect unlock the heavy body and hidden sensuality underneath.
+        </p>
+      </div>
+
+      <div class="alert-box">
+        Don’t rush her.<br/>
+        The composure is part of the reward — once it cracks, she becomes deeply responsive.
+        <br/><br/>
+        Enjoy your session.<br/>
+        — Desi Desire Admin
+      </div>
+
+      <div class="footer">Private Edition · Chat &amp; Strip · Gentlemen’s Club</div>
+    </div>
+  </div>
+</body>
+</html>
