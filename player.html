@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Player · PURPLE</title>
+  <link rel="stylesheet" href="dds-site.css" />
+  <style>
+    body { background:#120c10; color:#f3e6ea; font-family:Inter, system-ui, sans-serif; }
+    .wrap { max-width:640px; margin:1.4rem auto 2rem; padding:0 1rem; }
+    .card { background:#1c1412; border:1px solid #3a2428; border-radius:14px; padding:1rem 1.1rem; }
+    h1 { font-family:Georgia, serif; margin:.2rem 0 .4rem; }
+    .photo { width:96px; height:120px; object-fit:cover; border-radius:12px; background:#2a201c; }
+    .row { display:flex; gap:.9rem; align-items:flex-start; }
+    .k { color:#c9a24d; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; margin:1rem 0 .3rem; }
+    p { line-height:1.5; color:#f3e6ea; }
+    .muted { color:#b7a39a; }
+    a { color:#e7c56a; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">PURPLE</a>
+      <div class="nav-links">
+        <a href="/#lineup">MODELS</a>
+        <a href="/forum">LOUNGE</a>
+        <a href="/how_to_play">How to Play</a>
+        <a href="/club">Board</a>
+      </div>
+    </div>
+  </nav>
+  <div class="wrap">
+    <p class="k">Player</p>
+    <div class="card" id="card"><p class="muted">Loading.</p></div>
+    <p style="margin-top:1rem"><a href="/#online">Back to who is online</a></p>
+  </div>
+  <script src="supabase-config.js"></script>
+  <script src="dds-chrome.js?v=20261023own"></script>
+  <script>
+  (function () {
+    var host = document.getElementById("card");
+    var cfg = window.DDS_SUPABASE || {};
+    var name = new URLSearchParams(location.search).get("u") || "";
+    var names = {preethi:"Preethi",diya:"Diya",meghana:"Meghana",kiara:"Kiara",sravani:"Sravani",meenakshi:"Meenakshi",ayesha:"Ayesha",esther:"Esther",natasha:"Natasha",tharini:"Tharini",kavya:"Kavya",lahari:"Lahari",navya:"Navya",simran:"Simran",chandana:"Chandana"};
+    function esc(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+    function fav(slug) {
+      slug = String(slug || "").toLowerCase();
+      if (!slug) return "";
+      return "<a href='/" + slug + ".html'>" + esc(names[slug] || slug) + "</a>";
+    }
+    if (!name) { host.innerHTML = "<p class='muted'>No player named.</p>"; return; }
+    var base = String(cfg.url || "").replace(/\/$/, "");
+    fetch(base + "/rest/v1/rpc/house_player", {
+      method: "POST",
+      headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_name: name })
+    }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || d.ok === false) {
+        host.innerHTML = "<p class='muted'>No public card for that name. Paste FIX_house_online.sql if this is new.</p>";
+        return;
+      }
+      document.title = (d.nick || d.name) + " · PURPLE";
+      var photo = d.photo ? "<img class='photo' src='" + String(d.photo).replace(/'/g, "") + "' alt=''/>" : "<span class='photo' style='display:block'></span>";
+      var favs = [fav(d.fav1), fav(d.fav2)].filter(Boolean).join(" · ") || "None yet";
+      host.innerHTML =
+        "<div class='row'>" + photo + "<div><h1>" + esc(d.nick || d.name) + "</h1><p class='muted'>@" + esc(d.name) + "</p></div></div>" +
+        "<p class='k'>About</p><p>" + (d.about ? esc(d.about) : "<span class='muted'>No about yet.</span>") + "</p>" +
+        "<p class='k'>What he wants</p><p>" + (d.likes ? esc(d.likes) : "<span class='muted'>Not written.</span>") + "</p>" +
+        "<p class='k'>In the room</p><p>" + (d.hobbies ? esc(d.hobbies) : "<span class='muted'>Not written.</span>") + "</p>" +
+        "<p class='k'>Favorites</p><p>" + favs + "</p>";
+    }).catch(function () {
+      host.innerHTML = "<p class='muted'>Could not load that card.</p>";
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Feedback / Queries · PURPLE</title>
+  <link rel="stylesheet" href="dds-chrome.css"/>
+</head>
+<body>
+<nav></nav>
+<main class="wrap" style="max-width:640px;margin:2rem auto;padding:0 1rem">
+  <article class="card">
+    <b>Feedback / Queries</b>
+    <p class="hint">Tell the desk what broke, or how to make the house better. They can reply in your Inbox.</p>
+    <label>This is</label>
+    <select id="fbKind">
+      <option value="error">An error on the site</option>
+      <option value="feedback">Feedback / idea</option>
+    </select>
+    <label>Page or model</label>
+    <input id="fbPage" maxlength="80" placeholder="preethi, account, lounge…"/>
+    <label>What happened</label>
+    <textarea id="fbBody" maxlength="800" placeholder="What you tapped, what you saw."></textarea>
+    <button type="button" id="fbSend">Send to the desk</button>
+    <p class="hint" id="fbNote"></p>
+    <p class="hint"><a href="account.html?inbox=1">Open your inbox</a> if you want a reply.</p>
+  </article>
+</main>
+<script src="supabase-config.js"></script>
+<script src="dds-config.js"></script>
+<script src="dds-chrome.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  if (q.get("slut") && document.getElementById("fbPage")) document.getElementById("fbPage").value = q.get("slut");
+  document.getElementById("fbSend").onclick = function () {
+    var acc = null;
+    try { acc = JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (e) {}
+    var note = document.getElementById("fbNote");
+    if (!acc || !acc.id) { note.textContent = "Login first."; return; }
+    var body = (document.getElementById("fbBody").value || "").trim();
+    if (body.length < 4) { note.textContent = "Write a bit more."; return; }
+    note.textContent = "Sending…";
+    var c = window.DDS_SUPABASE || {};
+    fetch(String(c.url || "").replace(/\/$/, "") + "/rest/v1/rpc/player_mail_to_admin", {
+      method: "POST",
+      headers: { apikey: c.anon, Authorization: "Bearer " + c.anon, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        p_id: acc.id,
+        p_subject: document.getElementById("fbKind").value + " · " + (document.getElementById("fbPage").value || "house"),
+        p_body: body
+      })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      note.textContent = (d && d.ok) ? "Sent. Watch your Inbox for a house reply." : ((d && d.error) || "Could not send.");
+      if (d && d.ok) document.getElementById("fbBody").value = "";
+    }).catch(function () { note.textContent = "Could not send."; });
+  };
+})();
+</script>
+</body>
+</html>

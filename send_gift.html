@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Own her • PURPLE</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+    body{background:#120814;color:#f3e9d7;font-family:Inter,system-ui,sans-serif;margin:0}
+    .wrap{max-width:560px;margin:0 auto;padding:1.2rem}
+    h1{font-family:"Playfair Display",Georgia,serif}
+    label{display:block;margin:.8rem 0 .25rem;color:#cbb6e8;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+    input,select,textarea{width:100%;background:#1a0f22;color:#f3e9d7;border:1px solid #3a2a44;border-radius:8px;padding:.55rem .65rem;box-sizing:border-box}
+    button{margin-top:1rem;background:#b794f6;color:#1a0830;border:0;border-radius:8px;padding:.6rem 1rem;font-weight:700;cursor:pointer}
+    a{color:#b794f6}
+    .hint{color:#b9a892;font-size:.88rem;line-height:1.45}
+    .price{margin:.8rem 0;padding:.8rem 1rem;border:1px solid #3a2a44;border-radius:10px;background:#1a0f22}
+    .price b{color:#f0d78c}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="hint"><a href="/">← House</a></p>
+    <h1>Own her</h1>
+    <p class="hint">Play more nights to own her, or buy with DPS. Live base is 1000 DPS plus 150 per rank step. Soon doors are 1500. Buy DPS is the only Amazon card.</p>
+    <label>Model</label>
+    <select id="slut"></select>
+    <div class="price" id="priceBox">Checking her rank…</div>
+    <button type="button" id="go">Own with DPS</button>
+    <p class="hint" id="msg"></p>
+  </div>
+  <script src="supabase-config.js"></script>
+  <script src="dds-config.js"></script>
+  <script src="dds-chrome.js"></script>
+  <script>
+    var SLUGS = ["preethi","meghana","diya","sravani","ayesha","esther","kiara","natasha","tharini","kavya","lahari","navya","simran","chandana","aleena"];
+    var q = (new URLSearchParams(location.search).get("slut") || "").toLowerCase();
+    var sel = document.getElementById("slut");
+    SLUGS.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s; o.textContent = s[0].toUpperCase() + s.slice(1);
+      if (s === q) o.selected = true;
+      sel.appendChild(o);
+    });
+    var price = { inr: 499, usd: 9, rank: 0, label: "No rank", soon: false };
+    function tierCfg() {
+      var c = (window.DDS_CFG && window.DDS_CFG.ownPriceCfg) || {};
+      return {
+        baseInr: Number(c.baseInr) || 499,
+        baseUsd: Number(c.baseUsd) || 9,
+        stepInr: Number(c.stepInr) || 100,
+        stepUsd: Number(c.stepUsd) || 3,
+        soonInr: Number(c.soonInr) || 899,
+        soonUsd: Number(c.soonUsd) || 24
+      };
+    }
+    function rankStep(score, badge) {
+      var s = Number(score) || 0;
+      var b = String(badge || "").toLowerCase();
+      if (b.indexOf("queen") !== -1 || s >= 3000) return { step: 7, label: "Queen" };
+      if (b.indexOf("crown") !== -1 || s >= 2500) return { step: 6, label: "Crown" };
+      if (b.indexOf("desire elite") !== -1 || s >= 2000) return { step: 5, label: "Desire Elite" };
+      if (b.indexOf("elite") !== -1 || s >= 1500) return { step: 4, label: "Elite" };
+      if (b.indexOf("top") !== -1 || s >= 1200) return { step: 3, label: "Top" };
+      if (b.indexOf("strong") !== -1 || s >= 1000) return { step: 2, label: "Strong" };
+      if (b.indexOf("good") !== -1 || s >= 750) return { step: 1, label: "Good" };
+      return { step: 0, label: "No rank" };
+    }
+    function paintPrice() {
+      var box = document.getElementById("priceBox");
+      var slug = sel.value;
+      if (window.DDS_ownDpsCost) {
+        var info = window.DDS_ownDpsCost(slug);
+        box.innerHTML = "<b>" + (info.soon ? "Soon" : info.label) + "</b><br>" +
+          (info.soon ? "Flat soon door." : ("Live base 1000" + (info.step ? (" + " + info.step + " × 150") : ""))) +
+          "<br><b>Total " + info.cost + " DPS</b>";
+        return;
+      }
+      box.innerHTML = "<b>Own with DPS</b><br>Live base 1000 plus 150 per step. Soon 1500.";
+    }
+    function blocked() {
+      var slug = sel.value;
+      var closed = []
+        .concat(window.DDS_CLOSED || [])
+        .concat((window.DDS_CFG && window.DDS_CFG.unavailable) || []);
+      var isClosed = closed.map(function (s) { return String(s || "").toLowerCase(); }).indexOf(slug) !== -1;
+      var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+      var key = String(access[slug] || "").toLowerCase();
+      if (key === "closed" || key === "soon" || key === "imagesoon") isClosed = true;
+      var owns = false;
+      try {
+        var acc = JSON.parse(localStorage.getItem("dds_account") || "null");
+        var raw = (acc && (acc.owns || acc.owned)) || localStorage.getItem("dds_owns") || "";
+        owns = String(raw).toLowerCase().split(/[,|\s]+/).indexOf(slug) !== -1;
+      } catch (e) {}
+      if (window.DDS_playerOwns) owns = window.DDS_playerOwns(slug);
+      if (!isClosed && !owns) return false;
+      var box = document.getElementById("priceBox");
+      box.innerHTML = isClosed ? "<b>Her door is closed.</b><br>Own is off while she is closed." : "<b>You already own her.</b><br>No second buy.";
+      var form = document.getElementById("buyForm") || document.querySelector("form");
+      if (form) form.style.display = "none";
+      return true;
+    }
+    function loadRank() {
+      var cfg = window.DDS_SUPABASE || {};
+      var base = String(cfg.url || "https://axavugukoesqkfykprur.supabase.co").replace(/\/$/, "");
+      var anon = cfg.anon || "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I";
+      var ready = window.DDS_CFG_READY && window.DDS_CFG_READY.then ? window.DDS_CFG_READY : Promise.resolve();
+      ready.then(function () {
+        if (blocked()) return Promise.reject('blocked');
+        var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+        var key = access[sel.value] || "";
+        price.soon = key === "soon" || key === "imagesoon";
+        price.soonLabel = key === "imagesoon" ? "Image soon" : (key === "soon" ? "Opening soon" : "");
+        return fetch(base + "/rest/v1/board?select=desire_score,rank&slut=eq." + encodeURIComponent(sel.value) + "&limit=1", {
+          headers: { apikey: anon, Authorization: "Bearer " + anon }
+        });
+      }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (rows) {
+        var row = rows && rows[0] || {};
+        var rnk = rankStep(row.desire_score, row.rank);
+        price.rank = rnk.step; price.label = rnk.label;
+        paintPrice();
+      }).catch(function () { paintPrice(); });
+    }
+    sel.addEventListener("change", loadRank);
+    loadRank();
+    var qslug = (new URLSearchParams(location.search).get("slut") || "").toLowerCase();
+    if (qslug && window.DDS_openOwn) window.DDS_openOwn(qslug);
+    document.getElementById("go").onclick = function () {
+      var slug = sel.value;
+      if (!slug) { document.getElementById("msg").textContent = "Pick a model."; return; }
+      if (window.DDS_openOwn) { window.DDS_openOwn(slug); return; }
+      document.getElementById("msg").textContent = "Refresh and try again.";
+    };
+  </script>
+</body>
+</html>

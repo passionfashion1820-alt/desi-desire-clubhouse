@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Member · PURPLE</title>
+  <link rel="stylesheet" href="dds-chrome.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600;800&display=swap');
+    body{margin:0;background:#0a0809;color:#f3e9d7;font-family:Inter,sans-serif}
+    .wrap{max-width:860px;margin:0 auto;padding:1.4rem 1.1rem 3rem}
+    h1{font-family:"Playfair Display",serif;color:#e9d5ff;margin:.2rem 0}
+    .card{background:#140e10;border:1px solid #4a2c2f;border-radius:14px;padding:1.15rem 1.2rem;margin:.7rem 0}
+.face-stack{position:relative;width:108px;height:108px;margin:0 0 .8rem}
+.face-main{width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid #fff3c4;background:#1c1412;display:block}
+.fav-face{position:absolute;width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #fff3c4;background:#1c1412;display:none;box-shadow:0 0 0 2px #140e10}
+.fav-face.on{display:block}
+.fav-face.a{right:0;bottom:2px}
+.fav-face.b{left:0;bottom:2px}
+    .hint{color:#b9a892}.face-stack{position:relative;width:140px;height:140px;margin:.4rem 0 0}.face-stack img#face{width:140px;height:140px;border-radius:50%;object-fit:cover;background:#2a1610;border:2px solid #b794f6}.fav-faces{position:absolute;right:-6px;bottom:4px;display:flex;gap:4px}.fav-faces img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #fff}
+    .pill{display:inline-block;margin:.25rem .3rem 0 0;padding:.28rem .7rem;border-radius:999px;background:#2a1610;border:1px solid #b794f6;color:#edd8ff;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem}
+    .night{display:flex;gap:.55rem;align-items:flex-start;margin:.45rem 0;padding:.45rem 0;border-top:1px solid #3a2428}
+    .night b{color:#f3e9d7}
+    .night-plus{width:1.6rem;height:1.6rem;border-radius:6px;border:1px solid #b794f6;background:#2a1610;color:#edd8ff;font-weight:800;cursor:pointer}
+    .night-body{color:#e6d3b8;margin-top:.3rem;line-height:1.45}
+    .face{position:relative;width:112px;height:112px;margin:.2rem 0 .8rem}
+    .face img.main{width:112px;height:112px;object-fit:cover;border-radius:50%;border:2px solid #fff3c4;background:#1c1412;display:block}
+    .face .dots{position:absolute;right:-4px;bottom:-2px;display:flex}
+    .face .dots img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff3c4;margin-left:-10px;background:#1c1412}
+  
+.face{position:relative;width:132px;height:132px;margin:.35rem 0 .9rem}
+.face img.main{width:132px;height:132px;object-fit:cover;border-radius:50%;border:2px solid #fff3c4;background:#1c1412;display:block}
+.face .dots{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);display:flex}
+.face .dots img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff3c4;margin-left:-12px;background:#1c1412;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.face .dots img:first-child{margin-left:0}
+/* view-faces */
+
+.face{position:relative;width:128px;height:128px;margin:.4rem auto 1rem;overflow:visible}
+.face img.main{width:128px;height:128px;object-fit:cover;border-radius:50%;border:2px solid #fff3c4;background:#1c1412;display:block}
+.face .dots{position:absolute;inset:0;pointer-events:none}
+.fav-heart{position:absolute;bottom:-4px;width:40px;height:36px;background:#f3e6c4;padding:1px;overflow:hidden;z-index:2;
+  clip-path:path("M20 34C20 34 2 23 2 13C2 7 6 3 12 3C15 3 17 5 20 8C23 5 25 3 28 3C34 3 38 7 38 13C38 23 20 34 20 34Z")}
+.fav-heart.l{left:2px}
+.fav-heart.r{right:2px}
+.fav-heart img{width:100%;height:100%;object-fit:cover;display:block;
+  clip-path:path("M20 34C20 34 2 23 2 13C2 7 6 3 12 3C15 3 17 5 20 8C23 5 25 3 28 3C34 3 38 7 38 13C38 23 20 34 20 34Z")}
+/* heart-faces */
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="hint"><a href='/'>Home</a> · status, about, favorites, last five nights</p>
+  <div class="face" id="faceStack">
+    <img class="main" id="face" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23241612'/%3E%3Ccircle cx='100' cy='78' r='30' fill='%23e6d3b0'/%3E%3Cpath d='M46 176c6-36 26-52 54-52s48 16 54 52' fill='%23e6d3b0'/%3E%3C/svg%3E"/>
+    <span class="dots" id="favFaces"></span>
+  </div>
+  <p class="hint" id="faceNote" hidden>Log in to see his photo.</p>
+  <h1 id="name">Member</h1>
+  <div id="card" class="card hint">Loading…</div>
+  <div id="nights" class="card hint">Loading last five nights…</div>
+</main>
+<script src="supabase-config.js"></script>
+<script src="dds-chrome.js"></script>
+<script>
+(function () {
+  var NAMES = {preethi:"Preethi",diya:"Diya",meghana:"Meghana",kiara:"Kiara",sravani:"Sravani",meenakshi:"Meenakshi",ayesha:"Ayesha",esther:"Esther",natasha:"Natasha",tharini:"Tharini",kavya:"Kavya",lahari:"Lahari",navya:"Navya",simran:"Simran",chandana:"Chandana"};
+  var user = (new URLSearchParams(location.search).get("u") || "").trim();
+  var box = document.getElementById("card");
+  var nights = document.getElementById("nights");
+  var cfg = window.DDS_SUPABASE || {};
+  function esc(s) { return String(s || "").replace(/</g, ""); }
+  function paintNights(rows) {
+    rows = rows || [];
+    if (!rows.length) { nights.textContent = "No nights saved yet."; return; }
+    nights.innerHTML = "<p class='hint' style='margin:0 0 .35rem'>Last five nights</p>" + rows.map(function (n, i) {
+      var day = String(n.when_at || "").slice(0, 16).replace("T", " ");
+      var who = NAMES[n.slug] || n.slug || "her";
+      var mins = n.minutes != null ? n.minutes + " min" : "";
+      var recap = String(n.summary || "").trim();
+      var bits = [];
+      if (recap) bits.push(recap);
+      if (n.level) bits.push("Opened to " + n.level);
+      var body = bits.length ? bits.join("\n") : "She did not leave a recap for this night.";
+      return "<div class='night'>" +
+        "<button type='button' class='night-plus' data-n='" + i + "'>+</button>" +
+        "<div><b>" + esc(who) + "</b> · " + esc(day) + (mins ? " · " + esc(mins) : "") +
+        "<div class='night-body' hidden>" + esc(body).replace(/\n/g, "<br>") + "</div></div></div>";
+    }).join("");
+    nights.querySelectorAll(".night-plus").forEach(function (btn) {
+      btn.onclick = function () {
+        var body = btn.parentNode.querySelector(".night-body");
+        if (!body) return;
+        var open = !body.hidden;
+        body.hidden = open;
+        btn.textContent = open ? "+" : "–";
+      };
+    });
+  }
+  if (!user) { box.textContent = "No member specified."; nights.textContent = ""; return; }
+  fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/rpc/public_player_card", {
+    method: "POST",
+    headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_user: user })
+  }).then(function (r) { return r.json(); }).then(function (d) {
+    if (!d || !d.ok) { box.textContent = "That card is private or not verified."; nights.textContent = ""; return; }
+    document.getElementById("name").textContent = d.name || d.username;
+    var me = null;
+    try { me = JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (e) {}
+    var stack = document.getElementById("faceStack");
+    if (stack) stack.hidden = !(me && me.id);
+    document.title = (d.name || "Member") + " · PURPLE";
+    var favs = [d.fav1, d.fav2].filter(Boolean).map(function (s) {
+      var n = NAMES[s] || s;
+      return '<a class="pill" href="' + s + '.html">' + n + "</a>";
+    }).join(" ") || "<span class='hint'>No favorites locked.</span>";
+    box.innerHTML =
+      (me && me.id ? "" : "<p class='hint'>Log in to see his photo.</p>") +
+      (window.DDS_statusMark ? window.DDS_statusMark(d.status || "DesireMember") : '<p class="pill">' + (d.status || "DesireMember") + "</p>") +
+      "<p class='hint' style='margin:.7rem 0 .35rem'>About</p>" +
+      "<p>" + (d.about ? String(d.about).replace(/</g, "") : "He has not written an about yet.") + "</p>" +
+      "<p class='hint' style='margin:.85rem 0 .35rem'>Favorites</p>" +
+      "<p>" + favs + "</p>" +
+      "<p style='margin-top:.9rem'><a class='pill' href='account.html?to=" + encodeURIComponent(d.username || "") + "&name=" + encodeURIComponent(d.nickname || d.username || "") + "'>Message</a></p>";
+    var me = null;
+    try { me = JSON.parse(localStorage.getItem("dds_account") || "null"); } catch (e) { me = null; }
+    var note = document.getElementById("faceNote");
+    var main = document.getElementById("face");
+    var dots = document.getElementById("favFaces");
+    if (!me || !me.id) {
+      if (note) note.hidden = false;
+      if (dots) dots.innerHTML = "";
+    } else {
+      if (note) note.hidden = true;
+      fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/rpc/public_player_photos", {
+        method: "POST",
+        headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+        body: JSON.stringify({ p_user: user, p_viewer: me.id })
+      }).then(function (r) { return r.json().catch(function () { return null; }); }).then(function (p) {
+        if (!p || p.ok === false || !p.photo) {
+          if (note) { note.hidden = false; note.textContent = "No photo on this profile yet."; }
+          return;
+        }
+        if (note) note.hidden = true;
+        if (main) main.src = String(p.photo);
+        var stills = Array.isArray(p.stills) ? p.stills.slice(0, 2) : [];
+        if (dots) dots.innerHTML = stills.map(function (s, i) {
+          var url = String(s.url || "").replace(/"/g, "");
+          if (!url) return "";
+          return "<span class='fav-heart " + (i ? "r" : "l") + "'><img src=\"" + url + "\" alt=''/></span>";
+        }).join("");
+      }).catch(function () {
+        if (note) { note.hidden = false; note.textContent = "Photo did not load. Run FIX_profile_view_photo.sql."; }
+      });
+    }
+  }).catch(function () { box.textContent = "Could not load this card."; });
+  fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/rpc/public_player_nights", {
+    method: "POST",
+    headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_user: user })
+  }).then(function (r) { return r.json(); }).then(function (rows) {
+    if (!Array.isArray(rows)) { nights.textContent = "Nights not ready. Run FIX_public_player_nights.sql."; return; }
+    paintNights(rows);
+  }).catch(function () { nights.textContent = "Could not load nights."; });
+})();
+</script>
+</body>
+</html>
