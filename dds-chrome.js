@@ -3717,7 +3717,7 @@ setInterval(function () {
       '<div class="score-chip primary"><div class="n" data-live="'+page+'" data-live-field="sessions">'+seed("Sessions")+'</div><div class="l">Sessions</div></div>' +
       '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="avg">'+seed("Avg Rating")+'</div><div class="l">Avg Rating</div></div>' +
       '<div class="score-chip primary heart-chip"><div class="n" data-live="'+page+'" data-live-field="hearts">'+seed("Hearts")+'</div><div class="l">Hearts</div></div>' +
-      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="earned">'+seed("DPS earned")+'</div><div class="l">DPS earned</div></div>' +
+      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="pool">'+seed("Pool")+'</div><div class="l">Pool</div></div>' +
       '</div>';
     var cta = info.querySelector(".play-cta");
     if (cta && cta.nextSibling) info.insertBefore(box, cta.nextSibling);
@@ -3731,7 +3731,7 @@ setInterval(function () {
         chip.innerHTML = '<div class="n" data-live-field="hearts">0</div><div class="l">Hearts</div>';
     var earned = document.createElement("div");
     earned.className = "score-chip";
-    earned.innerHTML = '<div class="n" data-live-field="earned">0</div><div class="l">DPS earned</div>';
+    earned.innerHTML = '<div class="n" data-live-field="pool">0</div><div class="l">Pool</div>';
     var after = null;
     bar.querySelectorAll(".score-chip").forEach(function (c) {
       var lab = (c.querySelector(".l") || {}).textContent || "";
@@ -4304,25 +4304,30 @@ window.DDS_dpsStatusFromPts = function (pts) {
       if (isFinite(hearts)) setChip(/^hearts$/i, String(hearts));
       if (isFinite(polls)) setChip(/^(poll votes|profile views)$/i, String(polls));
       if (isFinite(revs)) setChip(/^reviews$/i, String(revs));
-      var earned = Number(row.dps_earned);
-      if (isFinite(earned)) setChip(/^dps earned$/i, kDen(earned));
-      // Star chip next to her name
-      var h1 = document.querySelector("article.profile-hero h1");
-      if (h1 && isFinite(earned) && earned > 0) {
-        var chip = document.getElementById("dpsStarChip");
-        if (!chip) {
-          chip = document.createElement("span");
-          chip.id = "dpsStarChip";
-          chip.style.cssText = "display:inline-flex;align-items:center;gap:.3rem;margin-left:.6rem;background:#2a1f10;color:#f0d78c;border:1px solid #c9a24a;border-radius:999px;padding:.15rem .55rem .15rem .4rem;font-size:.72rem;font-weight:700;letter-spacing:.04em;vertical-align:middle";
-          h1.appendChild(chip);
-        }
-        chip.innerHTML = "<span style='color:#ffe6a0;font-size:.9rem'>★</span> Earned " + kDen(earned) + " DPS";
-      }
     }
-    fetch(String(url).replace(/\/$/, "") + "/rest/v1/board?select=sessions,desire_score,avg_rating,hearts,poll_votes,reviews,dps_earned&slut=eq." + encodeURIComponent(page) + "&limit=1", {
+    fetch(String(url).replace(/\/$/, "") + "/rest/v1/board?select=sessions,desire_score,avg_rating,hearts,poll_votes,reviews&slut=eq." + encodeURIComponent(page) + "&limit=1", {
       headers: { apikey: anon, Authorization: "Bearer " + anon }
     }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
       paint(rows && rows[0]);
+    }).catch(function () {});
+    // Pool value in the metrics chip. No Earned chip in the hero.
+    fetch(String(url).replace(/\/$/, "") + "/rest/v1/model_dps_pool?select=pool&slug=eq." + encodeURIComponent(page) + "&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      var row = rows && rows[0];
+      if (!row) return;
+      var pool = Number(row.pool);
+      if (!isFinite(pool)) return;
+      setChip(/^pool$/i, kDen(pool));
+      // Remove any leftover Earned / star chip from the hero
+      var h1 = document.querySelector("article.profile-hero h1");
+      if (h1) {
+        Array.from(h1.querySelectorAll("span")).forEach(function (s) {
+          if (/earned/i.test(s.textContent || "") || s.id === "dpsStarChip") s.remove();
+        });
+      }
+      var oldStar = document.getElementById("dpsStarChip");
+      if (oldStar) oldStar.remove();
     }).catch(function () {});
     document.querySelectorAll(".score-explain-item b").forEach(function (b) {
       if (!/^desire score$/i.test((b.textContent || "").trim())) return;
