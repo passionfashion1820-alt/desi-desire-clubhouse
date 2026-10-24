@@ -1,0 +1,14 @@
+Preference Paths — Next 4
+
+1. Open each door page:
+   modelready/k/mready-4k9p/natasha.html
+   modelready/k/mready-4k9p/esther.html
+   modelready/k/mready-4k9p/ayesha.html
+   modelready/k/mready-4k9p/tharini.html
+
+2. Paste the matching preference_section.html after the Life or Wanted block.
+
+3. Save and redeploy.
+
+Models will see it the next time they open base then their door page.
+Max two questions a night. Never list them as a menu.
