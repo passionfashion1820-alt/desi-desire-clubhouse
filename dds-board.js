@@ -105,14 +105,31 @@
         else if (/elite/i.test(tier)) prem = 15;
         else if (/top/i.test(tier)) prem = 10;
         else if (/strong/i.test(tier)) prem = 5;
-        var show = doorPrice > 0 ? doorPrice : (base + prem);
+        var rawPrice = doorPrice > 0 ? doorPrice : (base + prem);
         var owns = [];
+        var st = "";
         try {
           var acc = JSON.parse(localStorage.getItem("dds_account") || "null") || {};
-          var raw = acc.owns || acc.owned || localStorage.getItem("dds_owns") || "";
-          if (raw && raw !== "none") owns = String(raw).toLowerCase().split(/[,|\s]+/).filter(Boolean);
+          var rawOwn = acc.owns || acc.owned || localStorage.getItem("dds_owns") || "";
+          if (rawOwn && rawOwn !== "none") owns = String(rawOwn).toLowerCase().split(/[,|\s]+/).filter(Boolean);
+          if (typeof playerStatus === "function") st = playerStatus();
+          else if (acc.dps != null) {
+            var pts = Number(acc.dps || 0);
+            var sl = (window.DDS_CFG && window.DDS_CFG.dpsSlabs) || {};
+            if (pts >= Number(sl.platinum || 2500)) st = "platinum";
+            else if (pts >= Number(sl.elite || 1500)) st = "elite";
+            else if (pts >= Number(sl.gold || 700)) st = "gold";
+            else if (pts >= Number(sl.silver || 150)) st = "silver";
+            else if (pts >= Number(sl.bronze || 50)) st = "bronze";
+          }
         } catch (e) {}
-        if (owns.indexOf(String(r.slut || "").toLowerCase()) !== -1) show = 0;
+        var pct = 0;
+        if (owns.indexOf(String(r.slut || "").toLowerCase()) !== -1) {
+          rawPrice = 0;
+        } else if (st === "bronze") pct = 10;
+        else if (st === "silver") pct = 25;
+        else if (st === "gold" || st === "elite" || st === "platinum") pct = 30;
+        var show = rawPrice === 0 ? 0 : Math.max(0, Math.round(rawPrice * (100 + pct) / 100));
         price.textContent = show + " DPS";
       });
     });
