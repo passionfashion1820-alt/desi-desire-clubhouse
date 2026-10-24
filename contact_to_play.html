@@ -539,7 +539,7 @@
         }).then(function (row) {
           if (row && row.id && roomCost && Number(roomCost) > 0 && chosen !== "anu") {
             try {
-              fetch(String(window.DDS_SUPABASE.url).replace(/\/$/, "") + "/rest/v1/rpc/model_add_earned", {
+              fetch(String(window.DDS_SUPABASE.url).replace(/\/$/, "") + "/rest/v1/rpc/add_to_model_pool", {
                 method: "POST",
                 headers: { apikey: window.DDS_SUPABASE.anon, Authorization: "Bearer " + window.DDS_SUPABASE.anon, "Content-Type": "application/json" },
                 body: JSON.stringify({ p_slug: chosen, p_amount: Number(roomCost) })
