@@ -28,23 +28,31 @@
       if (String(board[i].slut || "").toLowerCase() === slug) { model = board[i]; break; }
     }
     var tier = String((model && model.tier) || "New").toLowerCase();
-    var s = Number(model && model.desire_score || 0);
-    if (/queen|sovereign/.test(tier) || s >= 3000) return { step: 7, label: "Queen" };
-    if (/crown/.test(tier) || s >= 2500) return { step: 6, label: "Crown" };
-    if (/desire elite|super elite/.test(tier) || s >= 2000) return { step: 5, label: "Desire Elite" };
-    if (/elite/.test(tier) || s >= 1500) return { step: 4, label: "Elite" };
-    if (/top/.test(tier) || s >= 1200) return { step: 3, label: "Top" };
-    if (/strong/.test(tier) || s >= 1000) return { step: 2, label: "Strong" };
-    if (/good/.test(tier) || s >= 750) return { step: 1, label: "Good" };
+    if (/queen|sovereign/.test(tier)) return { step: 7, label: "Queen" };
+    if (/crown/.test(tier)) return { step: 6, label: "Crown" };
+    if (/desire elite|super elite/.test(tier)) return { step: 5, label: "Desire Elite" };
+    if (/elite/.test(tier)) return { step: 4, label: "Elite" };
+    if (/top/.test(tier)) return { step: 3, label: "Top" };
+    if (/strong/.test(tier)) return { step: 2, label: "Strong" };
+    if (/good/.test(tier)) return { step: 1, label: "Good" };
     return { step: 0, label: "New" };
+  }
+  function statusPct() {
+    var st = (typeof playerStatus === "function") ? playerStatus() : "";
+    if (st === "bronze") return 10;
+    if (st === "silver") return 25;
+    if (st === "gold" || st === "elite" || st === "platinum") return 30;
+    return 0;
   }
   function fanCost(slug) {
     var fc = fanCfg();
     var rs = rankStep(slug);
     var base = Number(fc.dps) || 200;
-    var premium = Math.round(base * 0.25 * rs.step);
-    var cost = base + premium;
-    return { cost: cost, base: base, premium: premium, step: rs.step, label: rs.label };
+    var modelPrem = Math.round(base * 0.25 * rs.step);
+    var raw = base + modelPrem;
+    var pct = statusPct();
+    var cost = Math.max(0, Math.round(raw * (100 + pct) / 100));
+    return { cost: cost, base: base, premium: modelPrem, pct: pct, step: rs.step, label: rs.label };
   }
   function paint(list, joined, nightsOnDoor) {
     var box = document.getElementById("fan-club");
@@ -216,7 +224,7 @@
       ? '<button type="button" id="ddsFanLeave" style="flex:1;min-width:120px;background:#4a2c5f;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">Leave</button>'
       : (enough
         ? '<button type="button" id="ddsFanJoin" style="flex:1;min-width:120px;background:#b794f6;color:#1a0a0a;padding:.5rem .8rem;border-radius:8px;border:0;font-weight:700">Join · ' + cost.cost + ' DPS</button>'
-        : '<button type="button" id="ddsFanEarn" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">DesirePoints (DPS)</button>');
+        : '<button type="button" id="ddsFanEarn" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">Earn DPS</button>');
     box.innerHTML = '<div style="max-width:440px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
       '<p style="margin:0 0 .4rem;font-size:1.1rem;color:#e9d5ff">Join ' + name + '\'s fan club</p>' +
       '<p style="margin:0 0 .5rem;font-size:.88rem;color:#b9a892">Perks</p>' +

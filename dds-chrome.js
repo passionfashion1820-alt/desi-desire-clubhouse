@@ -461,15 +461,21 @@ function canAccess(slug) {
       if (String(board[i].slut || "").toLowerCase() === slug) { model = board[i]; break; }
     }
     var tier = String((model && model.tier) || "New").toLowerCase();
-    var s = Number(model && model.desire_score || 0);
-    if (/queen|sovereign/.test(tier) || s >= 3000) return { step: 7, label: "Queen" };
-    if (/crown/.test(tier) || s >= 2500) return { step: 6, label: "Crown" };
-    if (/desire elite|super elite/.test(tier) || s >= 2000) return { step: 5, label: "Desire Elite" };
-    if (/elite/.test(tier) || s >= 1500) return { step: 4, label: "Elite" };
-    if (/top/.test(tier) || s >= 1200) return { step: 3, label: "Top" };
-    if (/strong/.test(tier) || s >= 1000) return { step: 2, label: "Strong" };
-    if (/good/.test(tier) || s >= 750) return { step: 1, label: "Good" };
+    if (/queen|sovereign/.test(tier)) return { step: 7, label: "Queen" };
+    if (/crown/.test(tier)) return { step: 6, label: "Crown" };
+    if (/desire elite|super elite/.test(tier)) return { step: 5, label: "Desire Elite" };
+    if (/elite/.test(tier)) return { step: 4, label: "Elite" };
+    if (/top/.test(tier)) return { step: 3, label: "Top" };
+    if (/strong/.test(tier)) return { step: 2, label: "Strong" };
+    if (/good/.test(tier)) return { step: 1, label: "Good" };
     return { step: 0, label: "New" };
+  }
+  function statusPct() {
+    var st = (typeof playerStatus === "function") ? playerStatus() : "";
+    if (st === "bronze") return 10;
+    if (st === "silver") return 25;
+    if (st === "gold" || st === "elite" || st === "platinum") return 30;
+    return 0;
   }
   function ownDpsCost(slug) {
     slug = String(slug || "").toLowerCase();
@@ -477,10 +483,20 @@ function canAccess(slug) {
     var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
     var key = String(access[slug] || "").toLowerCase();
     var soon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
-    if (door > 0) return { cost: Math.round(door), label: "Door", step: 0, soon: !!soon, door: true };
-    if (soon) return { cost: 1500, label: "Soon", step: 0, soon: true };
-    var rs = ownRankStep(slug);
-    return { cost: 1000 + rs.step * 150, label: rs.label, step: rs.step, soon: false };
+    var base = 0;
+    var label = "New";
+    var step = 0;
+    if (door > 0) { base = Math.round(door); label = "Door"; }
+    else if (soon) { base = 1500; label = "Soon"; }
+    else {
+      var rs = ownRankStep(slug);
+      base = 1000 + rs.step * 150;
+      label = rs.label;
+      step = rs.step;
+    }
+    var pct = statusPct();
+    var cost = Math.max(0, Math.round(base * (100 + pct) / 100));
+    return { cost: cost, base: base, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
   }
   window.DDS_ownDpsCost = ownDpsCost;
   function openEarnModal() {
@@ -531,6 +547,7 @@ function canAccess(slug) {
       ? (name + " charges <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
       : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
     var extra = info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000."));
+    if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
       '<p style="margin:0 0 .3rem;color:#e9d5ff;font-weight:700">What you get</p>' +
       '<p style="margin:0 0 .25rem"><b>Status Owned</b> — She treats the door as yours. One recognition line, then she is his.</p>' +
