@@ -307,10 +307,10 @@ function canAccess(slug) {
       else if (ov === "elite" && /elite|platinum/.test(st || "")) allowed = true;
       else if (ov === "owners" && playerOwns(page)) allowed = true;
       if (!allowed) {
-        a.textContent = "In use";
-        a.removeAttribute("href");
-        a.style.pointerEvents = "none";
-        a.style.opacity = "0.55";
+        a.textContent = "Click to Play";
+        if (!a.getAttribute("href")) a.setAttribute("href", "contact_to_play.html?slut=" + page);
+        a.style.pointerEvents = "";
+        a.style.opacity = "";
       }
     });
   }
@@ -340,7 +340,7 @@ function canAccess(slug) {
     document.querySelectorAll("a.dds-play-mid, a.request-flash, a[href*='contact_to_play']").forEach(function (a) {
       a.classList.add("dds-want-play");
       a.classList.remove("dds-off", "dds-off-link", "dds-shut");
-      a.textContent = until ? openOnLabel(until) : "In use";
+      a.textContent = until ? openOnLabel(until) : "Click to Play";
       if (!a.getAttribute("href")) a.setAttribute("href", "contact_to_play.html?slut=" + slug);
     });
     var face = document.querySelector("article.profile-hero .portrait");
