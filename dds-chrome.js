@@ -1032,14 +1032,13 @@ function canAccess(slug) {
       var pct = 0;
       if (owned) {
         raw = 0;
-        pct = 100;
+        pct = 0;
       } else {
-        if (st === "silver") pct = 10;
-        else if (st === "gold") pct = 20;
-        else if (st === "elite") pct = 30;
-        else if (st === "platinum") pct = 40;
+        if (st === "bronze") pct = 10;
+        else if (st === "silver") pct = 25;
+        else if (st === "gold" || st === "elite" || st === "platinum") pct = 30;
       }
-      var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 - pct) / 100));
+      var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 + pct) / 100));
       var isBusy = ((window.DDS_UNAVAILABLE || []).indexOf(slug) !== -1) ||
                    ((window.DDS_IN_SESSION || []).indexOf(slug) !== -1) ||
                    ((window.DDS_CFG && window.DDS_CFG.busy || []).map(function(s){ return String(s||"").toLowerCase(); }).indexOf(slug) !== -1);
@@ -1056,8 +1055,8 @@ function canAccess(slug) {
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
       else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
-      else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".") : "");
-      else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".";
+      else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".") : "");
+      else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".";
       var old = document.getElementById("ddsDpsConfirm");
       if (old) old.remove();
       var box = document.createElement("div");
@@ -3713,11 +3712,10 @@ setInterval(function () {
     box.innerHTML =
       '<p class="mini-k">On the board</p>' +
       '<div class="mini-grid">' +
-      '<div class="score-chip primary"><div class="n" data-live="'+page+'" data-live-field="score">'+seed("Desire Score")+'</div><div class="l">Desire Score</div></div>' +
       '<div class="score-chip primary"><div class="n" data-live="'+page+'" data-live-field="sessions">'+seed("Sessions")+'</div><div class="l">Sessions</div></div>' +
       '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="avg">'+seed("Avg Rating")+'</div><div class="l">Avg Rating</div></div>' +
       '<div class="score-chip primary heart-chip"><div class="n" data-live="'+page+'" data-live-field="hearts">'+seed("Hearts")+'</div><div class="l">Hearts</div></div>' +
-      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="pool">'+seed("Pool")+'</div><div class="l">Pool</div></div>' +
+      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="pool">'+seed("Pool")+'</div><div class="l">DesirePoints</div></div>' +
       '</div>';
     var cta = info.querySelector(".play-cta");
     if (cta && cta.nextSibling) info.insertBefore(box, cta.nextSibling);
@@ -3731,7 +3729,7 @@ setInterval(function () {
         chip.innerHTML = '<div class="n" data-live-field="hearts">0</div><div class="l">Hearts</div>';
     var earned = document.createElement("div");
     earned.className = "score-chip";
-    earned.innerHTML = '<div class="n" data-live-field="pool">0</div><div class="l">Pool</div>';
+    earned.innerHTML = '<div class="n" data-live-field="pool">0</div><div class="l">DesirePoints</div>';
     var after = null;
     bar.querySelectorAll(".score-chip").forEach(function (c) {
       var lab = (c.querySelector(".l") || {}).textContent || "";
@@ -4095,7 +4093,7 @@ setInterval(function () {
         var lab = chips[i].querySelector(".l");
         var num = chips[i].querySelector(".n");
         if (!lab || !num) continue;
-        if (!/^pool$/i.test((lab.textContent || "").trim())) continue;
+        if (!/^DesirePoints$/i.test((lab.textContent || "").trim())) continue;
         var shown = pool >= 1000 ? (pool / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(pool);
         num.textContent = shown;
         break;
@@ -4343,13 +4341,25 @@ window.DDS_dpsStatusFromPts = function (pts) {
       var hearts = Number(row.hearts);
       var polls = Number(row.poll_votes);
       var revs = Number(row.reviews);
-      if (isFinite(score)) setChip(/^desire score$/i, score % 1 === 0 ? String(score) : score.toFixed(1));
+      // DesirePoints comes from the pool, not board.desire_score
       if (isFinite(nights)) setChip(/^(sessions|nights)$/i, String(nights));
       if (isFinite(avg) && avg) setChip(/^avg rating$/i, avg.toFixed(2));
       if (isFinite(hearts)) setChip(/^hearts$/i, String(hearts));
       if (isFinite(polls)) setChip(/^(poll votes|profile views)$/i, String(polls));
       if (isFinite(revs)) setChip(/^reviews$/i, String(revs));
     }
+    function paintPool() {
+      fetch(String(url).replace(/\/$/, "") + "/rest/v1/model_dps_pool?slug=eq." + encodeURIComponent(page) + "&select=pool&limit=1", {
+        headers: { apikey: anon, Authorization: "Bearer " + anon }
+      }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+        var pool = (rows && rows[0] && rows[0].pool) || 0;
+        setChip(/^DesirePoints$/i, String(pool));
+        document.querySelectorAll(".score-bar .score-chip .l").forEach(function (lab) {
+          if (/^DesirePoints$/i.test((lab.textContent || "").trim())) lab.textContent = "DesirePoints";
+        });
+      }).catch(function () {});
+    }
+    paintPool();
     fetch(String(url).replace(/\/$/, "") + "/rest/v1/board?select=sessions,desire_score,avg_rating,hearts,poll_votes,reviews&slut=eq." + encodeURIComponent(page) + "&limit=1", {
       headers: { apikey: anon, Authorization: "Bearer " + anon }
     }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
@@ -4372,7 +4382,7 @@ window.DDS_dpsStatusFromPts = function (pts) {
         });
         pool = Math.max(2000, nights * 20);
       }
-      setChip(/^pool$/i, kDen(pool));
+      setChip(/^DesirePoints$/i, kDen(pool));
       // Remove any leftover Earned / star chip from the hero
       var h1 = document.querySelector("article.profile-hero h1");
       if (h1) {
@@ -4384,10 +4394,10 @@ window.DDS_dpsStatusFromPts = function (pts) {
       if (oldStar) oldStar.remove();
     }).catch(function () {});
     document.querySelectorAll(".score-explain-item b").forEach(function (b) {
-      if (!/^desire score$/i.test((b.textContent || "").trim())) return;
+      if (!/^DesirePoints$/i.test((b.textContent || "").trim())) return;
       var parent = b.parentElement;
       if (!parent) return;
-      parent.innerHTML = "<b>Desire Score</b> From the live board. Rating, nights, hearts, favorites, and owns. Views add 0.";
+      parent.innerHTML = "<b>DesirePoints</b> Her ranking number. Base 2000. Grows by what he spends on her, +50 per heart, +25 per review star.";
     });
     document.querySelectorAll(".score-explain-item b").forEach(function (b) {
       if (!/^(sessions|nights)$/i.test((b.textContent || "").trim())) return;
