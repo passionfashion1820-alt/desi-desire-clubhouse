@@ -4056,6 +4056,25 @@ setInterval(function () {
     var cfg = window.DDS_SUPABASE || {};
     var base = String(cfg.url || "https://axavugukoesqkfykprur.supabase.co").replace(/\/$/, "");
     var anon = cfg.anon || "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I";
+    // Fresh pool into the cloned scoreboard
+    fetch(base + "/rest/v1/model_dps_pool?select=pool&slug=eq." + encodeURIComponent(slug) + "&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      var row = rows && rows[0];
+      if (!row) return;
+      var pool = Number(row.pool);
+      if (!isFinite(pool)) return;
+      var chips = body.querySelectorAll(".score-chip");
+      for (var i = 0; i < chips.length; i++) {
+        var lab = chips[i].querySelector(".l");
+        var num = chips[i].querySelector(".n");
+        if (!lab || !num) continue;
+        if (!/^pool$/i.test((lab.textContent || "").trim())) continue;
+        var shown = pool >= 1000 ? (pool / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(pool);
+        num.textContent = shown;
+        break;
+      }
+    }).catch(function () {});
     fetch(base + "/rest/v1/desk_reviews?slut=eq." + encodeURIComponent(slug) + "&select=created_at,overall,feedback&order=created_at.desc&limit=8", {
       headers: { apikey: anon, Authorization: "Bearer " + anon }
     }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
