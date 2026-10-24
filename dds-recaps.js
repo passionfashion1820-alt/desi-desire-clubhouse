@@ -54,8 +54,16 @@
   function paint(fav, own) {
     var box = hostBox();
     if (!box) return;
-    var fans = (fav && fav.fans) || [];
-    var n = Number((fav && fav.count) || fans.length || 0);
+    // model_favorites may return {count,fans} or a raw array of fans
+    var fans = [];
+    var n = 0;
+    if (Array.isArray(fav)) {
+      fans = fav;
+      n = fav.length;
+    } else if (fav && typeof fav === "object") {
+      fans = fav.fans || [];
+      n = Number(fav.count || fans.length || 0);
+    }
     var names = fans.map(function (f) { return claimChip(f, false); }).join("");
     var owners = (own && own.owners) || [];
     box.innerHTML =
@@ -113,6 +121,20 @@
     restRpc("model_favorites", { p_model: slug }),
     restRpc("model_owned", { p_model: slug })
   ]).then(function (pair) {
-    paint(pair[0] || {}, pair[1] || {});
+    var fav = pair[0] || {};
+    var own = pair[1] || {};
+    // Fallback: if RPC returns empty, use board favorites count
+    if (!fav.count && !fav.fans || (fav.fans && !fav.fans.length)) {
+      var board = (window.DDS_BOARD || []).filter(function(r){ return String(r.slut||"").toLowerCase() === slug; })[0];
+      if (board && board.favorites) {
+        fav = { count: Number(board.favorites) || 0, fans: fav.fans || [] };
+      }
+    }
+    paint(fav, own);
+  }).catch(function(){
+    // On error, still try board
+    var board = (window.DDS_BOARD || []).filter(function(r){ return String(r.slut||"").toLowerCase() === slug; })[0];
+    var n = board && board.favorites ? Number(board.favorites) : 0;
+    paint({ count: n, fans: [] }, { owners: [] });
   });
 })();
