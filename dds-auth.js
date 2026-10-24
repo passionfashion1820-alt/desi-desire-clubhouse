@@ -78,15 +78,6 @@
     document.querySelectorAll(".dds-login").forEach(function (a) {
       if (a.closest && a.closest(".dds-drawer")) return;
       if (a.getAttribute("data-dup") === "1") return;
-      if (deskOn) {
-        a.setAttribute("href", "desirescoutadmin.html#users");
-        a.className = "dds-login on";
-        a.innerHTML = "<span>Admin</span>";
-        a.title = "Desk portal";
-        var out = ensureOut(a);
-        out.style.display = inYes ? "" : "none";
-        return;
-      }
       a.setAttribute("href", "account.html");
       a.classList.toggle("on", inYes);
       if (inYes) {
