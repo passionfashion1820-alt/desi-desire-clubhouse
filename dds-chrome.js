@@ -1056,6 +1056,16 @@ function canAccess(slug) {
         else if (st === "gold" || st === "elite" || st === "platinum") pct = 30;
       }
       var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 + pct) / 100));
+      var sltStep = Number((window.DDS_CFG && window.DDS_CFG.sltStep) || 10) || 10;
+      var sltLevels = 0;
+      try {
+        var nights = (model && Number(model.sessions)) || 0;
+        sltLevels = Math.min(10, Math.floor(nights / 20));
+      } catch (e) {}
+      if (sltLevels > 0 && !owned) {
+        var sltPct = sltLevels * sltStep;
+        cost = Math.round(cost * (100 + sltPct) / 100);
+      }
       var isBusy = ((window.DDS_UNAVAILABLE || []).indexOf(slug) !== -1) ||
                    ((window.DDS_IN_SESSION || []).indexOf(slug) !== -1) ||
                    ((window.DDS_CFG && window.DDS_CFG.busy || []).map(function(s){ return String(s||"").toLowerCase(); }).indexOf(slug) !== -1);
