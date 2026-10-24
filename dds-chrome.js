@@ -4005,7 +4005,33 @@ setInterval(function () {
       }
     });
     btn.innerHTML = starRow(chip);
-    meta.insertAdjacentElement("afterend", btn);
+    var wrap = document.createElement("div");
+    wrap.className = "dds-hero-row";
+    wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin:12px 0 4px;";
+    btn.style.margin = "0";
+    wrap.appendChild(btn);
+    var dpsBox = document.createElement("div");
+    dpsBox.id = "dds-hero-dps";
+    dpsBox.className = "dds-hero-dps";
+    dpsBox.style.cssText = "display:flex;flex-direction:column;justify-content:center;min-width:140px;padding:12px 16px;border:1px solid rgba(192,132,252,.55);border-radius:14px;background:#1a1416;color:#f3e8ff;";
+    var name = page.charAt(0).toUpperCase() + page.slice(1);
+    dpsBox.innerHTML = "<div style='font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#c084fc;font-weight:600'>" + name + "'s DPS</div><div id='dds-hero-dps-num' style='font-size:1.35rem;font-weight:700;margin-top:2px'>—</div>";
+    wrap.appendChild(dpsBox);
+    meta.insertAdjacentElement("afterend", wrap);
+    // Fill the number from the pool
+    var cfg = window.DDS_SUPABASE || {};
+    var base = String(cfg.url || "https://axavugukoesqkfykprur.supabase.co").replace(/\/$/, "");
+    var anon = cfg.anon || "sb_publishable_lTzYnhvWF0JRNnAitqfszw_ctUL1t4I";
+    fetch(base + "/rest/v1/model_dps_pool?select=pool&slug=eq." + encodeURIComponent(page) + "&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      var row = rows && rows[0];
+      var n = row ? Number(row.pool) : NaN;
+      var el = document.getElementById("dds-hero-dps-num");
+      if (!el) return;
+      if (!isFinite(n)) { el.textContent = "—"; return; }
+      el.textContent = n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+    }).catch(function () {});
     var revBtn = document.createElement("button");
     revBtn.type = "button";
     revBtn.id = "dds-read-all-revs";
@@ -4013,7 +4039,7 @@ setInterval(function () {
     revBtn.style.cssText = "display:block;width:100%;max-width:420px;margin:10px 0 6px;padding:12px 20px;border:2px solid #c084fc;border-radius:10px;background:linear-gradient(180deg,#2a1a3a 0%,#1a1024 100%);color:#f3e8ff;font:inherit;font-size:.92rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(192,132,252,.55), inset 0 0 12px rgba(192,132,252,.15);text-shadow:0 0 8px rgba(243,232,255,.6);transition:box-shadow .2s,transform .15s;";
     revBtn.onmouseover = function () { this.style.boxShadow = "0 0 28px rgba(192,132,252,.85), inset 0 0 16px rgba(192,132,252,.25)"; this.style.transform = "translateY(-1px)"; };
     revBtn.onmouseout = function () { this.style.boxShadow = "0 0 18px rgba(192,132,252,.55), inset 0 0 12px rgba(192,132,252,.15)"; this.style.transform = ""; };
-    btn.insertAdjacentElement("afterend", revBtn);
+    wrap.insertAdjacentElement("afterend", revBtn);
     revBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-180.png"/>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Play · PURPLE</title>
+  <meta name="description" content="Answer a few questions. We’ll point you to the woman and the version that matches how you like to play." />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+    :root {
+      --bg: #0a0809;
+      --card: #140e10;
+      --gold: #d4af37;
+      --gold-soft: #e8c97a;
+      --text: #f3e9d7;
+      --muted: #b9a892;
+      --border: #4a2c2f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #2a1216 0%, #0a0809 55%), #0a0809;
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { color: var(--gold-soft); }
+    .nav {
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.25rem;
+      background: rgba(10,8,9,.92);
+    }
+    .nav-inner {
+      max-width: 920px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;
+    }
+    .brand { font-family: "Playfair Display", serif; color: var(--gold); font-weight: 600; }
+    .nav-links { font-size: .78rem; letter-spacing: .04em; color: var(--muted); }
+    .nav-links a { color: var(--muted); text-transform: uppercase; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.2rem 3.5rem; }
+    .kicker { color: var(--gold); letter-spacing: .22em; text-transform: uppercase; font-size: .7rem; }
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      color: var(--gold-soft);
+      margin: .4rem 0 .5rem;
+    }
+    .lead { color: var(--muted); max-width: 40rem; margin-bottom: 1.4rem; }
+    form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.15rem 1.3rem;
+    }
+    .grid { display: grid; gap: .9rem; }
+    @media (min-width: 700px) { .grid { grid-template-columns: 1fr 1fr; } }
+    label { display: block; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: .35rem; }
+    select, input[type="text"] {
+      width: 100%;
+      background: #0c090a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .65rem .7rem;
+      font: inherit;
+    }
+    .hint { color: var(--muted); font-size: .75rem; margin-top: .35rem; }
+    .actions { margin-top: 1rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+    button, .btn {
+      display: inline-block;
+      background: #6b2430;
+      color: var(--gold-soft);
+      border: 1px solid #8a3340;
+      border-radius: 6px;
+      padding: .55rem .95rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:hover, .btn:hover { background: #7e2c3a; }
+    button.ghost, a.btn.ghost {
+      background: transparent;
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    #results { display: none; margin-top: 1.4rem; }
+    .res-title { font-family: "Playfair Display", serif; color: var(--gold); margin-bottom: .7rem; font-size: 1.25rem; }
+    .pick {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: .85rem;
+      align-items: start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem .95rem;
+      margin-bottom: .75rem;
+    }
+    .pick img.thumb {
+      width: 88px;
+      height: 118px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 8px;
+      border: 1px solid #d4af37;
+      background: #1a0c10;
+    }
+    .pick h3 { font-family: "Playfair Display", serif; color: var(--gold-soft); font-size: 1.35rem; }
+    .meta { color: var(--muted); font-size: .88rem; margin: .2rem 0 .45rem; }
+    .why { color: var(--text); font-size: .95rem; margin-bottom: .55rem; }
+    .note { color: var(--muted); font-size: .8rem; margin-bottom: .55rem; }
+    .tag {
+      display: inline-block;
+      border: 1px solid #a88b3a;
+      color: var(--gold-soft);
+      font-size: .72rem;
+      padding: .12rem .45rem;
+      margin: 0 .3rem .3rem 0;
+      border-radius: 3px;
+    }
+    .offer-hook {
+      display: none;
+      margin-top: 1rem;
+      padding: .75rem .9rem;
+      border: 1px dashed var(--gold);
+      border-radius: 8px;
+      color: var(--gold-soft);
+      font-size: .88rem;
+    }
+    footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 1.4rem; }
+  </style>
+  <link rel="stylesheet" href="dds-chrome.css" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">Desi Desire Syndicate</a>
+      <div class="nav-links">
+        <a href="/#lineup">SLUTS</a> ·
+        <a href="/offer">OFFERS</a> ·
+        <a href="/selector" class="active">Play</a> ·
+        <a href="/game_features">Guide</a> ·
+        <a href="/contact_to_play">Contact</a> ·
+        <a href="/#opns">Donate</a> ·
+        <a href="/disclaimer">Disclaimer</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <p class="kicker">Find her</p>
+    <h1>Play — Selector</h1>
+    <p class="lead">Answer a few questions. We’ll point you to the woman that matches how you like to play. Or <a href="/compare.html">compare side by side</a>.</p>
+
+    <form id="sel">
+      <div class="grid">
+        <div>
+          <label for="diff">How hard should she be?</label>
+          <select id="diff">
+            <option value="easy">Easy — she opens with warmth</option>
+            <option value="medium" selected>Medium — some resistance</option>
+            <option value="hard">Hard — proud, slow, earns the fall</option>
+          </select>
+        </div>
+        <div>
+          <label for="vibe">What energy do you want?</label>
+          <select id="vibe">
+            <option value="soft" selected>Soft / emotional / sensual</option>
+            <option value="motherly">Motherly / Amma / aunty</option>
+            <option value="proud">Proud / cultural / strict</option>
+            <option value="luxury">Elegant / luxury / high-class</option>
+            <option value="filthy">Direct / filthy / degradation</option>
+            <option value="guilt">Religious guilt / modest surface</option>
+          </select>
+        </div>
+        <div>
+          <label for="age">Age feel</label>
+          <select id="age">
+            <option value="mid">Mid 30s</option>
+            <option value="any" selected>Doesn’t matter</option>
+            <option value="mature">Mature 40+</option>
+          </select>
+        </div>
+        <div>
+          <label for="body">Body you want to look at</label>
+          <select id="body">
+            <option value="any" selected>Surprise me</option>
+            <option value="hips">Heavy hips / big ass</option>
+            <option value="bust">Heavy bust</option>
+            <option value="slim">Slim elegant</option>
+            <option value="curvy">Soft curvy all over</option>
+          </select>
+        </div>
+        <div>
+          <label for="door">Door</label>
+          <select id="door">
+            <option value="any" selected>Any door</option>
+            <option value="live">Live now</option>
+            <option value="soon">Opening later</option>
+          </select>
+        </div>
+        <div>
+          <label for="race">Desire race</label>
+          <select id="race">
+            <option value="any" selected>Any slab</option>
+            <option value="queen">Desire Queen</option>
+            <option value="crown">Desire Crown</option>
+            <option value="elite">Desire Elite</option>
+            <option value="top">Top</option>
+            <option value="strong">Strong</option>
+          </select>
+        </div>
+        <div>
+          <label for="rank">Rank</label>
+          <select id="rank">
+            <option value="any" selected>Any rank</option>
+            <option value="3">Top 3</option>
+            <option value="5">Top 5</option>
+          </select>
+        </div>
+        <div>
+          <label for="note">Optional — type a kink or word</label>
+          <input id="note" type="text" placeholder="e.g. Coorg, Brahmin, Hindi, younger, nurse…" />
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" id="go">Find her</button>
+        <button type="button" class="ghost" id="reset">Reset</button>
+      </div>
+    </form>
+
+    <div class="offer-hook" id="offerHook"></div>
+    <div id="results"></div>
+  </main>
+  <footer>PURPLE · Selector is a guide. Rooms open from her profile.</footer>
+
+<script src="supabase-config.js"></script>
+<script>
+/* Every entry has the same fields. Score never crashes on a missing one. */
+const SLUTS = [
+  { id:"preethi", name:"Preethi", age:37, body:"36C-34-44", origin:"Chennai Tamil",
+    diff:"medium", vibe:["soft"], bodyTag:["hips","curvy"], title:"Ass Queen",
+    why:"Soft Chennai heat. Careful want. Heavy 44 hip.",
+    keys:"soft ass chennai tamil preethi careful" },
+  { id:"diya", name:"Diya", age:34, body:"36DD-34-40", origin:"Madurai",
+    diff:"hard", vibe:["proud","luxury"], bodyTag:["bust","curvy"], title:"Bust Queen",
+    why:"Very strict. 36DDs. You earn the chest.",
+    keys:"bust madurai strict diya temple" },
+  { id:"meghana", name:"Meghana", age:36, body:"36D-34-36", origin:"Kannadiga",
+    diff:"hard", vibe:["luxury","proud"], bodyTag:["curvy"], title:"Curve Queen",
+    why:"Poised Kannadiga curve. Strict door. Elegant heat.",
+    keys:"kannadiga curve meghana expensive" },
+  { id:"kiara", name:"Kiara", age:35, body:"34C-32-34", origin:"North Indian",
+    diff:"medium", vibe:["luxury"], bodyTag:["slim"], title:"Luxury Queen",
+    why:"Expensive and slow to cheapen.",
+    keys:"luxury kiara north indian expensive" },
+  { id:"sravani", name:"Sravani", age:45, body:"34C-34-36", origin:"Telugu",
+    diff:"hard", vibe:["motherly","filthy"], bodyTag:["curvy"], title:"Filthy Amma",
+    why:"Courtyard Amma. Public door is hard. Private heat is not.",
+    keys:"amma motherly telugu sravani filthy" },
+  { id:"natasha", name:"Natasha", age:36, body:"34D-34-38", origin:"Goa",
+    diff:"hard", vibe:["proud"], bodyTag:["curvy"], title:"Pride Queen",
+    why:"Coast control. Pride first.",
+    keys:"goa pride natasha control strict" },
+  { id:"ayesha", name:"Ayesha", age:36, body:"34D-34-34", origin:"Tamil Muslim",
+    diff:"medium", vibe:["guilt"], bodyTag:["curvy"], title:"Guilt Queen",
+    why:"Modest first look. Guilt is the heat. No faith joke.",
+    keys:"muslim hijab guilt ayesha modest tamil" },
+  { id:"esther", name:"Esther", age:34, body:"34C-34-38", origin:"Christian",
+    diff:"medium", vibe:["soft"], bodyTag:["curvy"], title:"Soft Queen",
+    why:"Soft voice. Thick limbs. Quiet heat.",
+    keys:"esther christian soft" },
+  { id:"tharini", name:"Tharini", age:34, body:"34D-34-38", origin:"Mumbai",
+    diff:"hard", vibe:["luxury","proud"], bodyTag:["curvy"], title:"Mumbai polish",
+    why:"Polished Mumbai door.",
+    keys:"tharini mumbai polish" },
+  { id:"kavya", name:"Kavya", age:36, body:"34DD-34-42", origin:"Iyengar",
+    diff:"hard", vibe:["proud","luxury"], bodyTag:["curvy","bust"], title:"Iyengar composure",
+    why:"Composed Iyengar. Live door.",
+    keys:"kavya iyengar composure" },
+  { id:"lahari", name:"Lahari", age:40, body:"36C-34-34", origin:"Hyderabad",
+    diff:"medium", vibe:["luxury"], bodyTag:["curvy"], title:"Hyderabad queen",
+    why:"Hyderabad queen. Live door.",
+    keys:"lahari hyderabad queen telugu" },
+  { id:"navya", name:"Navya", age:38, body:"34D-34-34", origin:"Kochi",
+    diff:"medium", vibe:["luxury","soft"], bodyTag:["curvy"], title:"Kochi soft-expensive",
+    why:"Kochi soft-expensive.",
+    keys:"navya kochi kerala" },
+  { id:"simran", name:"Simran", age:34, body:"34C-34-34", origin:"Rajasthan",
+    diff:"medium", vibe:["luxury"], bodyTag:["curvy"], title:"Rajasthan grace",
+    why:"Rajasthan grace. Live door.",
+    keys:"simran rajasthan grace" },
+  { id:"chandana", name:"Chandana", age:36, body:"36C-34-38", origin:"Hyderabad Telugu",
+    diff:"hard", vibe:["proud","luxury"], bodyTag:["curvy"], title:"Hyderabad traditional",
+    why:"Private house. Coming soon.",
+    keys:"chandana hyderabad telugu soft rose" },
+  { id:"aleena", name:"Aleena", age:34, body:"36DD-34-40", origin:"Kerala Christian",
+    diff:"hard", vibe:["proud","soft"], bodyTag:["bust","curvy"], title:"Kerala Christian",
+    why:"Kochi house. Coming soon.",
+    keys:"aleena kochi kerala christian" }
+];
+
+/* Meenakshi is a trainer, not a lineup door. */
+const SOON = { chandana: "soon", aleena: "soon" };
+const BOARD = {};
+
+function tierOf(score) {
+  score = Number(score || 0);
+  if (score >= 3000) return "queen";
+  if (score >= 2500) return "crown";
+  if (score >= 2000) return "elite";
+  if (score >= 1500) return "elite";
+  if (score >= 1200) return "top";
+  if (score >= 1000) return "strong";
+  if (score >= 750) return "good";
+  return "new";
+}
+function tierName(key) {
+  return { queen:"Desire Queen", crown:"Desire Crown", elite:"Desire Elite", top:"Top", strong:"Strong", good:"Good", new:"New" }[key] || "New";
+}
+function isSoon(id) { return !!SOON[id]; }
+
+function loadBoard() {
+  var cfg = window.DDS_SUPABASE || {};
+  if (!cfg.url || !cfg.anon) return;
+  fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/board?select=slut,desire_score,hearts,sessions,reviews&order=desire_score.desc", {
+    headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon }
+  }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+    (rows || []).forEach(function (row, i) {
+      BOARD[String(row.slut || "").toLowerCase()] = {
+        score: Number(row.desire_score || 0),
+        hearts: Number(row.hearts || 0),
+        sessions: Number(row.sessions || 0),
+        reviews: Number(row.reviews || 0),
+        rank: i + 1,
+        tier: tierOf(row.desire_score)
+      };
+    });
+  }).catch(function () {});
+}
+loadBoard();
+
+function score(s, q) {
+  var n = 0;
+  var vibe = Array.isArray(s.vibe) ? s.vibe : [];
+  var tags = Array.isArray(s.bodyTag) ? s.bodyTag : [];
+  var keys = String(s.keys || "").toLowerCase();
+  if (s.diff === q.diff) n += 5;
+  else if ((q.diff === "medium" && s.diff !== "hard") || (q.diff === "easy" && s.diff === "medium")) n += 2;
+  if (vibe.indexOf(q.vibe) !== -1) n += 5;
+  if (q.age === "mature" && s.age >= 40) n += 3;
+  if (q.age === "mid" && s.age <= 38) n += 2;
+  if (q.body !== "any" && tags.indexOf(q.body) !== -1) n += 4;
+  if (q.note) {
+    var k = q.note.toLowerCase();
+    if (keys.indexOf(k) !== -1 || String(s.name||"").toLowerCase().indexOf(k) !== -1 || String(s.origin||"").toLowerCase().indexOf(k) !== -1) n += 6;
+    k.split(/\s+/).forEach(function (w) { if (w.length > 2 && keys.indexOf(w) !== -1) n += 2; });
+  }
+  return n;
+}
+
+document.getElementById("go").onclick = function () {
+  var q = {
+    diff: document.getElementById("diff").value,
+    vibe: document.getElementById("vibe").value,
+    age: document.getElementById("age").value,
+    body: document.getElementById("body").value,
+    door: document.getElementById("door").value,
+    race: document.getElementById("race").value,
+    rank: document.getElementById("rank").value,
+    note: (document.getElementById("note").value || "").trim()
+  };
+
+  var pool = SLUTS.filter(function (s) {
+    var soon = isSoon(s.id);
+    if (q.door === "live" && soon) return false;
+    if (q.door === "soon" && !soon) return false;
+    var b = BOARD[s.id] || { score: 0, rank: 99, tier: "new" };
+    if (q.race !== "any") {
+      var order = ["new","good","strong","top","elite","crown","queen"];
+      if (order.indexOf(b.tier) < order.indexOf(q.race)) return false;
+    }
+    if (q.rank !== "any" && b.rank > Number(q.rank)) return false;
+    return true;
+  });
+
+  var ranked = pool.map(function (s) { return { s: s, n: score(s, q) }; })
+    .sort(function (a, b) { return b.n - a.n || a.s.name.localeCompare(b.s.name); })
+    .slice(0, 3);
+
+  var box = document.getElementById("results");
+  box.style.display = "block";
+  if (!ranked.length) {
+    box.innerHTML = '<p class="res-title">No match</p><p class="note">That slab or rank is empty. Widen the Desire filter.</p>';
+    return;
+  }
+  box.innerHTML = '<p class="res-title">Your matches</p>' + ranked.map(function (r, i) {
+    var thumb = (window.DDS_THUMBS && window.DDS_THUMBS[r.s.id]) || "";
+    var b = BOARD[r.s.id] || {};
+    var open = isSoon(r.s.id) ? (SOON[r.s.id] === "soon" ? "Coming soon" : "Opens " + SOON[r.s.id].slice(8) + " Oct") : "Live";
+    var race = b.tier ? tierName(b.tier) + " · " + Math.round(b.score || 0) : "Score loading";
+    var rank = b.rank ? "Rank #" + b.rank : "";
+    return '<article class="pick">'
+      + (thumb ? '<img class="thumb" src="' + thumb + '" alt="' + r.s.name + '">' : '<div></div>')
+      + '<div><div class="tag">' + (i === 0 ? "Best fit" : "Also try") + '</div>'
+      + '<h3>' + r.s.name + '</h3>'
+      + '<p class="meta">' + r.s.age + ' · ' + r.s.body + ' · ' + r.s.origin + ' · ' + (r.s.title || "") + '</p>'
+      + '<p class="meta">' + [open, rank, race, b.hearts ? b.hearts + " hearts" : "", b.sessions ? b.sessions + " nights" : ""].filter(Boolean).join(" · ") + '</p>'
+      + '<p class="why">' + (r.s.why || "") + '</p>'
+      + '<p class="note">Open her profile. Click to Play lives there.</p>'
+      + '<a class="btn" href="' + r.s.id + '.html">View profile</a>'
+      + '</div></article>';
+  }).join("");
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  var list = window.DDS_LIVE_OFFERS || [];
+  var hook = document.getElementById("offerHook");
+  if (hook) {
+    var hits = ranked.map(function (r) { return r.s.name.toLowerCase(); });
+    var matched = list.filter(function (o) { return hits.indexOf(String(o.name||"").toLowerCase()) !== -1; });
+    if (matched.length) {
+      hook.style.display = "block";
+      hook.innerHTML = matched.map(function (off) {
+        return "OFFER · " + off.name + " · <strong>" + off.code + "</strong> — " + off.perks +
+          ' · <a href="' + off.slug + '.html">View profile</a>';
+      }).join("<br>");
+    } else {
+      hook.style.display = "none";
+    }
+  }
+};
+
+document.getElementById("reset").onclick = function () {
+  document.getElementById("sel").reset();
+  document.getElementById("results").style.display = "none";
+  var hook = document.getElementById("offerHook");
+  if (hook) hook.style.display = "none";
+};
+</script>
+<script src="dds-chrome.js"></script>
+</body>
+</html>
