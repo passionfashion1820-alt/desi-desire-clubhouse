@@ -113,7 +113,7 @@
   }
 
   var slug = pageSlug();
-  if (!slug || slug === "index" || slug === "anu" || slug === "meenakshi") return;
+  if (!slug || slug === "index") return;  // trainers also show favorites
   if (!document.querySelector(".profile-hero, .score-bar")) return;
 
   paint({ count: 0, fans: [] }, { owners: [] });
