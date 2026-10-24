@@ -528,7 +528,7 @@ function canAccess(slug) {
     box.id = "ddsOwnModal";
     box.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
     var line = enough
-      ? (name + " needs <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
+      ? (name + " charges <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
       : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
     var extra = info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000."));
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
@@ -919,8 +919,8 @@ function canAccess(slug) {
         }
       } else if (level === "members") body = "Sign in to play " + her + ".";
       else if (level === "owners") body = "Play more nights to own her, or buy right away.";
-      else if (floor > 0 && myPts < floor) body = her + " needs " + need + ". You have " + myPts + " DPS.";
-      else body = her + " needs " + need + ".";
+      else if (floor > 0 && myPts < floor) body = her + " charges " + need + ". You have " + myPts + " DPS.";
+      else body = her + " charges " + need + ".";
       var old = document.getElementById("ddsNeedRank");
       if (old) old.remove();
       var box = document.createElement("div");
@@ -959,7 +959,7 @@ function canAccess(slug) {
       } else if (level === "owners") {
         needLine = "Play more nights to own or buy right away.";
       } else if (floor > 0) {
-        needLine = her + " needs " + floor + " DPS.";
+        needLine = her + " charges " + floor + " DPS.";
       } else {
         needLine = her + " is open for " + need + " only.";
       }
@@ -1066,7 +1066,7 @@ function canAccess(slug) {
       if (myPts < cost) {
         box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
           '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
-          '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + name + ' needs <b>' + cost + '</b> DPS.</p>' +
+          '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS.</p>' +
           (disc ? ('<p style="margin:0 0 .45rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : '') +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">You do not have enough. Buy DPS to continue.</p>' +
           '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' +
@@ -1084,7 +1084,7 @@ function canAccess(slug) {
       } else {
         box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
           '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
-          '<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + name + ' needs <b>' + cost + '</b> DPS to play.</p>' +
+          '<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS for the night.</p>' +
           (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : '') +
           '<p style="margin:0 0 .55rem;font-size:.82rem;color:#b9a892;line-height:1.35">If you win levels you can earn up to <b>' + fullPay + '</b> DPS from ' + name + '. She gives it if she likes you.</p>' +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Proceed?</p>' +
@@ -1225,7 +1225,7 @@ function canAccess(slug) {
       box.id = "ddsNeedRank";
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
-      if (more > 0) ways = '<p style="margin:0 0 .5rem;font-size:.86rem;color:#b9a892">You have ' + myPts + ' Desire points (' + st + '). ' + her + ' needs ' + floor + ' (' + need + ').</p>' +
+      if (more > 0) ways = '<p style="margin:0 0 .5rem;font-size:.86rem;color:#b9a892">You have ' + myPts + ' Desire points (' + st + '). ' + her + ' charges ' + floor + ' (' + need + ').</p>' +
         '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>';
       else ways = '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise your Desire score.</p>';
       var acc = window.DDS_account && window.DDS_account();
@@ -1260,8 +1260,8 @@ function canAccess(slug) {
           needLine = title;
         }
       } else if (floor > 0) {
-        title = her + " needs " + need + ".";
-        needLine = her + " needs " + floor + " DPS (" + need + ").";
+        title = her + " charges " + need + ".";
+        needLine = her + " charges " + floor + " DPS (" + need + ").";
       } else {
         title = her + " is open for " + need + " only.";
         needLine = title;
@@ -4329,14 +4329,23 @@ window.DDS_dpsStatusFromPts = function (pts) {
     }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
       paint(rows && rows[0]);
     }).catch(function () {});
-    // Pool value in the metrics chip. No Earned chip in the hero.
+    // Pool value in the metrics chip. Falls back to 20× nights if the table is empty.
     fetch(String(url).replace(/\/$/, "") + "/rest/v1/model_dps_pool?select=pool&slug=eq." + encodeURIComponent(page) + "&limit=1", {
       headers: { apikey: anon, Authorization: "Bearer " + anon }
     }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
       var row = rows && rows[0];
-      if (!row) return;
-      var pool = Number(row.pool);
-      if (!isFinite(pool)) return;
+      var pool = row ? Number(row.pool) : NaN;
+      if (!isFinite(pool) || pool === 0) {
+        // Fallback: read nights from the already-painted chip and compute 20×
+        var nights = 0;
+        document.querySelectorAll(".score-bar .score-chip").forEach(function (el) {
+          var lab = ((el.querySelector(".l") || {}).textContent || "").trim();
+          if (/^(sessions|nights)$/i.test(lab)) {
+            nights = Number(((el.querySelector(".n") || {}).textContent || "0").replace(/[^0-9]/g, ""));
+          }
+        });
+        pool = Math.max(2000, nights * 20);
+      }
       setChip(/^pool$/i, kDen(pool));
       // Remove any leftover Earned / star chip from the hero
       var h1 = document.querySelector("article.profile-hero h1");
