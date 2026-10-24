@@ -1,4 +1,27 @@
 (function (w) {
+  function liveSlabs() {
+    var sl = (window.DDS_CFG && window.DDS_CFG.dpsSlabs) || {};
+    return {
+      bronze: Number(sl.bronze || 50),
+      silver: Number(sl.silver || 150),
+      gold: Number(sl.gold || 700),
+      elite: Number(sl.elite || 1500),
+      platinum: Number(sl.platinum || 2500),
+      signup: Number(sl.signup || 100)
+    };
+  }
+  function liveStatus() {
+    var st = (window.DDS_CFG && window.DDS_CFG.status) || {};
+    return {
+      member: st.member || {min:30, slips:2},
+      bronze: st.bronze || {min:30, slips:2},
+      silver: st.silver || {min:45, slips:3},
+      gold: st.gold || {min:60, slips:5},
+      elite: st.elite || {min:90, slips:10},
+      platinum: st.platinum || {min:120, slips:0}
+    };
+  }
+
   var MODELS = [
     { id: "preethi", name: "Preethi", title: "Ass Queen", age: 37, meas: "36C-34-44", origin: "Chennai Tamil", sf: "Moderate", df: "Very High after she opens", door: "middle", tags: "chennai ass slow dusk", blurb: "Soft Chennai body. The ass is the door. Not a five-minute strip." },
     { id: "diya", name: "Diya", title: "Bust Queen", age: 34, meas: "36DD-34-40", origin: "Madurai", sf: "Very Strict", df: "Low", door: "hard", tags: "madurai slow corrupt", blurb: "Innocent face. Slow corrupt. Madurai, not Saurashtra." },
@@ -34,10 +57,11 @@
   var FAQ = [
     { k: "what game purple chat strip desidesire syndicate brand", a: "<b>PURPLE</b> — Chat and Strip. Powered by DesiDesireSyndicate. Slow-burn text. One woman. Stay in a role. Clothes move when #tON hits the next mark. 21+.<br><a href=\"how_to_play.html\">How to Play</a> · <a href=\"index.html#lineup\">Lineup</a>" },
     { k: "how play start enter room click account login register guest", a: "Guests can read the lineup. To play, create an account, wait for Activate, then Click to Play on her page. Stay on the page until the room pops.<br><a href=\"account.html\">Account</a> · <a href=\"how_to_play.html\">How to Play</a>" },
-    { k: "dps desire points silver gold elite platinum bronze member perks buy", a: "Signup starts at 100 DPS. Bronze 50 · Silver 100 · Gold 300 · Elite 650 · Platinum 1000. Higher status: longer nights, more +15 packs, more stills, she opens faster, more T-Off room.<br><a href=\"account.html\">Your nights and status</a> · <a href=\"how_to_play.html\">How to Play</a>" },
-    { k: "time minutes clock pack plus 15 gold 75 session length", a: "Night length follows Desire standing. Member 45 min and 2 slips. Bronze 50 and 2. Silver 60 and 3. Gold 75 and 5. Elite 90 and 10. Platinum 120 and no slip cap. Extra +15 packs: Member 1, Bronze 1, Silver 2, Gold 3, Elite 3, Platinum 4.<br><a href=\"how_to_play.html\">How to Play</a>" },
+    { k: "dps desire points silver gold elite platinum bronze member perks buy", a: function(){var s=liveSlabs();return "Signup starts at "+s.signup+" DPS. Bronze "+s.bronze+" · Silver "+s.silver+" · Gold "+s.gold+" · Elite "+s.elite+" · Platinum "+s.platinum+". Higher status: longer nights, more spins, more stills.<br><a href=\"account.html\">Your nights and status</a> · <a href=\"how_to_play.html\">How to Play</a>";} },
+    { k: "time minutes clock pack plus 15 gold 75 session length", a: function(){var s=liveStatus();return "Night length follows Desire standing. Member "+s.member.min+" min / "+s.member.slips+" slips. Bronze "+s.bronze.min+"/"+s.bronze.slips+". Silver "+s.silver.min+"/"+s.silver.slips+". Gold "+s.gold.min+"/"+s.gold.slips+". Elite "+s.elite.min+"/"+s.elite.slips+". Platinum "+s.platinum.min+"/none.<br><a href=\"how_to_play.html\">How to Play</a>";} },
     { k: "levels strip pictures 10 ton affinity", a: "Level 0 is dressed. Ten levels. Affinity unlocks the next still. A spin, review, or offer does not skip a clothes level.<br><a href=\"how_to_play.html\">How to Play</a>" },
-    { k: "ton toff strike slips help metrics", a: "Turn-offs follow standing. Member and Bronze 2. Silver 3. Gold 5. Elite 10. Platinum none. Type #HELP if you are stuck. Type #metrics for a plain read.<br><a href=\"how_to_play.html\">How to Play</a>" },
+    { k: "ton toff strike slips help metrics", a: function(){ var t=(window.DDS_CFG||{}).toffCaps||{}; return "Turn-offs follow standing. Member and Bronze " + (t.member||2) + ". Silver " + (t.silver||3) + ". Gold " + (t.gold||5) + ". Elite " + (t.elite||10) + ". Platinum none. Type #HELP if you are stuck. Type #metrics for a plain read.<br><a href=\"how_to_play.html\">How to Play</a>"; } },
+    { k: "board rank desire queen crown elite top strong good slab model status", a: function(){ var s=(window.DDS_CFG||{}).slabs||{}; return "Model Desire status is from the board. Queen " + (s.sovereign||3000) + " · Crown " + (s.crown||2500) + " · Desire Elite " + (s.superElite||2000) + " · Elite " + (s.elite||1500) + " · Top " + (s.top||1200) + " · Strong " + (s.strong||1000) + " · Good " + (s.good||750) + ". Scores come from rating, nights, hearts, favorites, and owns. Views add zero.<br><a href=\"club.html\">Board</a>"; } },
     { k: "lock 20 minutes another woman reset wait room", a: "One open request at a time. After a room is sent, wait 20 minutes before another woman.<br><a href=\"account.html\">Account</a>" },
     { k: "offer code spin review endreview mid spin3", a: "Three spins a day with her. Paste the full SPIN3 code. She reads it and tells you the win. ENDREVIEW works in a later room with her, one use. Old relationship codes are dead. Do not type review submitted.<br><a href=\"how_to_play.html\">How to Play</a>" },
     { k: "favorites owned by gold five nights hearts", a: "Two favorites, locked 20 days. Silver plus five finished nights, or Gold and above plus three, puts Owned by on her page. Next room starts half-open unless you tick usual on Account. Hearts on her profile count toward her race.<br><a href=\"account.html\">Account</a>" },
@@ -122,8 +146,9 @@
 
     var best = { s: 0, a: "" };
     FAQ.forEach(function (f) {
-      var s = score(f.k + " " + f.a, qt);
-      if (s > best.s) best = { s: s, a: f.a };
+      var ans = typeof f.a === "function" ? f.a() : f.a;
+      var s = score(f.k + " " + ans, qt);
+      if (s > best.s) best = { s: s, a: ans };
     });
     if (best.s >= 2) {
       return { html: best.a + moreLinks(q), chips: chipsHome() };
