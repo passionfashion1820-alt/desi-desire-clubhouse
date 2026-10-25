@@ -307,10 +307,10 @@ function canAccess(slug) {
       else if (ov === "elite" && /elite|platinum/.test(st || "")) allowed = true;
       else if (ov === "owners" && playerOwns(page)) allowed = true;
       if (!allowed) {
-        a.textContent = "In use";
-        a.removeAttribute("href");
-        a.style.pointerEvents = "none";
-        a.style.opacity = "0.55";
+        a.textContent = "Click to Play";
+        if (!a.getAttribute("href")) a.setAttribute("href", "contact_to_play.html?slut=" + page);
+        a.style.pointerEvents = "";
+        a.style.opacity = "";
       }
     });
   }
@@ -340,7 +340,7 @@ function canAccess(slug) {
     document.querySelectorAll("a.dds-play-mid, a.request-flash, a[href*='contact_to_play']").forEach(function (a) {
       a.classList.add("dds-want-play");
       a.classList.remove("dds-off", "dds-off-link", "dds-shut");
-      a.textContent = until ? openOnLabel(until) : "In use";
+      a.textContent = until ? openOnLabel(until) : "Click to Play";
       if (!a.getAttribute("href")) a.setAttribute("href", "contact_to_play.html?slut=" + slug);
     });
     var face = document.querySelector("article.profile-hero .portrait");
@@ -461,15 +461,21 @@ function canAccess(slug) {
       if (String(board[i].slut || "").toLowerCase() === slug) { model = board[i]; break; }
     }
     var tier = String((model && model.tier) || "New").toLowerCase();
-    var s = Number(model && model.desire_score || 0);
-    if (/queen|sovereign/.test(tier) || s >= 3000) return { step: 7, label: "Queen" };
-    if (/crown/.test(tier) || s >= 2500) return { step: 6, label: "Crown" };
-    if (/desire elite|super elite/.test(tier) || s >= 2000) return { step: 5, label: "Desire Elite" };
-    if (/elite/.test(tier) || s >= 1500) return { step: 4, label: "Elite" };
-    if (/top/.test(tier) || s >= 1200) return { step: 3, label: "Top" };
-    if (/strong/.test(tier) || s >= 1000) return { step: 2, label: "Strong" };
-    if (/good/.test(tier) || s >= 750) return { step: 1, label: "Good" };
+    if (/queen|sovereign/.test(tier)) return { step: 7, label: "Queen" };
+    if (/crown/.test(tier)) return { step: 6, label: "Crown" };
+    if (/desire elite|super elite/.test(tier)) return { step: 5, label: "Desire Elite" };
+    if (/elite/.test(tier)) return { step: 4, label: "Elite" };
+    if (/top/.test(tier)) return { step: 3, label: "Top" };
+    if (/strong/.test(tier)) return { step: 2, label: "Strong" };
+    if (/good/.test(tier)) return { step: 1, label: "Good" };
     return { step: 0, label: "New" };
+  }
+  function statusPct() {
+    var st = (typeof playerStatus === "function") ? playerStatus() : "";
+    if (st === "bronze") return 10;
+    if (st === "silver") return 25;
+    if (st === "gold" || st === "elite" || st === "platinum") return 30;
+    return 0;
   }
   function ownDpsCost(slug) {
     slug = String(slug || "").toLowerCase();
@@ -477,10 +483,20 @@ function canAccess(slug) {
     var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
     var key = String(access[slug] || "").toLowerCase();
     var soon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
-    if (door > 0) return { cost: Math.round(door), label: "Door", step: 0, soon: !!soon, door: true };
-    if (soon) return { cost: 1500, label: "Soon", step: 0, soon: true };
-    var rs = ownRankStep(slug);
-    return { cost: 1000 + rs.step * 150, label: rs.label, step: rs.step, soon: false };
+    var base = 0;
+    var label = "New";
+    var step = 0;
+    if (door > 0) { base = Math.round(door); label = "Door"; }
+    else if (soon) { base = 1500; label = "Soon"; }
+    else {
+      var rs = ownRankStep(slug);
+      base = 1000 + rs.step * 150;
+      label = rs.label;
+      step = rs.step;
+    }
+    var pct = statusPct();
+    var cost = Math.max(0, Math.round(base * (100 + pct) / 100));
+    return { cost: cost, base: base, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
   }
   window.DDS_ownDpsCost = ownDpsCost;
   function openEarnModal() {
@@ -531,6 +547,7 @@ function canAccess(slug) {
       ? (name + " charges <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
       : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
     var extra = info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000."));
+    if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
       '<p style="margin:0 0 .3rem;color:#e9d5ff;font-weight:700">What you get</p>' +
       '<p style="margin:0 0 .25rem"><b>Status Owned</b> — She treats the door as yours. One recognition line, then she is his.</p>' +
@@ -928,7 +945,7 @@ function canAccess(slug) {
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
       if (more > 0) ways = '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>';
-      else ways = '<p style="margin:0 0 .6rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise your Desire score.</p>';
+      else ways = '<p style="margin:0 0 .6rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
       var st = "Member";
@@ -1032,14 +1049,23 @@ function canAccess(slug) {
       var pct = 0;
       if (owned) {
         raw = 0;
-        pct = 100;
+        pct = 0;
       } else {
-        if (st === "silver") pct = 10;
-        else if (st === "gold") pct = 20;
-        else if (st === "elite") pct = 30;
-        else if (st === "platinum") pct = 40;
+        if (st === "bronze") pct = 10;
+        else if (st === "silver") pct = 25;
+        else if (st === "gold" || st === "elite" || st === "platinum") pct = 30;
       }
-      var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 - pct) / 100));
+      var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 + pct) / 100));
+      var sltStep = Number((window.DDS_CFG && window.DDS_CFG.sltStep) || 10) || 10;
+      var sltLevels = 0;
+      try {
+        var nights = (model && Number(model.sessions)) || 0;
+        sltLevels = Math.min(10, Math.floor(nights / 20));
+      } catch (e) {}
+      if (sltLevels > 0 && !owned) {
+        var sltPct = sltLevels * sltStep;
+        cost = Math.round(cost * (100 + sltPct) / 100);
+      }
       var isBusy = ((window.DDS_UNAVAILABLE || []).indexOf(slug) !== -1) ||
                    ((window.DDS_IN_SESSION || []).indexOf(slug) !== -1) ||
                    ((window.DDS_CFG && window.DDS_CFG.busy || []).map(function(s){ return String(s||"").toLowerCase(); }).indexOf(slug) !== -1);
@@ -1056,8 +1082,8 @@ function canAccess(slug) {
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
       else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
-      else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".") : "");
-      else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " " + pct + "% off. Was " + raw + ".";
+      else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".") : "");
+      else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".";
       var old = document.getElementById("ddsDpsConfirm");
       if (old) old.remove();
       var box = document.createElement("div");
@@ -1144,22 +1170,8 @@ function canAccess(slug) {
       // signed-in players can still open the profile
       return;
     }
-    var busy = ((window.DDS_CFG && window.DDS_CFG.busy) || []).map(function (s) { return String(s || "").toLowerCase(); });
-    if (busy.indexOf(slug) !== -1) {
-      var st = playerStatus();
-      var ov = (window.DDS_CFG && window.DDS_CFG.busyOverride && window.DDS_CFG.busyOverride[slug]) || "";
-      var allowed = false;
-      if (ov === "silver" && /silver|gold|elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "gold" && /gold|elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "elite" && /elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "owners" && playerOwns(slug)) allowed = true;
-      if (!allowed) {
-        e.preventDefault();
-        e.stopPropagation();
-        alert("She is in use.");
-        return;
-      }
-    }
+    // Busy doors stay clickable. Multiplier is applied in the DPS confirm.
+    // Busy override still noted for labels; no hard block.
     var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
     if (access[slug] === "guests") return;
     if (slug && window.DDS_canAccess && !window.DDS_canAccess(slug)) {
@@ -1227,7 +1239,7 @@ function canAccess(slug) {
       var ways = '';
       if (more > 0) ways = '<p style="margin:0 0 .5rem;font-size:.86rem;color:#b9a892">You have ' + myPts + ' Desire points (' + st + '). ' + her + ' charges ' + floor + ' (' + need + ').</p>' +
         '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>';
-      else ways = '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise your Desire score.</p>';
+      else ways = '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
       var sl = (window.DDS_CFG && window.DDS_CFG.dpsSlabs) || {};
@@ -1561,7 +1573,7 @@ function canAccess(slug) {
         if (cta && !card.classList.contains("trainer-card")) {
           var inRoom = slug !== "anu" && (window.DDS_IN_SESSION || []).indexOf(slug) !== -1;
           var hold = ((window.DDS_CFG || {}).forceAvailable || []).indexOf(slug) !== -1;
-          cta.textContent = (inRoom && !hold) ? "In use" : "Click to Play";
+          cta.textContent = "Click to Play";
         }
         var stamp = card.querySelector(".soon-stamp, .dds-open-on");
         if (stamp) stamp.style.display = "none";
@@ -1613,7 +1625,10 @@ function canAccess(slug) {
         document.querySelectorAll("a.dds-play-mid, a[href*='contact_to_play']").forEach(function (el) {
           if (isBusy) {
             el.classList.add("dds-want-play");
-            el.textContent = "Busy";
+            el.textContent = "Click to Play";
+            if (!el.getAttribute("href") || el.getAttribute("href").indexOf("contact_to_play") === -1) {
+              el.setAttribute("href", "contact_to_play.html?slut=" + slug);
+            }
           } else if (until) {
             el.classList.add("dds-want-play");
             el.textContent = openOnLabel(until);
@@ -1846,12 +1861,14 @@ function canAccess(slug) {
       else if (ov === "owners" && playerOwns(page)) allowed = true;
       if (!allowed) {
         buttons.forEach(function (a) {
-          a.textContent = "In use";
-          a.classList.add("dds-access-blocked");
-          if (a.tagName === "A") a.removeAttribute("href");
-          a.style.pointerEvents = "none";
-          a.style.opacity = "0.55";
-          a.setAttribute("aria-disabled", "true");
+          a.textContent = "Click to Play";
+          a.classList.remove("dds-access-blocked");
+          if (a.tagName === "A" && (!a.getAttribute("href") || a.getAttribute("href") === "#")) {
+            a.setAttribute("href", "contact_to_play.html?slut=" + encodeURIComponent(page));
+          }
+          a.style.pointerEvents = "";
+          a.style.opacity = "";
+          a.removeAttribute("aria-disabled");
         });
         return;
       }
@@ -1876,12 +1893,12 @@ function canAccess(slug) {
         if (/sign in to play|members only|silver\+|gold\+|owners only|opening soon|not receiving|in use|coming soon|click to play/i.test(a.textContent || "")) {
           a.textContent = "Click to Play";
         }
-        // live session wins
+        // live session: still Click to Play so the busy upcharge pop opens
         if ((window.DDS_IN_SESSION || []).indexOf(page) !== -1 && ((window.DDS_CFG || {}).forceAvailable || []).indexOf(page) === -1) {
-          a.textContent = "In use";
-          a.classList.add("dds-access-blocked");
-          a.style.pointerEvents = "none";
-          a.style.opacity = "0.55";
+          a.textContent = "Click to Play";
+          a.classList.remove("dds-access-blocked");
+          a.style.pointerEvents = "";
+          a.style.opacity = "";
         }
         return;
       }
@@ -1973,7 +1990,7 @@ function canAccess(slug) {
     if (live && !hold && !manual) {
       document.querySelectorAll("a.dds-play-mid, a[href*='contact_to_play']").forEach(function (a) {
         a.classList.add("dds-want-play");
-        a.textContent = "In use";
+        a.textContent = "Click to Play";
       });
     }
   }
@@ -3113,7 +3130,7 @@ setInterval(function () {
       ["sessions", "Sessions"],
       ["poll_votes", "Poll votes"],
       ["reviews", "Reviews"],
-      ["desire_score", "Desire score"]
+      ["desire_score", "ModelDesirePoints"]
     ];
     (rows || []).forEach(function (r) {
       if (!r || !r.slut) return;
@@ -3133,7 +3150,7 @@ setInterval(function () {
       });
       prev[slug] = p;
     });
-    var labels = { sessions: "Sessions", poll_votes: "Poll votes", reviews: "Reviews", desire_score: "Desire score" };
+    var labels = { sessions: "Sessions", poll_votes: "Poll votes", reviews: "Reviews", desire_score: "ModelDesirePoints" };
     var live = [];
     Object.keys(hits).forEach(function (id) {
       if (now - Number(hits[id] || 0) > DAY) {
@@ -3713,11 +3730,10 @@ setInterval(function () {
     box.innerHTML =
       '<p class="mini-k">On the board</p>' +
       '<div class="mini-grid">' +
-      '<div class="score-chip primary"><div class="n" data-live="'+page+'" data-live-field="score">'+seed("Desire Score")+'</div><div class="l">Desire Score</div></div>' +
       '<div class="score-chip primary"><div class="n" data-live="'+page+'" data-live-field="sessions">'+seed("Sessions")+'</div><div class="l">Sessions</div></div>' +
       '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="avg">'+seed("Avg Rating")+'</div><div class="l">Avg Rating</div></div>' +
       '<div class="score-chip primary heart-chip"><div class="n" data-live="'+page+'" data-live-field="hearts">'+seed("Hearts")+'</div><div class="l">Hearts</div></div>' +
-      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="pool">'+seed("Pool")+'</div><div class="l">Pool</div></div>' +
+      '<div class="score-chip"><div class="n" data-live="'+page+'" data-live-field="pool">'+seed("Pool")+'</div><div class="l">DesirePoints</div></div>' +
       '</div>';
     var cta = info.querySelector(".play-cta");
     if (cta && cta.nextSibling) info.insertBefore(box, cta.nextSibling);
@@ -3731,7 +3747,7 @@ setInterval(function () {
         chip.innerHTML = '<div class="n" data-live-field="hearts">0</div><div class="l">Hearts</div>';
     var earned = document.createElement("div");
     earned.className = "score-chip";
-    earned.innerHTML = '<div class="n" data-live-field="pool">0</div><div class="l">Pool</div>';
+    earned.innerHTML = '<div class="n" data-live-field="pool">0</div><div class="l">DesirePoints</div>';
     var after = null;
     bar.querySelectorAll(".score-chip").forEach(function (c) {
       var lab = (c.querySelector(".l") || {}).textContent || "";
@@ -3938,7 +3954,7 @@ setInterval(function () {
     btn.type = "button";
     btn.id = "dds-hero-stars";
     btn.className = "dds-hero-stars";
-    btn.title = "Desire score and last reviews";
+    btn.title = "ModelDesirePoints and last reviews";
     btn.style.cssText = "display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:240px;max-width:100%;margin:12px 0 4px;padding:12px 14px;border:1px solid rgba(212,175,55,.45);border-radius:14px;background:#1a1416;color:#f6edd8;cursor:pointer;font:inherit;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.35);";
     function starRow(n) {
       var x = Math.max(0, Math.min(5, Number(n) || 0));
@@ -4067,7 +4083,7 @@ setInterval(function () {
     if (!sheet) {
       sheet = document.createElement("div");
       sheet.id = "dds-score-sheet";
-      sheet.innerHTML = "<div class='sheet'><button type='button' class='x' id='dds-score-x'>×</button><h2>Desire scoreboard</h2><div id='dds-score-body'></div><h2>Last reviews</h2><div id='dds-score-revs'>Loading…</div></div>";
+      sheet.innerHTML = "<div class='sheet'><button type='button' class='x' id='dds-score-x'>×</button><h2>ModelDesirePoints</h2><div id='dds-score-body'></div><h2>Last reviews</h2><div id='dds-score-revs'>Loading…</div></div>";
       document.body.appendChild(sheet);
       sheet.addEventListener("click", function (ev) {
         if (ev.target === sheet || ev.target.id === "dds-score-x") sheet.classList.remove("on");
@@ -4095,7 +4111,7 @@ setInterval(function () {
         var lab = chips[i].querySelector(".l");
         var num = chips[i].querySelector(".n");
         if (!lab || !num) continue;
-        if (!/^pool$/i.test((lab.textContent || "").trim())) continue;
+        if (!/^DesirePoints$/i.test((lab.textContent || "").trim())) continue;
         var shown = pool >= 1000 ? (pool / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(pool);
         num.textContent = shown;
         break;
@@ -4343,7 +4359,7 @@ window.DDS_dpsStatusFromPts = function (pts) {
       var hearts = Number(row.hearts);
       var polls = Number(row.poll_votes);
       var revs = Number(row.reviews);
-      if (isFinite(score)) setChip(/^desire score$/i, score % 1 === 0 ? String(score) : score.toFixed(1));
+      // DesirePoints comes from the pool, not board.desire_score
       if (isFinite(nights)) setChip(/^(sessions|nights)$/i, String(nights));
       if (isFinite(avg) && avg) setChip(/^avg rating$/i, avg.toFixed(2));
       if (isFinite(hearts)) setChip(/^hearts$/i, String(hearts));
@@ -4355,9 +4371,9 @@ window.DDS_dpsStatusFromPts = function (pts) {
         headers: { apikey: anon, Authorization: "Bearer " + anon }
       }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
         var pool = (rows && rows[0] && rows[0].pool) || 0;
-        setChip(/^desire score$/i, String(pool));
+        setChip(/^DesirePoints$/i, String(pool));
         document.querySelectorAll(".score-bar .score-chip .l").forEach(function (lab) {
-          if (/^desire score$/i.test((lab.textContent || "").trim())) lab.textContent = "DPS Pool";
+          if (/^DesirePoints$/i.test((lab.textContent || "").trim())) lab.textContent = "DesirePoints";
         });
       }).catch(function () {});
     }
@@ -4384,7 +4400,7 @@ window.DDS_dpsStatusFromPts = function (pts) {
         });
         pool = Math.max(2000, nights * 20);
       }
-      setChip(/^pool$/i, kDen(pool));
+      setChip(/^DesirePoints$/i, kDen(pool));
       // Remove any leftover Earned / star chip from the hero
       var h1 = document.querySelector("article.profile-hero h1");
       if (h1) {
@@ -4396,10 +4412,10 @@ window.DDS_dpsStatusFromPts = function (pts) {
       if (oldStar) oldStar.remove();
     }).catch(function () {});
     document.querySelectorAll(".score-explain-item b").forEach(function (b) {
-      if (!/^desire score$/i.test((b.textContent || "").trim())) return;
+      if (!/^DesirePoints$/i.test((b.textContent || "").trim())) return;
       var parent = b.parentElement;
       if (!parent) return;
-      parent.innerHTML = "<b>DPS Pool</b> Her ranking number. Grows from player spend, hearts, reviews, and favorites.";
+      parent.innerHTML = "<b>DesirePoints</b> Her ranking number. Base 2000. Grows by what he spends on her, +50 per heart, +25 per review star.";
     });
     document.querySelectorAll(".score-explain-item b").forEach(function (b) {
       if (!/^(sessions|nights)$/i.test((b.textContent || "").trim())) return;

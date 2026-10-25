@@ -526,7 +526,7 @@
       var body = table.tBodies[0];
       if (!body) return;
       var thead = table.tHead && table.tHead.rows && table.tHead.rows[0];
-      if (thead) thead.innerHTML = "<th>Rank</th><th>Model</th><th>Desire Score</th><th>Tier</th><th>Sessions</th><th>Rating</th><th>Hearts</th><th>DPS earned</th><th>Favorites</th><th>Owns</th>";
+      if (thead) thead.innerHTML = "<th>Rank</th><th>Model</th><th>ModelDesirePoints</th><th>Tier</th><th>Sessions</th><th>Rating</th><th>Hearts</th><th>DPS earned</th><th>Favorites</th><th>Owns</th>";
       body.innerHTML = rows.map(function (r, i) {
         var rank = i + 1;
         var name = NAMES[r.slut] || r.slut;
@@ -766,7 +766,7 @@
       var mine = rows.filter(function (r) { return r.slut === page || r.slut === qSlut; })[0];
       if (mine) {
         var map = {
-          "Desire Score": Math.round(Number(mine.desire_score)),
+          "ModelDesirePoints": Math.round(Number(mine.desire_score)),
           "Sessions": mine.sessions,
           "Avg Rating": Number(mine.avg_rating).toFixed(2),
           "Poll Votes": mine.poll_votes,
