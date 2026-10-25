@@ -125,15 +125,6 @@
     });
     paintFanBanner(slug, joined);
   }
-  function flashTitle(prefix) {
-    var base = document.title.replace(/^(FAN PAGE|OWN PAGE) · /, "");
-    var on = true;
-    if (window._ddsTitleFlash) clearInterval(window._ddsTitleFlash);
-    window._ddsTitleFlash = setInterval(function () {
-      document.title = on ? (prefix + " · " + base) : base;
-      on = !on;
-    }, 700);
-  }
   function paintFanBanner(slug, isFan) {
     var old = document.getElementById("fan-page-banner");
     if (old) old.remove();
@@ -170,9 +161,84 @@
       s.textContent = "@keyframes fanFlash{0%,100%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.25)}}@keyframes ownFlash{0%,100%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.3)}}";
       document.head.appendChild(s);
     }
-    flashTitle("FAN PAGE");
+    applyFanHero(slug);
+    paintFanHeroPicker(slug);
   }
   window.paintFanBanner = paintFanBanner;
+
+  function applyFanHero(slug) {
+    try {
+      var key = "dds_fan_hero_" + slug;
+      var url = localStorage.getItem(key);
+      if (!url) return;
+      var img = document.querySelector("article.profile-hero .portrait img");
+      if (img) img.src = url;
+    } catch (e) {}
+  }
+
+  function paintFanHeroPicker(slug) {
+    var acc = me();
+    if (!acc || !acc.id) return;
+    var box = document.getElementById("fan-club");
+    if (!box) return;
+    var host = document.getElementById("fan-hero-picker");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "fan-hero-picker";
+      host.style.cssText = "margin-top:1rem;padding-top:.8rem;border-top:1px solid #3a2a22";
+      box.querySelector(".card") && box.querySelector(".card").appendChild(host);
+    }
+    host.innerHTML = '<p class="hint" style="margin:0 0 .5rem">Set her Fan page hero from one of your stills (only you see it).</p><div id="fan-hero-thumbs" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>';
+    var c = cfg();
+    fetch(c.url + "/rest/v1/fav_image_requests?player_id=eq." + acc.id + "&model=eq." + slug + "&status=eq.sent&select=image_url&order=sent_at.desc&limit=8", { headers: headers() })
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        rows = Array.isArray(rows) ? rows : [];
+        var thumbs = document.getElementById("fan-hero-thumbs");
+        if (!thumbs) return;
+        if (!rows.length) {
+          thumbs.innerHTML = '<span class="hint">No stills from her yet.</span>';
+          return;
+        }
+        var current = "";
+        try { current = localStorage.getItem("dds_fan_hero_" + slug) || ""; } catch (e) {}
+        rows.forEach(function (row) {
+          if (!row.image_url) return;
+          var wrap = document.createElement("div");
+          wrap.style.cssText = "text-align:center";
+          var img = document.createElement("img");
+          img.src = row.image_url;
+          img.style.cssText = "width:72px;height:96px;object-fit:cover;border-radius:6px;border:2px solid " + (row.image_url === current ? "#c084fc" : "#3a2a22") + ";cursor:pointer";
+          img.onclick = function () {
+            try {
+              localStorage.setItem("dds_fan_hero_" + slug, row.image_url);
+              applyFanHero(slug);
+              paintFanHeroPicker(slug);
+            } catch (e) {}
+          };
+          var btn = document.createElement("button");
+          btn.textContent = row.image_url === current ? "Using" : "Use";
+          btn.style.cssText = "display:block;margin-top:.25rem;font-size:.7rem;padding:.2rem .4rem;background:#2a1410;color:#edd8ff;border:1px solid #b794f6;border-radius:4px;cursor:pointer";
+          btn.onclick = img.onclick;
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          thumbs.appendChild(wrap);
+        });
+        if (current) {
+          var clear = document.createElement("button");
+          clear.textContent = "Clear hero";
+          clear.style.cssText = "margin-top:.5rem;font-size:.75rem;padding:.3rem .6rem;background:#1a1008;color:#b9a68a;border:1px solid #3a2a22;border-radius:4px;cursor:pointer";
+          clear.onclick = function () {
+            try {
+              localStorage.removeItem("dds_fan_hero_" + slug);
+              var img = document.querySelector("article.profile-hero .portrait img");
+              if (img) location.reload();
+            } catch (e) {}
+          };
+          host.appendChild(clear);
+        }
+      }).catch(function () {});
+  }
 
   function paintOwnBanner(slug) {
     var old = document.getElementById("own-page-banner");
@@ -506,6 +572,12 @@
   setTimeout(forceOwnView, 300);
   setTimeout(forceOwnView, 1000);
   setTimeout(forceOwnView, 2000);
+
+  // Apply saved fan hero early
+  setTimeout(function () {
+    var slug = slugFromPage();
+    if (slug) applyFanHero(slug);
+  }, 200);
 
 
   // Own Perks popup
