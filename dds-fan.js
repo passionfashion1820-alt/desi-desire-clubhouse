@@ -107,8 +107,8 @@
         if (acc && acc.id) {
           fetch(c.url + "/rest/v1/player_sessions?player_id=eq." + acc.id + "&model=eq." + slug + "&select=id", { headers: headers() })
             .then(function (r) { return r.json(); })
-            .then(function (rows) { nights = Array.isArray(rows) ? rows.length : 0; paint(list, joined, nights); bind(slug, joined, nights); themeFan(slug, joined); })
-            .catch(function () { paint(list, joined, 0); bind(slug, joined, 0); });
+            .then(function (rows) { nights = Array.isArray(rows) ? rows.length : 0; paint(list, joined, nights); bind(slug, joined, nights); themeFan(slug, joined); if (joined) paintFanHeroPicker(slug); })
+            .catch(function () { paint(list, joined, 0); bind(slug, joined, 0); if (joined) paintFanHeroPicker(slug); });
         } else {
           paint(list, joined, null);
           bind(slug, joined, 0);
@@ -190,34 +190,44 @@
     }
     host.innerHTML = '<p class="hint" style="margin:0 0 .5rem">Set her Fan page hero from one of your stills (only you see it).</p><div id="fan-hero-thumbs" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>';
     var c = cfg();
-    fetch(c.url + "/rest/v1/fav_image_requests?player_id=eq." + acc.id + "&model=eq." + slug + "&status=eq.sent&select=image_url&order=sent_at.desc&limit=8", { headers: headers() })
+    // Prefer the RPC already used on the account page (avoids RLS on direct table)
+    fetch(c.url + "/rest/v1/rpc/player_pinned_stills", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ p_id: acc.id })
+    })
       .then(function (r) { return r.json(); })
-      .then(function (rows) {
-        rows = Array.isArray(rows) ? rows : [];
+      .then(function (d) {
+        var all = (d && d.pinned) || (Array.isArray(d) ? d : []);
+        var rows = all.filter(function (x) {
+          var m = String(x.model || x.model_slug || "").toLowerCase();
+          return m === slug && (x.url || x.image_url);
+        });
         var thumbs = document.getElementById("fan-hero-thumbs");
         if (!thumbs) return;
         if (!rows.length) {
-          thumbs.innerHTML = '<span class="hint">No stills from her yet.</span>';
+          thumbs.innerHTML = '<span class="hint">No stills from her yet. Ask for one from Account → Your favorites.</span>';
           return;
         }
         var current = "";
         try { current = localStorage.getItem("dds_fan_hero_" + slug) || ""; } catch (e) {}
         rows.forEach(function (row) {
-          if (!row.image_url) return;
+          var url = row.url || row.image_url;
+          if (!url) return;
           var wrap = document.createElement("div");
           wrap.style.cssText = "text-align:center";
           var img = document.createElement("img");
-          img.src = row.image_url;
-          img.style.cssText = "width:72px;height:96px;object-fit:cover;border-radius:6px;border:2px solid " + (row.image_url === current ? "#c084fc" : "#3a2a22") + ";cursor:pointer";
+          img.src = url;
+          img.style.cssText = "width:72px;height:96px;object-fit:cover;border-radius:6px;border:2px solid " + (url === current ? "#c084fc" : "#3a2a22") + ";cursor:pointer";
           img.onclick = function () {
             try {
-              localStorage.setItem("dds_fan_hero_" + slug, row.image_url);
+              localStorage.setItem("dds_fan_hero_" + slug, url);
               applyFanHero(slug);
               paintFanHeroPicker(slug);
             } catch (e) {}
           };
           var btn = document.createElement("button");
-          btn.textContent = row.image_url === current ? "Using" : "Use";
+          btn.textContent = url === current ? "Using" : "Use";
           btn.style.cssText = "display:block;margin-top:.25rem;font-size:.7rem;padding:.2rem .4rem;background:#2a1410;color:#edd8ff;border:1px solid #b794f6;border-radius:4px;cursor:pointer";
           btn.onclick = img.onclick;
           wrap.appendChild(img);
@@ -231,13 +241,15 @@
           clear.onclick = function () {
             try {
               localStorage.removeItem("dds_fan_hero_" + slug);
-              var img = document.querySelector("article.profile-hero .portrait img");
-              if (img) location.reload();
+              location.reload();
             } catch (e) {}
           };
           host.appendChild(clear);
         }
-      }).catch(function () {});
+      }).catch(function () {
+        var thumbs = document.getElementById("fan-hero-thumbs");
+        if (thumbs) thumbs.innerHTML = '<span class="hint">Could not load stills.</span>';
+      });
   }
 
   function paintOwnBanner(slug) {
@@ -573,11 +585,14 @@
   setTimeout(forceOwnView, 1000);
   setTimeout(forceOwnView, 2000);
 
-  // Apply saved fan hero early
+  // Apply saved fan hero early and force the picker for a fan
   setTimeout(function () {
     var slug = slugFromPage();
-    if (slug) applyFanHero(slug);
-  }, 200);
+    if (!slug) return;
+    applyFanHero(slug);
+    var acc = me();
+    if (acc && acc.id) paintFanHeroPicker(slug);
+  }, 400);
 
 
   // Own Perks popup
