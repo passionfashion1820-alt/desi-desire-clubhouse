@@ -1170,22 +1170,8 @@ function canAccess(slug) {
       // signed-in players can still open the profile
       return;
     }
-    var busy = ((window.DDS_CFG && window.DDS_CFG.busy) || []).map(function (s) { return String(s || "").toLowerCase(); });
-    if (busy.indexOf(slug) !== -1) {
-      var st = playerStatus();
-      var ov = (window.DDS_CFG && window.DDS_CFG.busyOverride && window.DDS_CFG.busyOverride[slug]) || "";
-      var allowed = false;
-      if (ov === "silver" && /silver|gold|elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "gold" && /gold|elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "elite" && /elite|platinum/.test(st || "")) allowed = true;
-      else if (ov === "owners" && playerOwns(slug)) allowed = true;
-      if (!allowed) {
-        e.preventDefault();
-        e.stopPropagation();
-        alert("She is in use.");
-        return;
-      }
-    }
+    // Busy doors stay clickable. Multiplier is applied in the DPS confirm.
+    // Busy override still noted for labels; no hard block.
     var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
     if (access[slug] === "guests") return;
     if (slug && window.DDS_canAccess && !window.DDS_canAccess(slug)) {
@@ -1587,7 +1573,7 @@ function canAccess(slug) {
         if (cta && !card.classList.contains("trainer-card")) {
           var inRoom = slug !== "anu" && (window.DDS_IN_SESSION || []).indexOf(slug) !== -1;
           var hold = ((window.DDS_CFG || {}).forceAvailable || []).indexOf(slug) !== -1;
-          cta.textContent = (inRoom && !hold) ? "In use" : "Click to Play";
+          cta.textContent = "Click to Play";
         }
         var stamp = card.querySelector(".soon-stamp, .dds-open-on");
         if (stamp) stamp.style.display = "none";
@@ -1639,7 +1625,10 @@ function canAccess(slug) {
         document.querySelectorAll("a.dds-play-mid, a[href*='contact_to_play']").forEach(function (el) {
           if (isBusy) {
             el.classList.add("dds-want-play");
-            el.textContent = "Busy";
+            el.textContent = "Click to Play";
+            if (!el.getAttribute("href") || el.getAttribute("href").indexOf("contact_to_play") === -1) {
+              el.setAttribute("href", "contact_to_play.html?slut=" + slug);
+            }
           } else if (until) {
             el.classList.add("dds-want-play");
             el.textContent = openOnLabel(until);
@@ -1872,12 +1861,14 @@ function canAccess(slug) {
       else if (ov === "owners" && playerOwns(page)) allowed = true;
       if (!allowed) {
         buttons.forEach(function (a) {
-          a.textContent = "In use";
-          a.classList.add("dds-access-blocked");
-          if (a.tagName === "A") a.removeAttribute("href");
-          a.style.pointerEvents = "none";
-          a.style.opacity = "0.55";
-          a.setAttribute("aria-disabled", "true");
+          a.textContent = "Click to Play";
+          a.classList.remove("dds-access-blocked");
+          if (a.tagName === "A" && (!a.getAttribute("href") || a.getAttribute("href") === "#")) {
+            a.setAttribute("href", "contact_to_play.html?slut=" + encodeURIComponent(page));
+          }
+          a.style.pointerEvents = "";
+          a.style.opacity = "";
+          a.removeAttribute("aria-disabled");
         });
         return;
       }
@@ -1902,12 +1893,12 @@ function canAccess(slug) {
         if (/sign in to play|members only|silver\+|gold\+|owners only|opening soon|not receiving|in use|coming soon|click to play/i.test(a.textContent || "")) {
           a.textContent = "Click to Play";
         }
-        // live session wins
+        // live session: still Click to Play so the busy upcharge pop opens
         if ((window.DDS_IN_SESSION || []).indexOf(page) !== -1 && ((window.DDS_CFG || {}).forceAvailable || []).indexOf(page) === -1) {
-          a.textContent = "In use";
-          a.classList.add("dds-access-blocked");
-          a.style.pointerEvents = "none";
-          a.style.opacity = "0.55";
+          a.textContent = "Click to Play";
+          a.classList.remove("dds-access-blocked");
+          a.style.pointerEvents = "";
+          a.style.opacity = "";
         }
         return;
       }
@@ -1999,7 +1990,7 @@ function canAccess(slug) {
     if (live && !hold && !manual) {
       document.querySelectorAll("a.dds-play-mid, a[href*='contact_to_play']").forEach(function (a) {
         a.classList.add("dds-want-play");
-        a.textContent = "In use";
+        a.textContent = "Click to Play";
       });
     }
   }
