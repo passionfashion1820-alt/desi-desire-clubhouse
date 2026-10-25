@@ -4092,6 +4092,11 @@ setInterval(function () {
     var body = document.getElementById("dds-score-body");
     var bar = document.querySelector(".score-bar");
     body.innerHTML = bar ? bar.outerHTML : "<p>No scoreboard on this page.</p>";
+    // Strip any DESIRE SCORE chip from the cloned board
+    body.querySelectorAll(".score-chip").forEach(function (el) {
+      var lab = el.querySelector(".l");
+      if (lab && /desire score/i.test((lab.textContent || "").trim())) el.remove();
+    });
     var revs = document.getElementById("dds-score-revs");
     revs.textContent = "Loading…";
     sheet.classList.add("on");
@@ -4353,7 +4358,11 @@ window.DDS_dpsStatusFromPts = function (pts) {
     }
     function paint(row) {
       if (!row) return;
-      var score = Number(row.desire_score);
+      // Remove any DESIRE SCORE chip — only DesirePoints (pool) is the ranking metric
+      document.querySelectorAll(".score-bar .score-chip").forEach(function (el) {
+        var lab = el.querySelector(".l");
+        if (lab && /desire score/i.test((lab.textContent || "").trim())) el.remove();
+      });
       var nights = Number(row.sessions);
       var avg = Number(row.avg_rating);
       var hearts = Number(row.hearts);
