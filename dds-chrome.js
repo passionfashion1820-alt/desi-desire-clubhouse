@@ -981,7 +981,7 @@ function canAccess(slug) {
         needLine = her + " is open for " + need + " only.";
       }
       var gap = (floor > 0 && myPts < floor) ? (floor - myPts) : (more || 0);
-      var title = (level === "owners") ? "Buy her to own. No nights path. :
+      var title = (level === "owners") ? "Buy her to own. No nights path." :
                   (level === "gold") ? her + " is open for Gold and above only." :
                   (level === "silver") ? her + " is open for Silver and above only." :
                   (level === "elite") ? her + " is open for Elite and above only." :
