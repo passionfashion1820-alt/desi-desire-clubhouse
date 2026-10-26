@@ -191,22 +191,28 @@
     host.innerHTML = '<p class="hint" style="margin:0 0 .5rem">Set her Fan page hero from one of your stills (only you see it).</p><div id="fan-hero-thumbs" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>';
     var c = cfg();
     // Prefer the RPC already used on the account page (avoids RLS on direct table)
-    fetch(c.url + "/rest/v1/rpc/player_pinned_stills", {
-      method: "POST",
-      headers: headers(),
-      body: JSON.stringify({ p_id: acc.id })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var all = (d && d.pinned) || (Array.isArray(d) ? d : []);
-        var rows = all.filter(function (x) {
+    // Load both pinned favorites and own stills for this model
+    Promise.all([
+      fetch(c.url + "/rest/v1/rpc/player_pinned_stills", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ p_id: acc.id })
+      }).then(function (r) { return r.json(); }).catch(function () { return { pinned: [] }; }),
+      fetch(c.url + "/rest/v1/own_image_requests?player_id=eq." + acc.id + "&model=eq." + slug + "&status=eq.sent&select=image_url", {
+        headers: headers()
+      }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+    ]).then(function (results) {
+        var fav = (results[0] && results[0].pinned) || (Array.isArray(results[0]) ? results[0] : []);
+        var own = results[1] || [];
+        var all = fav.filter(function (x) {
           var m = String(x.model || x.model_slug || "").toLowerCase();
           return m === slug && (x.url || x.image_url);
-        });
+        }).concat(own.map(function (x) { return { model: slug, url: x.image_url }; }));
+        var rows = all.filter(function (x) { return x.url || x.image_url; });
         var thumbs = document.getElementById("fan-hero-thumbs");
         if (!thumbs) return;
         if (!rows.length) {
-          thumbs.innerHTML = '<span class="hint">No stills from her yet. Ask for one from Account → Your favorites.</span>';
+          thumbs.innerHTML = '<span class="hint">No stills from her yet. Ask for one from Account → Your favorites or Own.</span>';
           return;
         }
         var current = "";
