@@ -40,6 +40,7 @@
     var raw = String(body || "");
     if (raw.indexOf("HOUSELETTER:") === 0) raw = raw.slice(12);
     raw = raw.trim();
+    raw = raw.replace(/<!DOCTYPE[^>]*>/gi, "").replace(/<\/?html[^>]*>/gi, "").replace(/<head[\s\S]*?<\/head>/gi, "").replace(/<\/?body[^>]*>/gi, "");
     var isHtml = /^\s*<[a-z]/i.test(raw) || raw.indexOf("<p>") >= 0 || raw.indexOf("<br") >= 0 || raw.indexOf("<div") >= 0 || raw.indexOf("<table") >= 0 || raw.indexOf("<h") >= 0;
     var paras;
     if (isHtml) {
@@ -72,10 +73,12 @@
     host.innerHTML = messages.map(function (m) {
       var who = m.mine ? "You" : (name || "Them");
       var when = m.at ? String(m.at).slice(0, 16).replace("T", " ") : "";
-      var house = !m.mine && (who === "House" || String(m.body || "").indexOf("HOUSELETTER:") === 0);
+      var rawBody = String(m.body || "");
+      var looksHtml = /^\s*<[a-z]/i.test(rawBody) || rawBody.indexOf("<p>") >= 0 || rawBody.indexOf("<h") >= 0 || rawBody.indexOf("<div") >= 0 || rawBody.indexOf("HOUSELETTER:") === 0;
+      var house = !m.mine && (who === "House" || rawBody.indexOf("HOUSELETTER:") === 0 || looksHtml);
       var body = house
-        ? houseLetter(m.body, when, m.subject)
-        : "<div class='body'>" + String(m.body || "").replace(/</g, "") + "</div>";
+        ? houseLetter(rawBody, when, m.subject)
+        : "<div class='body'>" + rawBody.replace(/</g, "&lt;") + "</div>";
       return "<div class='pmail-letter'>" +
         (house ? "" : "<span class='who'>" + String(who).replace(/</g, "") + "</span>") +
         (house ? "" : "<div class='subj'>" + String(m.subject || "").replace(/</g, "") + "</div>") +
