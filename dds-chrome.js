@@ -511,7 +511,7 @@ function canAccess(slug) {
       '· Play nights and finish levels.<br>' +
       '· Leave a review after a room.<br>' +
       '· Win spins and offers.<br>' +
-      '· Own a woman — Silver after five nights, Gold and above after three.<br>' +
+      '· Own a woman — buy her. No nights path.<br>' +
       '· Or buy DPS with an Amazon gift card.</p>' +
       '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
         '<button type="button" id="ddsEarnBuy" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">Buy DPS</button>' +
@@ -935,7 +935,7 @@ function canAccess(slug) {
           body = her + " is opening soon.";
         }
       } else if (level === "members") body = "Sign in to play " + her + ".";
-      else if (level === "owners") body = "Play more nights to own her, or buy right away.";
+      else if (level === "owners") body = "Buy her to own. No nights path.";
       else if (floor > 0 && myPts < floor) body = her + " charges " + need + ". You have " + myPts + " DPS.";
       else body = her + " charges " + need + ".";
       var old = document.getElementById("ddsNeedRank");
@@ -944,7 +944,7 @@ function canAccess(slug) {
       box.id = "ddsNeedRank";
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
-      if (more > 0) ways = '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>';
+      if (more > 0) ways = '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy a pack if you want the floor now.</p>';
       else ways = '<p style="margin:0 0 .6rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
@@ -974,14 +974,14 @@ function canAccess(slug) {
       } else if (level === "bronze") {
         needLine = her + " needs Bronze or higher.";
       } else if (level === "owners") {
-        needLine = "Play more nights to own or buy right away.";
+        needLine = "Buy her to own. No nights path.";
       } else if (floor > 0) {
         needLine = her + " charges " + floor + " DPS.";
       } else {
         needLine = her + " is open for " + need + " only.";
       }
       var gap = (floor > 0 && myPts < floor) ? (floor - myPts) : (more || 0);
-      var title = (level === "owners") ? "Play more nights to own or buy right away" :
+      var title = (level === "owners") ? "Buy her to own. No nights path. :
                   (level === "gold") ? her + " is open for Gold and above only." :
                   (level === "silver") ? her + " is open for Silver and above only." :
                   (level === "elite") ? her + " is open for Elite and above only." :
@@ -1227,7 +1227,7 @@ function canAccess(slug) {
           body = her + " is opening soon.";
         }
       } else if (level === "members") body = "Sign in to play " + her + ".";
-      else if (level === "owners") body = "Play more nights to own her, or buy right away.";
+      else if (level === "owners") body = "Buy her to own. No nights path.";
       else if (more > 0) body = her + " is open for " + need + " only. You need " + more + " more Desire points.";
       else if (floor > 0 && pts < floor) body = her + " is open for " + need + " only. You need " + (floor - pts) + " more Desire points.";
       else body = her + " is open for " + need + " only.";
@@ -1238,7 +1238,7 @@ function canAccess(slug) {
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
       if (more > 0) ways = '<p style="margin:0 0 .5rem;font-size:.86rem;color:#b9a892">You have ' + myPts + ' Desire points (' + st + '). ' + her + ' charges ' + floor + ' (' + need + ').</p>' +
-        '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>';
+        '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy a pack if you want the floor now.</p>';
       else ways = '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
@@ -1283,7 +1283,7 @@ function canAccess(slug) {
         '<p style="margin:0 0 .35rem;font-size:1.02rem;color:#e9d5ff">Your DPS: <b>' + pts + '</b></p>' +
         '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + title + '</p>' +
         (floor > pts ? '<p style="margin:0 0 .5rem;font-size:.95rem;color:#e8c4a8">You need <b>' + (floor - pts) + '</b> more Desire points.</p>' : '') +
-        '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>' +
+        '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy a pack if you want the floor now.</p>' +
         '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
           '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
           ownHerBtn(slug) +
@@ -4095,7 +4095,8 @@ setInterval(function () {
     // Strip any DESIRE SCORE chip from the cloned board
     body.querySelectorAll(".score-chip").forEach(function (el) {
       var lab = el.querySelector(".l");
-      if (lab && /desire score/i.test((lab.textContent || "").trim())) el.remove();
+      var txt = (lab && lab.textContent || "").replace(/\s+/g, " ").trim();
+      if (/desire\s*score/i.test(txt)) el.remove();
     });
     var revs = document.getElementById("dds-score-revs");
     revs.textContent = "Loading…";
@@ -4116,9 +4117,11 @@ setInterval(function () {
         var lab = chips[i].querySelector(".l");
         var num = chips[i].querySelector(".n");
         if (!lab || !num) continue;
-        if (!/^DesirePoints$/i.test((lab.textContent || "").trim())) continue;
+        var labTxt = (lab.textContent || "").replace(/\s+/g, " ").trim();
+        if (!/^DesirePoints$/i.test(labTxt) && !/desire\s*score/i.test(labTxt)) continue;
         var shown = pool >= 1000 ? (pool / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(pool);
         num.textContent = shown;
+        if (/desire\s*score/i.test(labTxt)) lab.textContent = "DesirePoints";
         break;
       }
     }).catch(function () {});
@@ -4207,7 +4210,7 @@ window.DDS_showAccessPop = function (slug, level) {
     (more > 0 ? '<p style="margin:0 0 .6rem;font-size:.92rem;color:#f0d48a">' + needLine + '</p>' : '') +
     '<p style="margin:0 0 .5rem;font-size:.9rem;color:#b9a892">You have ' + myPts + ' Desire points.</p>' +
     '<div style="margin:.5rem 0 .7rem;padding:.6rem .7rem;background:#120814;border:1px solid #4a2c5f;border-radius:8px;font-size:.88rem;color:#d4c4b0">' + rankHtml + '</div>' +
-    '<p style="margin:0 0 .6rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — Silver after five nights, Gold and above after three.<br>· Or buy a pack if you want the floor now.</p>' +
+    '<p style="margin:0 0 .6rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy a pack if you want the floor now.</p>' +
     '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
       '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
       ownHerBtn(slug) +
@@ -4361,7 +4364,8 @@ window.DDS_dpsStatusFromPts = function (pts) {
       // Remove any DESIRE SCORE chip — only DesirePoints (pool) is the ranking metric
       document.querySelectorAll(".score-bar .score-chip").forEach(function (el) {
         var lab = el.querySelector(".l");
-        if (lab && /desire score/i.test((lab.textContent || "").trim())) el.remove();
+        var txt = (lab && lab.textContent || "").replace(/\s+/g, " ").trim();
+        if (/desire\s*score/i.test(txt)) el.remove();
       });
       var nights = Number(row.sessions);
       var avg = Number(row.avg_rating);

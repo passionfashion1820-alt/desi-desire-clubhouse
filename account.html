@@ -152,7 +152,12 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
 .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
 @media(max-width:560px){.row{grid-template-columns:1fr}}
 #loungeBox.card{padding:0;background:transparent;border:0}
-.lounge-grid{display:grid;grid-template-columns:168px minmax(0,1fr);gap:0;min-height:420px;border:1px solid #3a2a44;border-radius:12px;overflow:hidden;background:#120814}
+.lounge-grid{display:grid;grid-template-columns:140px minmax(0,1fr);gap:0;min-height:420px;border:1px solid #3a2a44;border-radius:12px;overflow:hidden;background:#120814}
+.lounge-grid .pmail-main{min-width:0;width:100%;flex:1}
+.lounge-grid{display:grid;grid-template-columns:140px minmax(280px,1fr)}
+#mailRead{width:100%;max-width:none;box-sizing:border-box}
+#mailRead > *{width:100%;max-width:none;box-sizing:border-box}
+#mailThread,#mailThread > *{width:100%;max-width:none;box-sizing:border-box}
 @media(max-width:720px){.lounge-grid{grid-template-columns:1fr}}
 #mailSuggest{margin:.2rem 0 .4rem}
 #mailSuggest button{display:block;width:100%;text-align:left;margin:.15rem 0;background:#1c1224;color:#f3e8ff;border:1px solid #3b2060;border-radius:8px;padding:.4rem .55rem}
@@ -175,8 +180,9 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
 #mailCompose .mail-actions button{margin-top:0}
 #mailCompose #mailSend{background:linear-gradient(180deg,#fff4c4,#e8c45a);color:#2a1608}
 #mailCompose #mailSendAdmin{background:#3b2060;color:#f3e8ff;border:1px solid #b794f6}
-#mailRead{padding:.75rem 1rem 1.1rem;max-width:100%;overflow-x:auto}
-#mailRead .house-letter{max-width:100%;width:100%}
+#mailRead{padding:.75rem 1rem 1.1rem;width:100%;max-width:none;overflow-x:auto;box-sizing:border-box;display:block}
+#mailRead .house-letter,#mailRead article,#mailRead .pmail-letter{max-width:none !important;width:100% !important;float:none !important;display:block !important;box-sizing:border-box}
+#mailRead .house-letter h3,#mailRead .house-letter p{white-space:normal;word-break:normal;overflow-wrap:break-word}
 .pmail-letter{border-bottom:1px solid #2c1c38;padding:.7rem 0}
 .pmail-letter .who{font-weight:800;color:#e9d5ff}
 .pmail-letter .subj{color:#f3e9d7;margin:.2rem 0 .35rem;font-weight:700}
@@ -188,7 +194,7 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
 .house-letter p{margin:.45rem 0;color:#f3e9d7}
 .house-letter .hl-sign{color:#e8c45a;margin-top:.8rem}.house-letter header .k{letter-spacing:.22em;color:#e8c45a;font-size:.72rem}.house-letter footer{color:#e8c45a;margin-top:.8rem;font-size:.85rem}
 .pmail-letter .meta{color:#8f7d96;font-size:.78rem}
-.house-letter{max-width:38rem;margin:.4rem 0 1rem;padding:1.2rem 1.3rem 1.1rem;background:#1a1018;border:1px solid #6b4a78;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.house-letter{max-width:none;width:100%;margin:.4rem 0 1rem;padding:1.2rem 1.3rem 1.1rem;background:#1a1018;border:1px solid #6b4a78;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.28);float:none;display:block;box-sizing:border-box}
 .house-letter .mast{font-family:Georgia,serif;letter-spacing:.18em;text-transform:uppercase;font-size:.72rem;color:#d7b4ff}
 .house-letter .kicker{color:#c4a574;font-size:.75rem;margin-top:.25rem}
 .house-letter h3{font-family:Georgia,serif;font-size:1.35rem;margin:.35rem 0 .2rem;color:#f6efe4;font-weight:600}
@@ -467,8 +473,8 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
         <details class="card-drop" id="ownedHome">
           <summary>You own</summary>
           <div class="card" style="margin-top:.55rem">
-          <p class="hint">Silver and above. Silver needs five nights with her. Gold and above need three. Her profile shows you own her. Next room she starts from nights held and how strict she is. Half-open — warmer, a level or two ahead — unless you tick usual. You can ask for any number of stills. Write the saree, the pose, and the room, or attach a reference. No wait.</p>
-          <div id="ownedList">No one yet. Hit Silver, then five nights with her. Gold and above need three.</div>
+          <p class="hint">Own her by buying. No nights path. Her profile shows you own her. Next room she starts from nights held and how strict she is. Half-open — warmer, a level or two ahead — unless you tick usual. You can ask for any number of stills. Write the saree, the pose, and the room, or attach a reference. No wait.</p>
+          <div id="ownedList">No one yet. Buy her to own.</div>
           </div>
         </details>
         <details class="card-drop" id="fanOfHome">
@@ -926,7 +932,7 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
     } else if (pts < platAt) {
       html += "<p><b>Your next floor</b></p><p>" + (platAt - pts) + " DPS to Desire Platinum.</p>";
     } else {
-      html += "<p><b>Your floor</b></p><p>Platinum. Own as many doors as you play three nights on.</p>";
+      html += "<p><b>Your floor</b></p><p>Platinum. Own by buying.</p>";
     }
     html += "<p><b>Play smart</b></p><ul>" +
       "<li>Update the house card. She reads it before the room.</li>" +
@@ -952,12 +958,12 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
       } else if (Object.keys(ownedSet).length) {
         html += "<p>You already own someone. Pick another door and stack the nights she needs.</p>";
       } else {
-        html += "<p>No stack yet. Pick one door. Silver needs five nights. Gold and above need three. Do not spray one night each.</p>";
+        html += "<p>No stack yet. Buy her to own.</p>";
       }
       html += "<ul>" + lines.join("") + "</ul>";
-      html += "<p class='hint'>Lahari 29 Sep · Navya 12 Oct · Simran 20 Oct. Favorite them now. Owned only after they are live. Silver needs five nights. Gold and above need three.</p>";
+      html += "<p class='hint'>Lahari 29 Sep · Navya 12 Oct · Simran 20 Oct. Favorite them now. Own only by buying once they are live.</p>";
     } else {
-      html += "<p><b>Owned</b></p><p>Not yet. Reach Desire Silver, then five nights on one door. Gold and above need three. Until then every night still counts toward that stack.</p>";
+      html += "<p><b>Owned</b></p><p>Not yet. Buy her to own.</p>";
       var started = live.filter(function (s) { return (counts[s] || 0) > 0; })
         .sort(function (a, b) { return (counts[b] || 0) - (counts[a] || 0); });
       if (started.length) {
