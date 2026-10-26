@@ -175,7 +175,8 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
 #mailCompose .mail-actions button{margin-top:0}
 #mailCompose #mailSend{background:linear-gradient(180deg,#fff4c4,#e8c45a);color:#2a1608}
 #mailCompose #mailSendAdmin{background:#3b2060;color:#f3e8ff;border:1px solid #b794f6}
-#mailRead{padding:.75rem 1rem 1.1rem}
+#mailRead{padding:.75rem 1rem 1.1rem;max-width:100%;overflow-x:auto}
+#mailRead .house-letter{max-width:100%;width:100%}
 .pmail-letter{border-bottom:1px solid #2c1c38;padding:.7rem 0}
 .pmail-letter .who{font-weight:800;color:#e9d5ff}
 .pmail-letter .subj{color:#f3e9d7;margin:.2rem 0 .35rem;font-weight:700}
@@ -468,6 +469,13 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
           <div class="card" style="margin-top:.55rem">
           <p class="hint">Silver and above. Silver needs five nights with her. Gold and above need three. Her profile shows you own her. Next room she starts from nights held and how strict she is. Half-open — warmer, a level or two ahead — unless you tick usual. You can ask for any number of stills. Write the saree, the pose, and the room, or attach a reference. No wait.</p>
           <div id="ownedList">No one yet. Hit Silver, then five nights with her. Gold and above need three.</div>
+          </div>
+        </details>
+        <details class="card-drop" id="fanOfHome">
+          <summary>Fan of</summary>
+          <div class="card" style="margin-top:.55rem">
+          <p class="hint">Models you joined the fan club for. Pay DPS on her page. She lists you. Her page turns purple for you with fan stills.</p>
+          <div id="fanOfList">None yet. Open a model page and join her fan club.</div>
           </div>
         </details>
         <details class="card-drop" id="buyDps">
@@ -853,6 +861,7 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
       if ($("askAct")) $("askAct").click();
     }
     loadOwned(row);
+    loadFanOf(row);
     paintFavList(row);
     loadNights(row);
     if (!row.verified && !window._ddsVerPoll) {
@@ -1305,6 +1314,22 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
           if (box) box.classList.toggle("on");
         };
       });
+
+  function loadFanOf(row) {
+    var host = $("fanOfList");
+    if (!host || !row || !row.id) return;
+    sb.rpc("player_fan_of", { p_id: row.id }).then(function (res) {
+      var models = (res && res.data) || [];
+      if (!Array.isArray(models) || !models.length) {
+        host.textContent = "None yet. Open a model page and join her fan club.";
+        return;
+      }
+      host.innerHTML = models.map(function (slug) {
+        var name = NAMES[slug] || slug.charAt(0).toUpperCase() + slug.slice(1);
+        return '<div class="fav-still"><div class="fav-meta"><b>' + name + '</b> · fan club</div></div>';
+      }).join("");
+    }).catch(function () { host.textContent = "Could not load."; });
+  }
       function paintOwnStills(asks) {
         asks = Array.isArray(asks) ? asks : [];
         host.querySelectorAll("[data-ownstills]").forEach(function (el) {
