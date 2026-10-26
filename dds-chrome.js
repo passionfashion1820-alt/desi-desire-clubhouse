@@ -1041,7 +1041,7 @@ function canAccess(slug) {
       else if (/elite/i.test(tier)) levelPrem = 6;
       else if (/top/i.test(tier)) levelPrem = 4;
       else if (/strong/i.test(tier)) levelPrem = 2;
-      var fullPay = 220 + (levelPrem * 10);
+      var fullPay = Math.round((220 + (levelPrem * 10)) / 2);
       var doorPrice = (window.DDS_CFG && window.DDS_CFG.doorPrice && Number(window.DDS_CFG.doorPrice[slug])) || 0;
       var raw = doorPrice > 0 ? doorPrice : (base + prem);
       var owned = (typeof playerOwns === "function") && playerOwns(slug);
@@ -2588,7 +2588,7 @@ function shouldBlur() {
             "<p class='k'>PURPLE</p>" +
             "<h2>" + title + "</h2>" +
             "<p>" + body + "</p>" +
-            (hasAccount() ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 400 DPS.</p>") +
+            (hasAccount() ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 200 DPS.</p>") +
             "<p class='lure-actions'>" + (hasAccount()
               ? "<button type='button' class='go' data-ask='1'>Re-verify</button>"
               : "<a class='go' href='account.html#create'>Sign up</a><a class='ghost' href='account.html'>Login</a>") + "</p>" +
@@ -2674,7 +2674,7 @@ function shouldBlur() {
             "<p class='k'>PURPLE</p>" +
             "<h2>" + (held ? (idle ? "Re-verify to see her" : "Re-verify to see her") : "Sign up to see her") + "</h2>" +
             "<p>" + (held ? (idle ? "Five days with no login, inbox, or model night. Her page stays blurred until you re-verify. Inbox and house letters still work. Your rank stays." : "This account is not verified. Her page stays blurred until you re-verify.") : "Create an account. Thirty seconds. Then Activate. Available, Busy, and Closed open after that.") + "</p>" +
-            (held ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 400 DPS.</p>") +
+            (held ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 200 DPS.</p>") +
             "<p class='lure-actions'>" + (held
               ? "<button type='button' class='go' data-ask='1'>Re-verify</button>"
               : "<a class='go' href='account.html#create'>Sign up</a><a class='ghost' href='account.html'>Login</a>") + "</p>" +
