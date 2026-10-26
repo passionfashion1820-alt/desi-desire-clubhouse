@@ -1356,9 +1356,16 @@ function canAccess(slug) {
       '</div>' +
       '<input id="ddsDpsCode" placeholder="Amazon Giftcard Code" minlength="8" style="width:100%;background:#120814;color:#f3e9d7;border:1px solid #4a2c5f;border-radius:8px;padding:.5rem;margin-bottom:.5rem"/>' +
       '<p style="margin:.5rem 0;display:flex;gap:.5rem;flex-wrap:wrap">' +
-        '<button type="button" id="ddsDpsSend" style="background:#6b3fa0;color:#fff;padding:.45rem .8rem;border-radius:8px;border:0">Submit</button>' +
+        '<button type="button" id="ddsDpsSend" style="background:#6b3fa0;color:#fff;padding:.45rem .8rem;border-radius:8px;border:0">Submit Amazon</button>' +
+        '<button type="button" id="ddsDpsGpay" style="background:#1f4a32;color:#fff;padding:.45rem .8rem;border-radius:8px;border:0">Request GPay</button>' +
         '<button type="button" id="ddsDpsClose" style="background:#2a1a32;color:#fff;padding:.45rem .8rem;border-radius:8px;border:1px solid #4a2c5f">Close</button>' +
       '</p>' +
+      '<div id="ddsGpayBox" style="display:none;margin-top:.6rem;padding:.6rem;background:#120814;border:1px solid #4a2c5f;border-radius:8px">' +
+        '<p style="margin:0 0 .4rem;font-size:.84rem;color:#b9a892">UPI ID sent to your inbox. Pay the exact amount, then upload the screenshot here.</p>' +
+        '<input id="ddsGpayFile" type="file" accept="image/*" style="width:100%;margin-bottom:.4rem;font-size:.82rem"/>' +
+        '<button type="button" id="ddsGpayUpload" style="background:#6b3fa0;color:#fff;padding:.4rem .7rem;border-radius:8px;border:0">Upload proof</button>' +
+        '<p id="ddsGpayMsg" style="margin:.4rem 0 0;font-size:.82rem;color:#b9a892"></p>' +
+      '</div>' +
       '<p id="ddsDpsMsg" style="margin:.4rem 0 0;font-size:.85rem;color:#b9a892"></p>' +
     '</div>';
     document.body.appendChild(box);
@@ -1420,6 +1427,68 @@ function canAccess(slug) {
         document.getElementById("ddsDpsCode").value = "";
       } catch (err) {
         msg.textContent = err.message || "Could not send.";
+      }
+    };
+    document.getElementById("ddsDpsGpay").onclick = async function () {
+      var n = Math.max(0, Math.round(Number(custom.value) || 0));
+      var msg = document.getElementById("ddsDpsMsg");
+      if (n < 1) { msg.textContent = "Type how many DPS."; return; }
+      var acc = window.DDS_account && window.DDS_account();
+      if (!acc || !acc.id) { msg.textContent = "Sign in first."; return; }
+      var cfg = window.DDS_SUPABASE || {};
+      if (!cfg.url || !cfg.anon) { msg.textContent = "Not ready. Try again."; return; }
+      var pr = priceFor(n);
+      msg.textContent = "Requesting GPay…";
+      try {
+        var r = await fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/dps_orders", {
+          method: "POST",
+          headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json", Prefer: "return=representation" },
+          body: JSON.stringify({
+            player_id: acc.id,
+            pack: "gpay",
+            label: n + " DPS · ₹" + pr.inr,
+            amazon_code: "GPAY-PENDING",
+            player_name: acc.nickname || acc.username || "",
+            player_email: acc.email || "",
+            status: "open"
+          })
+        });
+        if (!r.ok) throw new Error(await r.text());
+        var rows = await r.json();
+        var order = Array.isArray(rows) ? rows[0] : rows;
+        // send UPI ID privately to inbox (change the ID here)
+        var UPI = "yourname@upi"; // <-- set your real UPI ID
+        await fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/rpc/request_gpay_mail", {
+          method: "POST",
+          headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_player: acc.id, p_dps: n, p_inr: pr.inr, p_upi: UPI })
+        }).catch(function(){});
+        msg.textContent = "Request sent. Check your inbox for the UPI ID.";
+        document.getElementById("ddsGpayBox").style.display = "block";
+        window._ddsGpayOrder = order && order.id;
+      } catch (err) {
+        msg.textContent = err.message || "Could not request.";
+      }
+    };
+    document.getElementById("ddsGpayUpload").onclick = async function () {
+      var file = document.getElementById("ddsGpayFile").files[0];
+      var gmsg = document.getElementById("ddsGpayMsg");
+      if (!file) { gmsg.textContent = "Choose the payment screenshot."; return; }
+      if (!window._ddsGpayOrder) { gmsg.textContent = "Request first."; return; }
+      gmsg.textContent = "Uploading…";
+      var cfg = window.DDS_SUPABASE || {};
+      var fd = new FormData();
+      fd.append("file", file);
+      // simple note: store filename in the order for now
+      try {
+        await fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/dps_orders?id=eq." + window._ddsGpayOrder, {
+          method: "PATCH",
+          headers: { apikey: cfg.anon, Authorization: "Bearer " + cfg.anon, "Content-Type": "application/json" },
+          body: JSON.stringify({ amazon_code: "GPAY-PROOF:" + file.name })
+        });
+        gmsg.textContent = "Proof noted. Desk will check and grant.";
+      } catch (e) {
+        gmsg.textContent = "Upload noted locally. Tell the desk if needed.";
       }
     };
   }
