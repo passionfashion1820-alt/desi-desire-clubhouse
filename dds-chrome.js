@@ -422,7 +422,7 @@ function canAccess(slug) {
   function ownHerOpen(slug) {
     slug = String(slug || "").toLowerCase();
     if (!slug || slug === "anu" || slug === "meenakshi") return false;
-    if (doorClosed(slug)) return false;
+    // Closed door still allows Own (and Fan Club). Only Buy DPS / play is blocked.
     if (playerOwns(slug)) return false;
     return true;
   }
@@ -1403,6 +1403,7 @@ function canAccess(slug) {
           body: JSON.stringify({
             player_id: acc.id,
             pack: "dps" + n,
+            dps: n,
             label: n + " DPS · $" + pr.usd,
             amazon_code: code,
             player_name: acc.nickname || acc.username || "",
