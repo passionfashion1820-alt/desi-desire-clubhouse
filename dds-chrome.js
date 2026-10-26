@@ -944,7 +944,7 @@ function canAccess(slug) {
       box.id = "ddsNeedRank";
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
-      if (more > 0) ways = '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>';
+      if (more > 0) ways = '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Win levels — she pays from her pool if she likes you.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>';
       else ways = '<p style="margin:0 0 .6rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
@@ -1238,7 +1238,7 @@ function canAccess(slug) {
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
       var ways = '';
       if (more > 0) ways = '<p style="margin:0 0 .5rem;font-size:.86rem;color:#b9a892">You have ' + myPts + ' Desire points (' + st + '). ' + her + ' charges ' + floor + ' (' + need + ').</p>' +
-        '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>';
+        '<p style="margin:0 0 .8rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Win levels — she pays from her pool if she likes you.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>';
       else ways = '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Play the models you can open. Finish nights. Leave reviews. Own a woman. All of these raise her ModelDesirePoints.</p>';
       var acc = window.DDS_account && window.DDS_account();
       var myPts = (acc && acc.dps) || pts || 0;
@@ -1283,7 +1283,7 @@ function canAccess(slug) {
         '<p style="margin:0 0 .35rem;font-size:1.02rem;color:#e9d5ff">Your DPS: <b>' + pts + '</b></p>' +
         '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + title + '</p>' +
         (floor > pts ? '<p style="margin:0 0 .5rem;font-size:.95rem;color:#e8c4a8">You need <b>' + (floor - pts) + '</b> more Desire points.</p>' : '') +
-        '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>' +
+        '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Win levels — she pays from her pool if she likes you.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>' +
         '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
           '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
           ownHerBtn(slug) +
@@ -3637,7 +3637,7 @@ setInterval(function () {
           body: JSON.stringify({ p_id: who.id, p_model: mask.getAttribute("data-slug"), p_n: Number(n) })
         }).then(function (r) { return r.json(); }).then(function (j) {
           if (j && j.ok) {
-            msg.textContent = "She felt that. +" + (j.dps || n * 5) + " DPS. " + (j.left != null ? j.left + " hearts left today." : "");
+            msg.textContent = "She felt that. " + (j.left != null ? j.left + " hearts left today." : "");
             var slug = String(mask.getAttribute("data-slug") || "").toLowerCase();
             if (slug === "anu" || slug === "meenakshi") {
               fetch(String(cfg.url || "").replace(/\/$/, "") + "/rest/v1/rpc/trainer_bump", {
@@ -3652,7 +3652,7 @@ setInterval(function () {
     }
     mask.setAttribute("data-slug", slug);
     document.getElementById("dds-heart-title").textContent = name;
-    document.getElementById("dds-heart-copy").textContent = "Each heart is 5 Desire on her rank. Tell the house you want her. Cap 20 a day.";
+    document.getElementById("dds-heart-copy").textContent = "Tell the house you want her. Cap 20 a day. Hearts do not add DPS.";
     document.getElementById("dds-heart-msg").textContent = (!acc || !acc.verified) ? "Login and Activate to send hearts." : "";
     mask.classList.add("on");
   }
@@ -4211,7 +4211,7 @@ window.DDS_showAccessPop = function (slug, level) {
     (more > 0 ? '<p style="margin:0 0 .6rem;font-size:.92rem;color:#f0d48a">' + needLine + '</p>' : '') +
     '<p style="margin:0 0 .5rem;font-size:.9rem;color:#b9a892">You have ' + myPts + ' Desire points.</p>' +
     '<div style="margin:.5rem 0 .7rem;padding:.6rem .7rem;background:#120814;border:1px solid #4a2c5f;border-radius:8px;font-size:.88rem;color:#d4c4b0">' + rankHtml + '</div>' +
-    '<p style="margin:0 0 .6rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Leave reviews after a room.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>' +
+    '<p style="margin:0 0 .6rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Win levels — she pays from her pool if she likes you.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>' +
     '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
       '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
       ownHerBtn(slug) +
