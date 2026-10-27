@@ -848,6 +848,12 @@ function canAccess(slug) {
         a.classList.add("dds-shut");
         a.removeAttribute("href");
         a.textContent = "Not receiving tonight";
+        a.style.pointerEvents = "none";
+        a.style.opacity = "0.55";
+      });
+      // Closed blocks play and Buy DPS only. Own and Fan Club stay open.
+      document.querySelectorAll("a.dds-buy-dps, button.dds-buy-dps").forEach(function (b) {
+        b.style.display = "none";
       });
     }
   }
@@ -1925,6 +1931,12 @@ function canAccess(slug) {
         a.style.pointerEvents = "none";
         a.style.opacity = "0.55";
         a.setAttribute("aria-disabled", "true");
+      });
+      // Keep Own and Fan Club clickable on closed doors
+      document.querySelectorAll("a[data-own-dps], a[data-fan-club]").forEach(function (a) {
+        a.style.pointerEvents = "auto";
+        a.style.opacity = "1";
+        a.style.display = "";
       });
       return;
     }
