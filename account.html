@@ -1280,12 +1280,15 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
         acc.owns = models.map(function (m) { return String(m.slug || "").toLowerCase(); }).filter(Boolean).join(",");
         localStorage.setItem("dds_account", JSON.stringify(acc));
       } catch (e) {}
-      if (!data.gold && !data.silver && !data.can_own) {
-        host.textContent = "Hit Desire Silver. Five nights with her and you own her. Gold and above need three.";
-        return;
-      }
       if (!models.length) {
-        host.textContent = data.gold ? "You are Gold or above. Three nights with one woman and she is yours on her page." : "Five nights with one woman and she is yours on her page.";
+        var st = String(data.status || "").toLowerCase();
+        if (data.can_own || /silver|gold|elite|platinum/.test(st)) {
+          host.textContent = /gold|elite|platinum/.test(st)
+            ? "You are Gold or above. Three nights with one woman and she is yours on her page."
+            : "Five nights with one woman and she is yours on her page.";
+        } else {
+          host.textContent = "Hit Desire Silver. Five nights with her and you own her. Gold and above need three.";
+        }
         return;
       }
       host.innerHTML = models.map(function (m) {
