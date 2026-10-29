@@ -499,6 +499,19 @@ function canAccess(slug) {
     return { cost: cost, base: base, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
   }
   window.DDS_ownDpsCost = ownDpsCost;
+
+  function ownSalePct(slug) {
+    slug = String(slug || "").toLowerCase();
+    var door = (window.DDS_CFG && window.DDS_CFG.ownPrice && Number(window.DDS_CFG.ownPrice[slug])) || 0;
+    if (!(door > 0)) return 0;
+    var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+    var key = String(access[slug] || "").toLowerCase();
+    var isSoon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
+    var tierBase = isSoon ? 1500 : (1000 + ownRankStep(slug).step * 150);
+    if (door >= tierBase) return 0;
+    return Math.round((tierBase - door) / tierBase * 100);
+  }
+  window.DDS_ownSalePct = ownSalePct;
   function openEarnModal() {
     var old = document.getElementById("ddsEarnModal");
     if (old) old.remove();
@@ -546,7 +559,11 @@ function canAccess(slug) {
     var line = enough
       ? (name + " charges <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
       : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
-    var extra = info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000."));
+    var salePctOwn = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
+    var tierOwn = info.soon ? 1500 : (1000 + (info.step || 0) * 150);
+    var extra = salePctOwn > 0
+      ? ("On sale today. " + salePctOwn + "% off. Was " + tierOwn + ".")
+      : (info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000.")));
     if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
       '<p style="margin:0 0 .3rem;color:#e9d5ff;font-weight:700">What you get</p>' +
@@ -1038,6 +1055,9 @@ function canAccess(slug) {
       var fullPay = Math.round((220 + (levelPrem * 10)) / 2);
       var doorPrice = (window.DDS_CFG && window.DDS_CFG.doorPrice && Number(window.DDS_CFG.doorPrice[slug])) || 0;
       var raw = doorPrice > 0 ? doorPrice : (base + prem);
+      var salePct = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
+      var rawBeforeSale = raw;
+      if (salePct > 0) raw = Math.max(0, Math.round(raw * (100 - salePct) / 100));
       var owned = (typeof playerOwns === "function") && playerOwns(slug);
       var st = (typeof playerStatus === "function") ? playerStatus() : "";
       var pct = 0;
@@ -1076,6 +1096,7 @@ function canAccess(slug) {
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
       else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
+      else if (salePct > 0) disc = "On sale today. " + salePct + "% off. Was " + rawBeforeSale + "." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%.") : "");
       else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".") : "");
       else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".";
       var old = document.getElementById("ddsDpsConfirm");
