@@ -2008,7 +2008,7 @@ function canAccess(slug) {
     if (document.getElementById("dds-sale-css")) return;
     var st = document.createElement("style");
     st.id = "dds-sale-css";
-    st.textContent = ".dds-sale{position:absolute;top:8px;left:8px;z-index:5;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.28rem .5rem;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.4);text-transform:uppercase;line-height:1.2;pointer-events:none}.dds-sale b{display:block;font-size:.78rem}";
+    st.textContent = ".dds-sale{position:absolute;top:42px;left:8px;z-index:5;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.28rem .5rem;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.4);text-transform:uppercase;line-height:1.2;pointer-events:none}.dds-sale b{display:block;font-size:.78rem}";
     document.head.appendChild(st);
   })();
     if (window.DDS_paintAccess) window.DDS_paintAccess();
