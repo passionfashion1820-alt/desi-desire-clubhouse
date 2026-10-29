@@ -562,7 +562,7 @@ function canAccess(slug) {
     var salePctOwn = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
     var tierOwn = info.soon ? 1500 : (1000 + (info.step || 0) * 150);
     var extra = salePctOwn > 0
-      ? ("On sale today. " + salePctOwn + "% off. Was " + tierOwn + ".")
+      ? ('<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.25rem .55rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase">🔥 On Sale Today · ' + salePctOwn + '% OFF</span> <span style="color:#fca5a5;text-decoration:line-through;margin-left:.35rem">' + tierOwn + '</span>')
       : (info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000.")));
     if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
@@ -1096,7 +1096,7 @@ function canAccess(slug) {
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
       else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
-      else if (salePct > 0) disc = "On sale today. " + salePct + "% off. Was " + rawBeforeSale + "." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%.") : "");
+      else if (salePct > 0) disc = '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.25rem .55rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase">🔥 On Sale Today · ' + salePct + '% OFF</span> <span style="color:#fca5a5;text-decoration:line-through;margin-left:.35rem">' + rawBeforeSale + '</span>' + (pct > 0 ? (' <span style="color:#e8c45a">' + st.charAt(0).toUpperCase() + st.slice(1) + ' +' + pct + '%.</span>') : '');
       else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".") : "");
       else if (pct > 0) disc = st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".";
       var old = document.getElementById("ddsDpsConfirm");
