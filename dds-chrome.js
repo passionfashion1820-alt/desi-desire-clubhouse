@@ -550,8 +550,8 @@ function canAccess(slug) {
     if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
       '<p style="margin:0 0 .3rem;color:#e9d5ff;font-weight:700">What you get</p>' +
-      '<p style="margin:0 0 .25rem"><b>Status Owned</b> — She treats the door as yours. One recognition line, then she is his.</p>' +
-      '<p style="margin:0 0 .25rem"><b>Free use at current clothes</b> — Mouth, hands, poses, pace, where you put her. She follows at the clothes she has on. She does not refuse you on talk or acts at that level.</p>' +
+      '<p style="margin:0 0 .25rem"><b>She is yours</b> — She does anything you ask. Wears anything you want. Is anyone you want her to be.</p>' +
+      '<p style="margin:0 0 .25rem"><b>She strips faster</b> — Mouth, hands, poses, pace. She follows. Clothes come off quicker with you.</p>' +
       '<p style="margin:0 0 .25rem"><b>Higher start clothes</b> — 1–2 nights → L2, 3–5 → L3, 6–9 → L3 Softening, 10+ → L4. usual keeps her at L0.</p>' +
       '<p style="margin:0 0 .25rem"><b>Openness starts Opening</b> — Softening on long holds. She is not Closed with you.</p>' +
       '<p style="margin:0"><b>Tone multiplier has no cap</b> — Offers stack. No Combined cut.</p>' +
@@ -2003,6 +2003,14 @@ function canAccess(slug) {
     });
   }
   function stampLineupLive() {
+
+  (function injectSaleCss() {
+    if (document.getElementById("dds-sale-css")) return;
+    var st = document.createElement("style");
+    st.id = "dds-sale-css";
+    st.textContent = ".dds-sale{position:absolute;top:8px;left:8px;z-index:5;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.28rem .5rem;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.4);text-transform:uppercase;line-height:1.2;pointer-events:none}.dds-sale b{display:block;font-size:.78rem}";
+    document.head.appendChild(st);
+  })();
     if (window.DDS_paintAccess) window.DDS_paintAccess();
     if (window.DDS_stampAccessOnPlay) window.DDS_stampAccessOnPlay();
     [400, 1200, 2500, 4000, 7000].forEach(function (ms) {
@@ -2055,6 +2063,29 @@ function canAccess(slug) {
       dot.innerHTML = "<i></i>" + label;
       card.classList.remove("dds-edge-free", "dds-edge-busy", "dds-edge-closed", "dds-edge-soon");
       card.classList.add("dds-edge-" + state);
+      // On-sale sticker when admin own price is lower than tier
+      var sale = card.querySelector(".dds-sale");
+      var door = (window.DDS_CFG && window.DDS_CFG.ownPrice && Number(window.DDS_CFG.ownPrice[slug])) || 0;
+      if (door > 0) {
+        var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
+        var key = String(access[slug] || "").toLowerCase();
+        var isSoon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
+        var tierBase = isSoon ? 1500 : (1000 + ownRankStep(slug).step * 150);
+        if (door < tierBase) {
+          var pct = Math.round((tierBase - door) / tierBase * 100);
+          if (!sale) {
+            sale = document.createElement("span");
+            sale.className = "dds-sale";
+            card.appendChild(sale);
+          }
+          sale.innerHTML = "On Sale<b>" + pct + "% off</b>";
+          sale.style.display = "";
+        } else if (sale) {
+          sale.remove();
+        }
+      } else if (sale) {
+        sale.remove();
+      }
     });
     // Profile portrait gets the same tint
     var hero = document.querySelector("article.profile-hero");
