@@ -1282,13 +1282,7 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
       } catch (e) {}
       if (!models.length) {
         var st = String(data.status || "").toLowerCase();
-        if (data.can_own || /silver|gold|elite|platinum/.test(st)) {
-          host.textContent = /gold|elite|platinum/.test(st)
-            ? "You are Gold or above. Three nights with one woman and she is yours on her page."
-            : "Five nights with one woman and she is yours on her page.";
-        } else {
-          host.textContent = "Hit Desire Silver. Five nights with her and you own her. Gold and above need three.";
-        }
+        host.textContent = "Own her by buying. No nights path. Buy on her page.";
         return;
       }
       host.innerHTML = models.map(function (m) {
@@ -1619,7 +1613,7 @@ details.card-drop[open] #homeBox{border:1px solid #5a3f28;border-radius:14px;pad
         id: res.data.user.id, username: user, email: emailIn, dob: dob,
         verified: false, activate_asked: true, activate_asked_at: new Date().toISOString(), signup_ip: ip || null
       });
-      var signupAmt = Number((window.DDS_CFG && window.DDS_CFG.dpsAwards && window.DDS_CFG.dpsAwards.signup) || 100);
+      var signupAmt = Number((window.DDS_CFG && window.DDS_CFG.dpsAwards && window.DDS_CFG.dpsAwards.signup) || 200);
       await sb.rpc("grant_signup_dps", { p_id: res.data.user.id });
     }
     if (res.data.session) {

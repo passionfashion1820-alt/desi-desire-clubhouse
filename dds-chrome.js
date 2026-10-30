@@ -494,16 +494,27 @@ function canAccess(slug) {
       label = rs.label;
       step = rs.step;
     }
+    var hall = (typeof halloweenPct === "function") ? halloweenPct() : 0;
+    if (hall > 0 && !(door > 0)) base = Math.max(0, Math.round(base * (100 - hall) / 100));
     var pct = statusPct();
     var cost = Math.max(0, Math.round(base * (100 + pct) / 100));
     return { cost: cost, base: base, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
   }
   window.DDS_ownDpsCost = ownDpsCost;
 
+  function halloweenPct() {
+    var n = Number(window.DDS_CFG && window.DDS_CFG.halloweenSale);
+    if (!isFinite(n)) n = 40;
+    if (n < 0) n = 0;
+    if (n > 70) n = 70;
+    return Math.round(n);
+  }
+  window.DDS_halloweenPct = halloweenPct;
   function ownSalePct(slug) {
     slug = String(slug || "").toLowerCase();
+    var hall = halloweenPct();
     var door = (window.DDS_CFG && window.DDS_CFG.ownPrice && Number(window.DDS_CFG.ownPrice[slug])) || 0;
-    if (!(door > 0)) return 0;
+    if (!(door > 0)) return hall;
     var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
     var key = String(access[slug] || "").toLowerCase();
     var isSoon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
@@ -2132,10 +2143,19 @@ function canAccess(slug) {
       dot.innerHTML = "<i></i>" + label;
       card.classList.remove("dds-edge-free", "dds-edge-busy", "dds-edge-closed", "dds-edge-soon");
       card.classList.add("dds-edge-" + state);
-      // On-sale sticker when admin own price is lower than tier
+      // On-sale sticker: door price cut, or Halloween sale
       var sale = card.querySelector(".dds-sale");
+      var hall = (typeof halloweenPct === "function") ? halloweenPct() : 0;
       var door = (window.DDS_CFG && window.DDS_CFG.ownPrice && Number(window.DDS_CFG.ownPrice[slug])) || 0;
-      if (door > 0) {
+      if (hall > 0 && !(door > 0)) {
+        if (!sale) {
+          sale = document.createElement("span");
+          sale.className = "dds-sale";
+          card.appendChild(sale);
+        }
+        sale.innerHTML = "Halloween<b>" + hall + "% off</b>";
+        sale.style.display = "";
+      } else if (door > 0) {
         var access = (window.DDS_CFG && window.DDS_CFG.doorAccess) || {};
         var key = String(access[slug] || "").toLowerCase();
         var isSoon = key === "soon" || key === "imagesoon" || (typeof playSoon === "function" && playSoon(slug));
@@ -2776,7 +2796,7 @@ function shouldBlur() {
             "<p class='k'>PURPLE</p>" +
             "<h2>" + title + "</h2>" +
             "<p>" + body + "</p>" +
-            (hasAccount() ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 200 DPS.</p>") +
+            (hasAccount() ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 200 DPS free.</b><br>Halloween sale. Models are cheaper to own and play.</p>") +
             "<p class='lure-actions'>" + (hasAccount()
               ? "<button type='button' class='go' data-ask='1'>Re-verify</button>"
               : "<a class='go' href='account.html#create'>Sign up</a><a class='ghost' href='account.html'>Login</a>") + "</p>" +
@@ -2862,7 +2882,7 @@ function shouldBlur() {
             "<p class='k'>PURPLE</p>" +
             "<h2>" + (held ? (idle ? "Re-verify to see her" : "Re-verify to see her") : "Sign up to see her") + "</h2>" +
             "<p>" + (held ? (idle ? "Five days with no login, inbox, or model night. Her page stays blurred until you re-verify. Inbox and house letters still work. Your rank stays." : "This account is not verified. Her page stays blurred until you re-verify.") : "Create an account. Thirty seconds. Then Activate. Available, Busy, and Closed open after that.") + "</p>" +
-            (held ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 100 DPS free.</b><br>Invest on models. Returns up to 200 DPS.</p>") +
+            (held ? "" : "<p style='margin:.4rem 0 .6rem;padding:.45rem .6rem;background:#1a1028;border:1px solid #6b3fa0;border-radius:8px;font-size:.82rem;color:#e9d5ff'><b>Sign up today. Get 200 DPS free.</b><br>Halloween sale. Models are cheaper to own and play.</p>") +
             "<p class='lure-actions'>" + (held
               ? "<button type='button' class='go' data-ask='1'>Re-verify</button>"
               : "<a class='go' href='account.html#create'>Sign up</a><a class='ghost' href='account.html'>Login</a>") + "</p>" +
