@@ -51,8 +51,10 @@
     var modelPrem = Math.round(base * 0.25 * rs.step);
     var raw = base + modelPrem;
     var pct = statusPct();
-    var cost = Math.max(0, Math.round(raw * (100 + pct) / 100));
-    return { cost: cost, base: base, premium: modelPrem, pct: pct, step: rs.step, label: rs.label };
+    var full = Math.max(0, Math.round(raw * (100 + pct) / 100));
+    var salePct = (typeof window.DDS_ownSalePct === "function") ? window.DDS_ownSalePct(slug) : 0;
+    var cost = salePct > 0 ? Math.max(0, Math.round(full * (100 - salePct) / 100)) : full;
+    return { cost: cost, base: base, premium: modelPrem, pct: pct, step: rs.step, label: rs.label, full: full, salePct: salePct };
   }
   function paint(list, joined, nightsOnDoor) {
     var box = document.getElementById("fan-club");
@@ -295,9 +297,26 @@
       "Personalized profile page with more stills"
     ];
     var start = "Starts at Level 1 every time as Known status and with 1.5 times speed.";
-    var costLine = "Base <b>" + cost.base + "</b> DPS";
-    if (cost.premium > 0) costLine += " + <b>" + cost.premium + "</b> (" + cost.label + " slab)";
-    costLine += " = <b>" + cost.cost + "</b> DPS.";
+    var salePct = cost.salePct || 0;
+    var full = cost.full || cost.cost;
+    var priceBlock = "";
+    if (salePct > 0) {
+      priceBlock =
+        '<div style="margin:.55rem 0 .35rem">' +
+          '<span style="color:#fca5a5;text-decoration:line-through;font-size:1.1rem;margin-right:.4rem">' + full + '</span>' +
+          '<span style="color:#fde68a;font-size:1.4rem;font-weight:800">' + cost.cost + '</span>' +
+          '<span style="color:#e9d5ff;font-size:.85rem;margin-left:.25rem">DPS</span>' +
+        '</div>' +
+        '<div style="margin:0 0 .35rem">' +
+          '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.28rem .6rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase;font-size:.72rem">🔥 On Sale Today · ' + salePct + '% OFF</span>' +
+        '</div>' +
+        '<p style="margin:0 0 .15rem;font-size:.78rem;color:#b9a892">Base ' + cost.base + (cost.premium > 0 ? (' + ' + cost.premium + ' (' + cost.label + ' slab)') : '') + ' = ' + full + '. Sale price <b style="color:#fde68a">' + cost.cost + '</b>.</p>';
+    } else {
+      var costLine = "Base <b>" + cost.base + "</b> DPS";
+      if (cost.premium > 0) costLine += " + <b>" + cost.premium + "</b> (" + cost.label + " slab)";
+      costLine += " = <b>" + cost.cost + "</b> DPS.";
+      priceBlock = '<p style="margin:.6rem 0 .3rem;font-size:.9rem">' + costLine + '</p>';
+    }
     var ptsLine = enough
       ? ("You have <b>" + myPts + "</b> DPS.")
       : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost.cost + "</b>.");
@@ -314,7 +333,7 @@
       '<p style="margin:0 0 .5rem;font-size:.88rem;color:#b9a892">Perks</p>' +
       checks +
       '<p style="margin:.6rem 0 .4rem;font-size:.88rem;color:#e9d5ff">' + start + '</p>' +
-      '<p style="margin:0 0 .3rem;font-size:.9rem">' + costLine + '</p>' +
+      priceBlock +
       '<p style="margin:0 0 .7rem;font-size:.85rem;color:#b9a892">' + ptsLine + '</p>' +
       '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' + btn +
         '<button type="button" id="ddsFanClose" style="flex:1;min-width:100px;background:#2a1a32;color:#fff;padding:.5rem .8rem;border-radius:8px;border:1px solid #4a2c5f">Close</button>' +

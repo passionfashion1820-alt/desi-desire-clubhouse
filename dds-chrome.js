@@ -1145,8 +1145,19 @@ function canAccess(slug) {
       } else {
         box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
           '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
-          '<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS for the night.</p>' +
-          (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : '') +
+          (salePct > 0
+            ? ('<div style="margin:0 0 .4rem">' +
+                '<span style="color:#fca5a5;text-decoration:line-through;font-size:1.15rem;margin-right:.4rem">' + rawBeforeSale + '</span>' +
+                '<span style="color:#fde68a;font-size:1.45rem;font-weight:800">' + cost + '</span>' +
+                '<span style="color:#e9d5ff;font-size:.9rem;margin-left:.25rem">DPS</span>' +
+                '<span style="color:#b9a892;font-size:.82rem;margin-left:.35rem">for the night</span>' +
+              '</div>' +
+              '<div style="margin:0 0 .4rem">' +
+                '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.28rem .6rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase;font-size:.72rem">🔥 On Sale Today · ' + salePct + '% OFF</span>' +
+              '</div>' +
+              '<p style="margin:0 0 .35rem;font-size:.78rem;color:#b9a892">Full price ' + rawBeforeSale + '. Sale price <b style="color:#fde68a">' + cost + '</b>.</p>')
+            : ('<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS for the night.</p>' +
+               (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : ''))) +
           '<p style="margin:0 0 .55rem;font-size:.82rem;color:#b9a892;line-height:1.35">If you win levels you can earn up to <b>' + fullPay + '</b> DPS from ' + name + '. She gives it if she likes you.</p>' +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Proceed?</p>' +
           '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' +
