@@ -4130,6 +4130,33 @@ setInterval(function () {
   }
 
 
+  function tidyHero(meta, wrap) {
+    if (!document.getElementById("dds-hero-clean")) {
+      var s = document.createElement("style");
+      s.id = "dds-hero-clean";
+      s.textContent =
+        ".play-cta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}" +
+        ".play-cta a{flex:1 1 120px;text-align:center;justify-content:center}" +
+        ".play-cta a.heart-btn{flex:0 0 46px;width:46px;height:46px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#2a1a32;border:1px solid rgba(192,132,252,.55)}" +
+        ".play-cta a.heart-btn span{display:none}" +
+        ".play-cta a.heart-btn svg{width:28px;height:28px;margin:0}" +
+        ".queen-tag{display:inline-block!important;width:auto!important;margin:.35rem 0 .2rem!important;padding:.22rem .6rem!important;font-size:.68rem!important;letter-spacing:.12em!important;text-transform:uppercase;border-radius:999px!important;border:1px solid rgba(240,208,96,.55)!important;background:rgba(240,208,96,.08)!important}" +
+        ".filth-line{margin:1.2rem 0 1.4rem}";
+      document.head.appendChild(s);
+    }
+    var tag = document.querySelector(".queen-tag");
+    if (tag && meta && tag.parentNode) meta.insertAdjacentElement("afterend", tag);
+    var line = document.querySelector(".filth-line");
+    var hero = document.querySelector("article.profile-hero");
+    if (line && hero && hero.parentNode) hero.parentNode.insertBefore(line, hero.nextSibling);
+    var cta = document.querySelector(".play-cta");
+    var heart = document.querySelector("a.heart-btn");
+    if (cta && heart) {
+      var cap = heart.querySelector("span");
+      if (cap) cap.style.display = "none";
+      cta.appendChild(heart);
+    }
+  }
   function paintHeroStars() {
     var slugs = ["preethi","diya","meghana","kiara","sravani","ayesha","esther","natasha","tharini","kavya","lahari","navya","simran","chandana","aleena"];
     var page = (location.pathname.split("/").pop() || "").replace(/\.html$/i, "").toLowerCase();
@@ -4150,15 +4177,15 @@ setInterval(function () {
       var full = Math.floor(x + 0.001);
       var half = !full && x > 0 ? false : (x - full) >= 0.25 && (x - full) < 0.75;
       if ((x - full) >= 0.75) full += 1;
-      var html = "<span class='rate-top'><span>Overall Rating</span><span class='up'>&#128077;</span></span><span class='rate-row'><span class='stars'>";
+      var html = "<span class='rate-top'><span>Overall Rating</span><span class='up'>&#128077;</span></span><span class='rate-row' style='display:flex;align-items:center;gap:8px;flex-wrap:wrap'><span class='stars'>";
       for (var i = 1; i <= 5; i++) {
         if (i <= full) html += "<i class='on'>★</i>";
         else if (half && i === full + 1) html += "<i class='half'>★</i>";
         else html += "<i class='off'>★</i>";
       }
       var nights = arguments[1];
-      var nightTxt = nights != null && nights !== "" ? "<em class='night-count' style='margin-left:10px;font-style:normal;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:#e8d5b0'>" + nights + " nights</em>" : "";
-      return html + "</span><b style='color:#f0d78c;font-size:1.35rem'>" + (x ? x.toFixed(1) : "—") + "</b>" + nightTxt + "</span><span style='font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:#c9b896;margin-top:2px'>Tap for scoreboard</span>";
+      var nightTxt = nights != null && nights !== "" ? "<span class='night-pill' style='display:inline-flex;align-items:center;gap:4px;margin-left:4px;padding:.18rem .5rem;border-radius:999px;background:rgba(240,215,140,.12);border:1px solid rgba(240,215,140,.4);color:#f0d78c;font-size:.72rem;letter-spacing:.04em;font-weight:700'>&#9790; " + nights + "</span>" : "";
+      return html + "</span><b style='color:#f0d78c;font-size:1.35rem'>" + (x ? x.toFixed(1) : "—") + "</b>" + nightTxt + "</span>";
     }
     function dressBoard() {
       document.querySelectorAll(".score-chip").forEach(function (el) { el.removeAttribute("data-tip"); el.removeAttribute("title"); });
@@ -4212,17 +4239,20 @@ setInterval(function () {
     btn.innerHTML = starRow(chip);
     var wrap = document.createElement("div");
     wrap.className = "dds-hero-row";
-    wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin:12px 0 4px;";
+    wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin:12px 0 4px;";
     btn.style.margin = "0";
+    btn.style.flex = "1 1 220px";
+    btn.style.minHeight = "86px";
+    btn.style.justifyContent = "center";
     wrap.appendChild(btn);
     var dpsBox = document.createElement("div");
     dpsBox.id = "dds-hero-dps";
     dpsBox.className = "dds-hero-dps";
-    dpsBox.style.cssText = "display:flex;flex-direction:column;justify-content:center;min-width:140px;padding:12px 16px;border:1px solid rgba(192,132,252,.55);border-radius:14px;background:#1a1416;color:#f3e8ff;";
-    var name = page.charAt(0).toUpperCase() + page.slice(1);
-    dpsBox.innerHTML = "<div style='font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#c084fc;font-weight:600'>" + name + "'s DPS</div><div id='dds-hero-dps-num' style='font-size:1.35rem;font-weight:700;margin-top:2px'>—</div>";
+    dpsBox.style.cssText = "display:flex;flex-direction:column;justify-content:center;min-width:140px;flex:0 0 160px;padding:12px 16px;border:1px solid rgba(192,132,252,.55);border-radius:14px;background:#1a1416;color:#f3e8ff;min-height:86px;";
+    dpsBox.innerHTML = "<div style='font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#c084fc;font-weight:700'>&#9670; Her pool</div><div id='dds-hero-dps-num' style='font-size:1.55rem;font-weight:800;margin-top:4px;color:#fde68a'>—</div>";
     wrap.appendChild(dpsBox);
     meta.insertAdjacentElement("afterend", wrap);
+    tidyHero(meta, wrap);
     // Fill the number from the pool
     var cfg = window.DDS_SUPABASE || {};
     var base = String(cfg.url || "https://axavugukoesqkfykprur.supabase.co").replace(/\/$/, "");
