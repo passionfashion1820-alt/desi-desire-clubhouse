@@ -43,7 +43,12 @@
     .col-head b{display:block;font-size:.95rem;color:var(--gold-soft)}
     .col-head small{display:block;color:var(--muted);font-size:.68rem;margin-top:.1rem}
     .win{color:var(--gold);font-weight:700;background:rgba(232,197,107,.08)}
-    .result-col{min-width:120px;color:var(--gold-soft);font-weight:700;font-size:.82rem}
+    .result-col{min-width:180px;max-width:240px;color:var(--gold-soft);font-weight:700;font-size:.78rem;vertical-align:top;line-height:1.35}
+    .result-col .who{display:block;color:var(--gold);font-size:.95rem;margin-bottom:.15rem}
+    .result-col .why{display:block;font-weight:500;color:var(--muted);font-size:.72rem}
+    .result-sum{background:#1a0e28;border-left:2px solid var(--gold);position:sticky;right:0;z-index:2}
+    .pick.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);transform:translateY(-1px)}
+    .pick.on span{color:var(--gold-soft);font-weight:700}
     .soft{color:var(--muted);font-size:.78rem;line-height:1.35}
     .verdict{margin-top:1.1rem;border:1px solid var(--line);border-radius:16px;background:#160a22;padding:1rem 1.1rem 1.05rem}
     .verdict h2{font-size:1.05rem;color:var(--gold);letter-spacing:.04em;margin:0 0 .55rem}
@@ -179,7 +184,7 @@
     }
 
     function filthyBeats(list) {
-      if (list.length < 2) return "";
+      if (list.length < 2) return { top: list[0] || { name:"—", score:0, sess:0, hearts:0 }, lines: [] };
       var sorted = list.slice().sort(function (a, b) { return b.score - a.score; });
       var top = sorted[0];
       var rest = sorted.slice(1);
@@ -214,9 +219,7 @@
           }
         }
       });
-      var lead = "<p class=\"lead\"><b>" + top.name + "</b> is the slut who beats this table. Score " + top.score.toFixed(1) + ". " +
-        top.sess + " nights. " + top.hearts + " men claiming her.</p>";
-      return '<div class="verdict"><h2>Who beats who</h2>' + lead + '<div class="beats">' + lines.join("") + "</div></div>";
+      return { top: top, lines: lines };
     }
 
     function renderTable() {
@@ -231,26 +234,38 @@
         return "<tr><td class='rowh'>" + label + "</td>" + list.map(fmt).join("") +
           "<td class='result-col'>" + (resultText || "—") + "</td></tr>";
       }
+      var verdict = filthyBeats(list);
+      var top = verdict.top;
+      var sum = '<div class="who">' + top.name + " wins</div>" +
+        '<div class="why">Score ' + top.score.toFixed(1) + " · " + top.sess + " nights · " + top.hearts + " hearts</div>";
+      function reasonFor(key) {
+        var hit = (verdict.lines || []).filter(function (l) { return l.indexOf(key) !== -1; })[0];
+        return hit ? hit.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+      }
+      function cellResult(name, reason) {
+        if (!name || name === "—") return "—";
+        return '<div class="who">' + name + '</div>' + (reason ? '<div class="why">' + reason + '</div>' : '');
+      }
       result.innerHTML =
         '<div class="table-wrap"><table><thead><tr><th class="rowh">Field</th>' +
         list.map(function (s) {
           return '<th class="col-head"><a href="' + s.id + '.html">' + imgTag(s.id, s.name) +
             "<b>" + s.name + "</b><small>#" + s.rank + " · " + s.tier + "</small></a></th>";
         }).join("") +
-        '<th class="result-col">Winner</th></tr></thead><tbody>' +
-        row("Rank", function (s) { return cell("No. " + s.rank, s.rank === lo("rank")); }, winners(list, "rank", false)) +
+        '<th class="result-col result-sum">Compare</th></tr></thead><tbody>' +
+        row("Rank", function (s) { return cell("No. " + s.rank, s.rank === lo("rank")); }, cellResult(winners(list, "rank", false), "Lowest number is higher on the board.")) +
         row("Tier", function (s) { return "<td>" + s.tier + "</td>"; }, "—") +
-        row("Desire Score", function (s) { return cell(s.score.toFixed(1), s.score === hi("score")); }, winners(list, "score", true)) +
-        row("Sessions", function (s) { return cell(s.sess, s.sess === hi("sess")); }, winners(list, "sess", true)) +
-        row("Avg Rating", function (s) { return cell(s.avg.toFixed(2), s.avg === hi("avg")); }, winners(list, "avg", true)) +
-        row("Hearts", function (s) { return cell(s.hearts, s.hearts === hi("hearts")); }, winners(list, "hearts", true)) +
+        row("Desire Score", function (s) { return cell(s.score.toFixed(1), s.score === hi("score")); }, cellResult(winners(list, "score", true), top.name + " sits higher. Men keep her hotter.")) +
+        row("Sessions", function (s) { return cell(s.sess, s.sess === hi("sess")); }, cellResult(winners(list, "sess", true), "More nights. More men.")) +
+        row("Avg Rating", function (s) { return cell(s.avg.toFixed(2), s.avg === hi("avg")); }, cellResult(winners(list, "avg", true), "Men rate her higher after they finish.")) +
+        row("Hearts", function (s) { return cell(s.hearts, s.hearts === hi("hearts")); }, cellResult(winners(list, "hearts", true), "More men claiming her.")) +
         row("Age", function (s) { return "<td>" + s.age + "</td>"; }, "—") +
         row("Measurements", function (s) { return "<td>" + s.meas + "</td>"; }, "—") +
         row("Origin", function (s) { return "<td>" + s.origin + "</td>"; }, "—") +
         row("Door", function (s) { return "<td>" + s.door + "</td>"; }, "—") +
-        row("Reviews", function (s) { return cell(s.reviews, s.reviews === hi("reviews")); }, winners(list, "reviews", true)) +
-        row("How to play", function (s) { return '<td class="soft">' + s.hint + "</td>"; }, "—") +
-        "</tbody></table></div>" + filthyBeats(list);
+        row("Reviews", function (s) { return cell(s.reviews, s.reviews === hi("reviews")); }, cellResult(winners(list, "reviews", true), "More men have written about her body.")) +
+        row("How to play", function (s) { return '<td class="soft">' + s.hint + "</td>"; }, sum) +
+        "</tbody></table></div>";
       if (window.DDS_artRefresh) window.DDS_artRefresh();
     }
 

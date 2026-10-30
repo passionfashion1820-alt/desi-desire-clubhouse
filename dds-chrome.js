@@ -556,15 +556,36 @@ function canAccess(slug) {
     var box = document.createElement("div");
     box.id = "ddsOwnModal";
     box.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
-    var line = enough
-      ? (name + " charges <b>" + cost + "</b> DPS. You have <b>" + myPts + "</b>.")
-      : ("Your DPS: <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
     var salePctOwn = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
-    var tierOwn = info.soon ? 1500 : (1000 + (info.step || 0) * 150);
-    var extra = salePctOwn > 0
-      ? ('<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.25rem .55rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase">🔥 On Sale Today · ' + salePctOwn + '% OFF</span> <span style="color:#fca5a5;text-decoration:line-through;margin-left:.35rem">' + tierOwn + '</span>')
-      : (info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (info.step ? (info.label + " · 1000 + " + info.step + " × 150.") : "Live base 1000.")));
-    if (info.pct > 0) extra += " " + info.pct + "% status extra. Was " + info.base + ".";
+    var rs = (typeof ownRankStep === "function") ? ownRankStep(slug) : { step: info.step || 0, label: info.label || "New" };
+    var tierBase = info.soon ? 1500 : (1000 + (rs.step || 0) * 150);
+    var statusPctOwn = info.pct || 0;
+    var fullPrice = Math.round(tierBase * (100 + statusPctOwn) / 100);
+    var wasPrice = salePctOwn > 0 ? fullPrice : (info.door ? info.base : fullPrice);
+    var priceBlock = "";
+    if (salePctOwn > 0) {
+      priceBlock =
+        '<div style="margin:0 0 .5rem">' +
+          '<span style="color:#fca5a5;text-decoration:line-through;font-size:1.15rem;margin-right:.4rem">' + wasPrice + '</span>' +
+          '<span style="color:#fde68a;font-size:1.45rem;font-weight:800">' + cost + '</span>' +
+          '<span style="color:#e9d5ff;font-size:.9rem;margin-left:.25rem">DPS</span>' +
+        '</div>' +
+        '<div style="margin:0 0 .45rem">' +
+          '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.28rem .6rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase;font-size:.72rem">🔥 On Sale Today · ' + salePctOwn + '% OFF</span>' +
+        '</div>' +
+        '<p style="margin:0 0 .15rem;font-size:.78rem;color:#b9a892">Full price ' + wasPrice + (statusPctOwn > 0 ? (' · includes ' + statusPctOwn + '% status') : '') + ' · ' + (rs.label || "Live") + '. Sale price <b style="color:#fde68a">' + cost + '</b>.</p>';
+    } else {
+      priceBlock =
+        '<div style="margin:0 0 .35rem;font-size:1.05rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS.</div>' +
+        '<p style="margin:0 0 .15rem;font-size:.78rem;color:#b9a892">' +
+          (info.door ? "Door price." : (info.soon ? "Soon door. Flat 1500." : (rs.step ? (rs.label + " · 1000 + " + rs.step + " × 150.") : "Live base 1000."))) +
+          (statusPctOwn > 0 ? (" " + statusPctOwn + "% status extra. Base " + tierBase + ".") : "") +
+        '</p>';
+    }
+    var line = enough
+      ? ("You have <b>" + myPts + "</b> DPS.")
+      : ("You have <b>" + myPts + "</b>. You need <b>" + cost + "</b>.");
+    var extra = priceBlock + '<p style="margin:.15rem 0 .35rem;font-size:.88rem;color:#f3e9d7">' + line + '</p>';
     var perks = '<div style="margin:.6rem 0 .7rem;padding:.55rem .7rem;background:#140a18;border:1px solid #4a2c5f;border-radius:10px;font-size:.8rem;line-height:1.35;color:#e8d5c0">' +
       '<p style="margin:0 0 .3rem;color:#e9d5ff;font-weight:700">What you get</p>' +
       '<p style="margin:0 0 .25rem"><b>She is yours</b> — She does anything you ask. Wears anything you want. Is anyone you want her to be.</p>' +
@@ -577,9 +598,8 @@ function canAccess(slug) {
       ? '<button type="button" id="ddsOwnBuy" style="flex:1;min-width:120px;background:#c9a24a;color:#1a1008;padding:.5rem .8rem;border-radius:8px;border:0;font-weight:700">Buy her</button>'
       : '<button type="button" id="ddsOwnEarn" style="flex:1;min-width:120px;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;border:0">DesirePoints (DPS)</button>';
     box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
-      '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Own ' + name + '</p>' +
-      '<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + line + '</p>' +
-      '<p style="margin:0 0 .4rem;font-size:.82rem;color:#b9a892">' + extra + '</p>' +
+      '<p style="margin:0 0 .45rem;font-size:1.15rem;color:#e9d5ff;font-weight:700">Own ' + name + '</p>' +
+      extra +
       perks +
       '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' + btn +
         '<button type="button" id="ddsOwnClose" style="flex:1;min-width:100px;background:#2a1a32;color:#fff;padding:.5rem .8rem;border-radius:8px;border:1px solid #4a2c5f">Close</button>' +

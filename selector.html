@@ -63,13 +63,28 @@
     label { display: block; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: .35rem; }
     select, input[type="text"] {
       width: 100%;
-      background: #0c090a;
+      background: #120c0e;
       color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: .65rem .7rem;
+      border: 1px solid #5a3a3e;
+      border-radius: 8px;
+      padding: .7rem .85rem;
       font: inherit;
+      font-size: .95rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23d4af37' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+      padding-right: 2.2rem;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
     }
+    select:hover, input[type="text"]:hover { border-color: #a88b3a; }
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212,175,55,.18);
+    }
+    select option { background: #140e10; color: #f3e9d7; }
     .hint { color: var(--muted); font-size: .75rem; margin-top: .35rem; }
     .actions { margin-top: 1rem; display: flex; gap: .6rem; flex-wrap: wrap; }
     button, .btn {
@@ -162,17 +177,20 @@
         <div>
           <label for="diff">How hard should she be?</label>
           <select id="diff">
+            <option value="any" selected>Any — show me the range</option>
             <option value="easy">Easy — she opens with warmth</option>
-            <option value="medium" selected>Medium — some resistance</option>
+            <option value="medium">Medium — some resistance</option>
             <option value="hard">Hard — proud, slow, earns the fall</option>
           </select>
         </div>
         <div>
           <label for="vibe">What energy do you want?</label>
           <select id="vibe">
-            <option value="soft" selected>Soft / emotional / sensual</option>
+            <option value="any" selected>Any energy</option>
+            <option value="soft">Soft / emotional / sensual</option>
             <option value="motherly">Motherly / Amma / aunty</option>
             <option value="proud">Proud / cultural / strict</option>
+            <option value="control">Control / dominant / she leads</option>
             <option value="luxury">Elegant / luxury / high-class</option>
             <option value="filthy">Direct / filthy / degradation</option>
             <option value="guilt">Religious guilt / modest surface</option>
@@ -189,11 +207,19 @@
         <div>
           <label for="body">Body you want to look at</label>
           <select id="body">
-            <option value="any" selected>Surprise me</option>
+            <option value="any" selected>Any body</option>
             <option value="hips">Heavy hips / big ass</option>
             <option value="bust">Heavy bust</option>
             <option value="slim">Slim elegant</option>
             <option value="curvy">Soft curvy all over</option>
+          </select>
+        </div>
+        <div>
+          <label for="exp">Experience</label>
+          <select id="exp">
+            <option value="any" selected>Any — mix of nights</option>
+            <option value="high">Many nights — she has history</option>
+            <option value="new">Newer — fewer nights</option>
           </select>
         </div>
         <div>
@@ -264,9 +290,9 @@ const SLUTS = [
     why:"Courtyard Amma. Public door is hard. Private heat is not.",
     keys:"amma motherly telugu sravani filthy" },
   { id:"natasha", name:"Natasha", age:36, body:"34D-34-38", origin:"Goa",
-    diff:"hard", vibe:["proud"], bodyTag:["curvy"], title:"Pride Queen",
-    why:"Coast control. Pride first.",
-    keys:"goa pride natasha control strict" },
+    diff:"hard", vibe:["proud","control","luxury"], bodyTag:["curvy","slim"], title:"Pride Queen",
+    why:"Coast control. Pride first. She sets the pace.",
+    keys:"goa pride natasha control strict dominant hard" },
   { id:"ayesha", name:"Ayesha", age:36, body:"34D-34-34", origin:"Tamil Muslim",
     diff:"medium", vibe:["guilt"], bodyTag:["curvy"], title:"Guilt Queen",
     why:"Modest first look. Guilt is the heat. No faith joke.",
@@ -293,7 +319,7 @@ const SLUTS = [
     keys:"navya kochi kerala" },
   { id:"simran", name:"Simran", age:34, body:"34C-34-34", origin:"Rajasthan",
     diff:"medium", vibe:["luxury"], bodyTag:["curvy"], title:"Rajasthan grace",
-    why:"Rajasthan grace. Opens 20 Oct.",
+    why:"Rajasthan grace. Live door.",
     keys:"simran rajasthan grace" },
   { id:"chandana", name:"Chandana", age:36, body:"36C-34-38", origin:"Hyderabad Telugu",
     diff:"hard", vibe:["proud","luxury"], bodyTag:["curvy"], title:"Hyderabad traditional",
@@ -306,7 +332,7 @@ const SLUTS = [
 ];
 
 /* Meenakshi is a trainer, not a lineup door. */
-const SOON = { simran: "2026-10-20", chandana: "soon", aleena: "soon" };
+const SOON = { chandana: "soon", aleena: "soon" };
 const BOARD = {};
 
 function tierOf(score) {
@@ -346,16 +372,27 @@ function loadBoard() {
 loadBoard();
 
 function score(s, q) {
-  var n = 0;
+  var n = 1; // base so no model is zero
   var vibe = Array.isArray(s.vibe) ? s.vibe : [];
   var tags = Array.isArray(s.bodyTag) ? s.bodyTag : [];
   var keys = String(s.keys || "").toLowerCase();
-  if (s.diff === q.diff) n += 5;
+  var b = BOARD[s.id] || { sessions: 0, rank: 99 };
+  if (q.diff === "any") n += 1;
+  else if (s.diff === q.diff) n += 5;
   else if ((q.diff === "medium" && s.diff !== "hard") || (q.diff === "easy" && s.diff === "medium")) n += 2;
-  if (vibe.indexOf(q.vibe) !== -1) n += 5;
-  if (q.age === "mature" && s.age >= 40) n += 3;
-  if (q.age === "mid" && s.age <= 38) n += 2;
-  if (q.body !== "any" && tags.indexOf(q.body) !== -1) n += 4;
+  if (q.vibe === "any") n += 1;
+  else if (vibe.indexOf(q.vibe) !== -1) n += 5;
+  else if (q.vibe === "control" && (vibe.indexOf("proud") !== -1 || keys.indexOf("control") !== -1)) n += 3;
+  if (q.age === "any") n += 1;
+  else if (q.age === "mature" && s.age >= 40) n += 3;
+  else if (q.age === "mid" && s.age <= 38) n += 2;
+  if (q.body === "any") n += 1;
+  else if (tags.indexOf(q.body) !== -1) n += 4;
+  var nights = Number(b.sessions || 0);
+  if (q.exp === "high" && nights >= 100) n += 4;
+  else if (q.exp === "high" && nights >= 50) n += 2;
+  else if (q.exp === "new" && nights < 50) n += 3;
+  else if (q.exp === "any") n += 1;
   if (q.note) {
     var k = q.note.toLowerCase();
     if (keys.indexOf(k) !== -1 || String(s.name||"").toLowerCase().indexOf(k) !== -1 || String(s.origin||"").toLowerCase().indexOf(k) !== -1) n += 6;
@@ -370,6 +407,7 @@ document.getElementById("go").onclick = function () {
     vibe: document.getElementById("vibe").value,
     age: document.getElementById("age").value,
     body: document.getElementById("body").value,
+    exp: document.getElementById("exp") ? document.getElementById("exp").value : "any",
     door: document.getElementById("door").value,
     race: document.getElementById("race").value,
     rank: document.getElementById("rank").value,
@@ -390,7 +428,7 @@ document.getElementById("go").onclick = function () {
   });
 
   var ranked = pool.map(function (s) { return { s: s, n: score(s, q) }; })
-    .sort(function (a, b) { return b.n - a.n || a.s.name.localeCompare(b.s.name); })
+    .sort(function (a, b) { return b.n - a.n || (BOARD[b.s.id]||{}).sessions - (BOARD[a.s.id]||{}).sessions || a.s.name.localeCompare(b.s.name); })
     .slice(0, 3);
 
   var box = document.getElementById("results");
