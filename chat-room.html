@@ -52,6 +52,7 @@
     #trainPop .card { min-width:16rem; max-width:22rem; padding:1.1rem; border-radius:16px; border:1px solid #7a5a9a; background:#1a1220; color:#f4ecff; }
     #trainPop textarea { width:100%; margin:.5rem 0; border-radius:8px; border:1px solid #5a4a6a; background:#120e18; color:#fff; padding:.4rem; }
     #trainPop button { padding:.4rem .8rem; border-radius:8px; border:0; background:#7a4ab0; color:#fff; font-weight:700; cursor:pointer; }
+    #buyPop { position:fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.72); }
     #buyPop .card { min-width:16rem; max-width:22rem; padding:1.2rem 1.1rem; border-radius:16px; border:1px solid #7a5a9a; background:#1a1220; color:#f4ecff; }
     #buyPop b { display:block; font-size:1.05rem; margin-bottom:.5rem; }
     #buyPop p { margin:.3rem 0; color:#c9b8d4; font-size:.88rem; }
@@ -172,6 +173,7 @@
     #helpHint { margin-left:.45rem; font-size:.74rem; color:var(--muted); }
     #clockPill, #livePill, #dpsPill { margin-left:.25rem; font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:.24rem .5rem; border-radius:999px; border:1px solid var(--border); color:#b9a892; background:#1a1418; white-space:nowrap; }
     #dpsPill { display:inline-block; margin-left:.4rem; vertical-align:middle; color:#1a1408; background:#ffe566; border-color:#ffe566; font-size:.86rem; }
+    #poolPill { display:inline-block; margin-left:.25rem; vertical-align:middle; color:#1a0a18; background:#f3c6e0; border-color:#f3c6e0; font-size:.86rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:.24rem .5rem; border-radius:999px; white-space:nowrap; }
     #meFace { width:42px; height:42px; border-radius:50%; border:1.5px solid #e6d3b0; overflow:hidden; background:#241612; cursor:pointer; padding:0; flex:0 0 42px; }
     #meFace img { width:100%; height:100%; object-fit:cover; display:block; }
     #meChip { margin-left:auto; display:flex; align-items:center; gap:.45rem; padding:.22rem .65rem .22rem .22rem; border-radius:999px; border:1px solid #5c3d86; background:#1a1218; }
@@ -236,10 +238,12 @@
     #gallery .xst { position:absolute; top:4px; right:4px; background:#c45c5c; color:#fff; border:0; border-radius:6px; padding:.15rem .4rem; font-size:.7rem; cursor:pointer; font-weight:700; }
     #pane { flex: 0 0 30%; width:30%; min-width:220px; display:flex; flex-direction:column; border-left:1px solid var(--border); background:#0c090a; min-height:0; }
     #log { flex:1; overflow:auto; padding:.45rem .5rem; display:flex; flex-direction:column; gap:.4rem; user-select:none; -webkit-user-select:none; }
-    .bubble { max-width:92%; padding:.4rem .5rem; border-radius:8px; white-space:pre-wrap; line-height:1.35; font-size:.76rem; position:relative; user-select:text; -webkit-user-select:text; }
+    .bubble { max-width:92%; padding:.4rem .5rem; border-radius:8px; white-space:pre-wrap; line-height:1.35; font-size:.76rem; position:relative; user-select:text; -webkit-user-select:text; word-break:break-word; overflow-wrap:anywhere; }
     .bubble.model { align-self:flex-end; background:#2a1638; border:1px solid #c084fc; }
     .bubble.player { align-self:flex-start; background:#2a2214; border:1px solid #c084fc; }
     .bubble.npc { align-self:flex-start; background:#10241c; border:1px solid #3dcf9a; max-width:88%; }
+    .bubble a { color:#c084fc; text-decoration:underline; background:transparent; }
+    .bubble[data-mid="scout-dds1"] { max-width:98%; font-size:.72rem; word-break:break-all; }
     .bubble.npc .who,
     .bubble.npc .who > span:first-child { color:#7dffc8 !important; font-size:.78rem; font-weight:800; }
     .bubble.npc .txt { color:#d4ffe8; }
@@ -537,7 +541,7 @@
   </div>
   <div id="giftModal" class="hidden">
     <div class="box">
-      <h2 id="giftTitle">Gift</h2>
+      <h2 id="giftTitle">Add tip</h2>
       <p id="giftRankLine"></p>
       <div id="giftTiers"></div>
       <p class="warn" id="giftErr"></p>
@@ -546,7 +550,7 @@
       <label>Amazon gift card code</label>
       <input id="giftNote" maxlength="40" placeholder="Code for the amount above" />
       <p style="margin-top:.7rem">
-        <button type="button" id="giftSend">Send ticket</button>
+        <button type="button" id="giftSend">Tip her</button>
         <button type="button" class="ghost" id="giftClose">Close</button>
       </p>
       <div id="giftOwnPick" class="hidden">
@@ -573,7 +577,7 @@
         <div class="links"><span id="helpHint">Type #help mid-game</span></div>
       </div>
       <a id="cardLink" href="#" target="_blank" rel="noopener">Session card</a>
-      <button type="button" id="giftBtn" class="hidden">Own her</button>
+      <button type="button" id="giftBtn" class="hidden">Add tip</button>
       <button type="button" id="htpBtn" class="hidden perk">How to play</button>
       <button type="button" id="buySpinBtn" class="hidden perk">Buy Spin</button>
       <button type="button" id="buyStillBtn" class="hidden perk">Extra Still</button>
@@ -590,6 +594,7 @@
       </select>
       <div id="topChips"></div>
       <div id="dpsPill">DPS 0</div>
+      <div id="poolPill">Her DPS 0</div>
       <div id="ownPill" class="hidden">You own her</div>
       <div id="livePill" class="hidden">PLAYER</div>
       <button type="button" id="muteBtn">Sound on</button>
@@ -1336,6 +1341,13 @@ function openPlay(kind, lane) {
         playKind = "";
         return;
       }
+      try {
+        const stars = Number(playScores.overall) || 0;
+        if (note && note.length) {
+          const poolAdd = stars > 0 ? stars * 50 : 100;
+          await addToHerPool(poolAdd);
+        }
+      } catch (e) {}
       try { await sb.rpc("refresh_board"); } catch (e) {}
       const her = her0;
       const allFive = fields.every((f) => Number(playScores[f]) === 5);
@@ -1368,13 +1380,8 @@ function openPlay(kind, lane) {
       } else {
         await postPlay("Review saved to her board. No offer — he left the comment empty.");
       }
-      if (pid) {
-        if (!isGuestRoom()) {
-        const pts = 25;
-        const why = stage === "end" ? "room-end-review" : "room-mid-review";
-        try { await addDps(pts, why); } catch (e) {}
+      if (pid && !isGuestRoom()) {
         try { await fetchDpsCard(); } catch (e) {}
-        }
       }
       if (note.length && lane === "END") {
         cancelEndWipe();
@@ -1671,6 +1678,7 @@ function openPlay(kind, lane) {
         if (imgWon) bits.push("Still loading");
         if (!mile && (offer || jack)) bits.push("DPS 10 won");
         celebrate(kind, c.title, bits.filter(Boolean).join(" · "), !!(offer || jack), !!imgWon);
+        if (mile && !isDesk) setTimeout(() => maybeTipIdea(), 1800);
         if (imgWon) {
           stillWaitOpen = true;
           addWaitCard((imgWon[1] || mile && mile[1] || "").trim());
@@ -2115,61 +2123,111 @@ function openPlay(kind, lane) {
       if ($("giftSend")) $("giftSend").onclick = submitGift;
       if ($("giftRoleGo")) $("giftRoleGo").onclick = saveGiftRole;
     }
+    let tipAmount = 10;
+    let lastTipIdea = 0;
+    const TIP_IDEAS = [
+      "Tip her a little. It makes her feel good.",
+      "A small tip shows you like this.",
+      "Add a tip. She notices.",
+      "Tip in multiples of 5. It goes to her pool.",
+      "Feeling this? Tip her."
+    ];
+    function maybeTipIdea() {
+      if (isDesk || isGuestRoom() || ownFlag) return;
+      const now = Date.now();
+      if (now - lastTipIdea < 6 * 60 * 1000) return;
+      lastTipIdea = now;
+      const line = TIP_IDEAS[Math.floor(Math.random() * TIP_IDEAS.length)];
+      celebrate("alert", "Tip her", line + " Use Add tip.", false, true);
+    }
+    function startTipIdeas() {
+      if (isDesk || isGuestRoom()) return;
+      setInterval(() => { try { maybeTipIdea(); } catch (e) {} }, 8 * 60 * 1000);
+    }
+    function openDeskTips() {
+      const old = $("deskTips"); if (old) old.remove();
+      const box = document.createElement("div");
+      box.id = "deskTips";
+      box.style.cssText = "position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);";
+      box.innerHTML = "<div style='min-width:16rem;max-width:22rem;padding:1.2rem 1.1rem;border-radius:16px;border:1px solid #7a5a9a;background:#1a1220;color:#f4ecff;'><b>Tips</b><p id='deskTipsBody' style='margin:.5rem 0;color:#c9b8d4;'>Loading…</p><button type='button' id='deskTipsX' style='margin-top:.6rem;padding:.45rem .9rem;border-radius:10px;border:0;background:#2a2230;color:#ddd;cursor:pointer;'>Close</button></div>";
+      document.body.appendChild(box);
+      box.querySelector("#deskTipsX").onclick = () => box.remove();
+      loadDeskTips();
+    }
+    async function loadDeskTips() {
+      const el = $("deskTipsBody"); if (!el) return;
+      try {
+        const { data } = await sb.from("messages").select("body,created_at").eq("room_id", room.id).ilike("body", "%Tip:%").order("created_at", { ascending: false }).limit(12);
+        const rows = (data || []).filter((r) => /Tip:\s*\d+\s*DPS/i.test(r.body || ""));
+        if (!rows.length) { el.textContent = "No tips this room yet."; return; }
+        el.innerHTML = rows.map((r) => {
+          const m = String(r.body || "").match(/Tip:\s*(\d+)\s*DPS\s*from\s*([^.]*)\.?\s*(.*)/i);
+          if (!m) return String(r.body || "").slice(0, 80);
+          return "<b>" + m[1] + " DPS</b> from " + m[2].trim() + (m[3] ? " · " + m[3].trim() : "");
+        }).join("<br>");
+      } catch (e) { el.textContent = "Could not load tips."; }
+    }
     function openGift() {
-      if (!$("giftModal")) return;
-      if (!giftPick || !GIFT_TIERS[giftPick]) giftPick = "speed";
-      const sl = (room.model_slug || "").toLowerCase();
-      const rank = modelRank();
-      $("giftTitle").textContent = "Gift " + (room.display_name || sl);
-      $("giftRankLine").textContent = "Desire Rank " + rank + ". This room only.";
-      $("giftErr").textContent = "";
-      $("giftOk").textContent = "";
-      if ($("giftName")) $("giftName").value = (gateName() && gateName() !== "Player") ? gateName() : "";
-      if ($("giftOwnPick")) $("giftOwnPick").classList.add("hidden");
-      const box = $("giftTiers");
-      if (box) {
-        box.innerHTML = "";
-        ["speed","l4","broken"].forEach((id) => {
-          const t = GIFT_TIERS[id];
-          const el = document.createElement("div");
-          el.className = "giftcard" + (giftPick === id ? " on" : "");
-          el.innerHTML = "<b>" + t.label + " · " + giftPrice(id) + "</b><span>" + t.perk + "</span>";
-          el.onclick = () => { giftPick = id; openGift(); };
-          box.appendChild(el);
-        });
-      }
-      if (isDesk) { try { loadDeskGifts(); } catch (e) {} }
-      if ($("giftNote")) $("giftNote").placeholder = "Amazon code for " + giftPrice(giftPick);
-      $("giftModal").classList.remove("hidden");
+      const old = $("tipCard"); if (old) old.remove();
+      const her = (room && (room.display_name || room.model_slug)) || "her";
+      const box = document.createElement("div");
+      box.id = "tipCard";
+      box.style.cssText = "position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);";
+      const amts = [5, 10, 15, 20, 25, 50].map((n) => "<button type='button' data-amt='" + n + "' style='margin:.25rem;padding:.45rem .7rem;border-radius:10px;border:1px solid #7a5a9a;background:#1a1220;color:#f4ecff;cursor:pointer;font-weight:700;'>" + n + "</button>").join("");
+      box.innerHTML = "<div style='min-width:16rem;max-width:22rem;padding:1.2rem 1.1rem;border-radius:16px;border:1px solid #7a5a9a;background:#1a1220;color:#f4ecff;'><b>Tip " + her + "</b><p style='margin:.4rem 0;color:#c9b8d4;font-size:.85rem;'>" + her + " takes tips in 5s. Bigger tip, warmer she gets.</p><div id='tipAmts'>" + amts + "</div><p id='tipPick' style='margin:.4rem 0;color:#e8c98a;'>Selected: " + tipAmount + " DPS</p><p id='tipErr' style='color:#ff8a8a;min-height:1rem;'></p><button type='button' id='tipGo' style='margin-top:.5rem;padding:.5rem 1rem;border-radius:10px;border:0;background:#e8c98a;color:#1a0a18;font-weight:800;cursor:pointer;'>Tip her</button> <button type='button' id='tipX' style='padding:.5rem .9rem;border-radius:10px;border:0;background:#2a2230;color:#ddd;cursor:pointer;'>Close</button></div>";
+      document.body.appendChild(box);
+      box.querySelectorAll("[data-amt]").forEach((b) => {
+        b.onclick = () => { tipAmount = Number(b.getAttribute("data-amt")); const p = $("tipPick"); if (p) p.textContent = "Selected: " + tipAmount + " DPS"; };
+      });
+      box.querySelector("#tipX").onclick = () => box.remove();
+      box.querySelector("#tipGo").onclick = () => doTip();
+    }
+    async function doTip() {
+      const err = $("tipErr");
+      const amt = Math.max(5, Math.round(tipAmount / 5) * 5);
+      if (dpsPoints < amt) { if (err) err.textContent = "Not enough DPS. You have " + dpsPoints + "."; return; }
+      if (!confirm("Tip " + amt + " DPS to her?")) return;
+      const pid = housePlayerId();
+      if (!pid) { if (err) err.textContent = "Sign in first."; return; }
+      const { data, error } = await sb.rpc("add_dps", { p_player: pid, p_points: -amt, p_reason: "tip", p_model: String((room && room.model_slug) || "").toLowerCase() || null });
+      if (error || (data && data.ok === false)) { if (err) err.textContent = (error && error.message) || "Tip failed."; return; }
+      await addToHerPool(amt);
+      dpsPoints = (data && data.points != null) ? Number(data.points) : Math.max(0, dpsPoints - amt);
+      if ($("dpsPill")) $("dpsPill").textContent = "DPS " + dpsPoints;
+      const key = amt >= 25 ? "TIP10" : "TIP";
+      const sl = String((room && room.model_slug) || "HER").toUpperCase();
+      const code = sl + "-" + key + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const line = "Desire Scout\nThe code is \"" + code + "\". She will evaluate the prize by hand.";
+      try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: line }); } catch (e) {}
+      celebrate("offer", "Tip sent", amt + " DPS to her pool. Hers is now " + herPool + ".", false, true);
+      const card = $("tipCard"); if (card) card.remove();
     }
     async function submitGift() {
-      const sl = (room.model_slug || "").toLowerCase();
-      const rank = modelRank();
-      if (!GIFT_TIERS[giftPick]) { $("giftErr").textContent = "Pick a gift."; return; }
       const name = ($("giftName").value || "").trim() || gateName();
       if (!name || name.length < 2) { $("giftErr").textContent = "Enter your name."; return; }
-      const code = ($("giftNote").value || "").trim();
-      if (!code || code.length < 4) { $("giftErr").textContent = "Enter the Amazon gift card code for " + giftPrice(giftPick) + "."; return; }
-      const t = GIFT_TIERS[giftPick];
-      const price = giftPrice(giftPick);
-      const { error } = await sb.from("player_gifts").insert({
-        slut: sl,
-        player_name: name,
-        tier: giftPick,
-        amount_label: price,
-        perk: t.perk,
-        status: "new",
-        admin_note: code
-      });
-      if (error) { $("giftErr").textContent = error.message; return; }
-      $("giftOk").textContent = "Gift ticket stored. She will send the code in this room after the house accepts it.";
+      const amt = Math.max(5, Math.round(tipAmount / 5) * 5);
+      if (dpsPoints < amt) { $("giftErr").textContent = "Not enough DPS. You have " + dpsPoints + "."; return; }
+      if (!confirm("Tip " + amt + " DPS to her?")) return;
+      const pid = housePlayerId();
+      if (!pid) { $("giftErr").textContent = "Sign in first."; return; }
+      const { data, error } = await sb.rpc("add_dps", { p_player: pid, p_points: -amt, p_reason: "tip", p_model: String((room && room.model_slug) || "").toLowerCase() || null });
+      if (error || (data && data.ok === false)) { $("giftErr").textContent = (error && error.message) || "Tip failed."; return; }
+      try { await addToHerPool(amt); } catch (e) {}
+      dpsPoints = (data && data.points != null) ? Number(data.points) : Math.max(0, dpsPoints - amt);
+      if ($("dpsPill")) $("dpsPill").textContent = "DPS " + dpsPoints;
+      $("giftOk").textContent = amt + " DPS tipped. She feels that.";
+      const key = amt >= 25 ? "TIP10" : "TIP";
+      const sl = String((room && room.model_slug) || "HER").toUpperCase();
+      const code = sl + "-" + key + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const line = "Desire Scout\nThe code is \"" + code + "\". She will evaluate the prize by hand.";
       try {
         await sb.from("messages").insert({
           room_id: room.id,
           sender: "model",
-          body: "ADMIN ALERT Gift ticket: " + t.label + " from " + name + "."
+          body: line
         });
       } catch (e) {}
+      celebrate("offer", "Tip sent", amt + " DPS to her pool. Hers is now " + herPool + ".", false, true);
     }
     async function redeemGift() {
       const sl = (room.model_slug || "").toLowerCase();
@@ -2471,10 +2529,23 @@ function openPlay(kind, lane) {
       if (/strong/.test(t)) return 2;
       return 0;
     }
+    function slabMult() {
+      const t = String(modelSlab || "").toLowerCase();
+      if (/queen/.test(t)) return 1.30;
+      if (/crown/.test(t)) return 1.25;
+      if (/desire.?elite|superelite/.test(t)) return 1.20;
+      if (/elite/.test(t)) return 1.15;
+      if (/top/.test(t)) return 1.10;
+      if (/strong/.test(t)) return 1.05;
+      return 1.00;
+    }
+    function slabPay(base) {
+      return Math.round(Number(base) * slabMult());
+    }
     function levelPay(lv) {
       const n = Number(lv) || 0;
-      const base = (n >= 1 && n <= 3) ? 15 : 25;
-      return base + levelPremiumForSlab(modelSlab);
+      const base = (n >= 1 && n <= 3) ? 8 : 13;
+      return slabPay(base);
     }
     function buyCapForStatus() {
       const r = statusRank(dpsStatus);
@@ -2490,34 +2561,64 @@ function openPlay(kind, lane) {
         return (q.data || []).filter((m) => /DESIRE SCOUT BUY STILL/i.test(m.body || "")).length;
       } catch (e) { return 0; }
     }
+    function statusPremiumPct() {
+      if (ownFlag) return 0;
+      const s = String(dpsStatus || "").toLowerCase();
+      if (/platinum|elite|gold/.test(s)) return 30;
+      if (/silver/.test(s)) return 25;
+      if (/bronze/.test(s)) return 10;
+      return 0;
+    }
+    function withStatusPremium(base) {
+      const n = Math.round(Number(base) || 0);
+      if (n <= 0 || ownFlag) return 0;
+      const pct = statusPremiumPct();
+      return Math.round(n * (1 + pct / 100));
+    }
+    async function addRoomEntryToPool() {
+      if (!room || !room.id || ownFlag || isGuestRoom()) return;
+      const key = "poolEntry:" + String(room.id);
+      try { if (sessionStorage.getItem(key)) return; } catch (e) {}
+      let cost = 0;
+      try { cost = Number(sessionStorage.getItem("dds_room_cost") || 0) || 0; } catch (e) {}
+      if (cost <= 0) return;
+      try { await addToHerPool(cost); } catch (e) {}
+      try { sessionStorage.setItem(key, "1"); } catch (e) {}
+    }
     async function openBuy(kind) {
-      if (isDesk || isGuestRoom()) return;
-      if (kind === "speed" && !speedAllowed()) { celebrate("alert", "Speed locked", "Gold and above only.", false, true); return; }
-      const cap = buyCapForStatus();
-      if (kind === "spin" || kind === "still") {
-        const used = kind === "spin" ? await spinsUsed() : await stillsUsed();
-        if (used >= cap) {
-          const next = statusRank(dpsStatus) < 2 ? "Silver" : "Gold";
-          celebrate("alert", "Cap hit", kind === "spin" ? "Spins exceeded. Upgrade to " + next + "." : "Extra stills exceeded. Upgrade to " + next + ".", false, true);
-          return;
+      try {
+        if (isDesk || isGuestRoom()) return;
+        if (kind === "speed" && !speedAllowed()) { celebrate("alert", "Speed locked", "Gold and above only.", false, true); return; }
+        const cap = buyCapForStatus();
+        if (kind === "spin" || kind === "still") {
+          const used = kind === "spin" ? await spinsUsed() : await stillsUsed();
+          if (used >= cap) {
+            const next = statusRank(dpsStatus) < 2 ? "Silver" : "Gold";
+            celebrate("alert", "Cap hit", kind === "spin" ? "Spins exceeded. Upgrade to " + next + "." : "Extra stills exceeded. Upgrade to " + next + ".", false, true);
+            return;
+          }
         }
+        await loadModelSlab();
+        const prem = premiumForSlab(modelSlab);
+        const usedCount = kind === "still" ? await stillsUsed() : await spinsUsed();
+        const base = kind === "speed" ? (150 + prem) : kind === "still" ? (15 + usedCount * 5 + prem) : (10 + usedCount * 5 + prem);
+        const cost = withStatusPremium(base);
+        const note = kind === "spin" ? "One spin. Not a clothes skip." : kind === "still" ? "One still at current clothes. No level skip." : "2x speed from Level 1. One per night.";
+        const old = $("buyPop"); if (old) old.remove();
+        const box = document.createElement("div");
+        box.id = "buyPop";
+        box.style.cssText = "position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);";
+        const her = (room && (room.display_name || room.model_slug)) || "She";
+        const label = kind === "spin" ? "spin" : kind === "still" ? "still" : "speed";
+        box.innerHTML = "<div class='card' style='min-width:16rem;max-width:22rem;padding:1.2rem 1.1rem;border-radius:16px;border:1px solid #7a5a9a;background:#1a1220;color:#f4ecff;'><b>Your DPS: " + dpsPoints + "</b><p>" + her + " charges " + cost + " DPS for this " + label + ".</p>" + (dpsPoints < cost ? "<p>You do not have enough. Buy DPS to continue.</p><button type='button' id='buyGo'>Buy DPS</button>" : "<p>" + note + "</p><button type='button' id='buyGo'>Pay " + her + " " + cost + " DPS</button>") + " <button type='button' id='buyX'>Close</button></div>";
+        document.body.appendChild(box);
+        box.querySelector("#buyX").onclick = () => box.remove();
+        const go = box.querySelector("#buyGo");
+        if (dpsPoints < cost) go.onclick = () => { window.open("https://desireclubhouse.netlify.app/account.html#rank", "_blank"); };
+        else go.onclick = () => confirmBuy(kind, cost, box);
+      } catch (e) {
+        alert("Buy failed: " + (e && e.message ? e.message : e));
       }
-      await loadModelSlab();
-      const prem = premiumForSlab(modelSlab);
-      const used = await spinsUsed();
-      const cost = kind === "speed" ? (150 + prem) : (10 + used * 5 + prem);
-      const label = kind === "spin" ? "Buy Spin" : kind === "still" ? "Extra Still" : "2x Speed";
-      const note = kind === "spin" ? "One spin. Not a clothes skip." : kind === "still" ? "One still at current clothes. No level skip." : "2x speed from Level 1. One per night.";
-      const old = $("buyPop"); if (old) old.remove();
-      const box = document.createElement("div");
-      box.className = "pop on";
-      box.id = "buyPop";
-      box.innerHTML = "<div class='card'><b>Your DPS: " + dpsPoints + "</b><p>This model needs " + cost + " DPS.</p>" + (dpsPoints < cost ? "<p>You do not have enough. Buy DPS to continue.</p><button type='button' id='buyGo'>Buy DPS</button>" : "<p>" + note + "</p><button type='button' id='buyGo'>Pay " + cost + " DPS</button>") + " <button type='button' id='buyX'>Close</button></div>";
-      document.body.appendChild(box);
-      box.querySelector("#buyX").onclick = () => box.remove();
-      const go = box.querySelector("#buyGo");
-      if (dpsPoints < cost) go.onclick = () => { window.open("https://desireclubhouse.netlify.app/account.html#rank", "_blank"); };
-      else go.onclick = () => confirmBuy(kind, cost, box);
     }
     async function confirmBuy(kind, cost, box) {
       const pid = housePlayerId();
@@ -2526,9 +2627,9 @@ function openPlay(kind, lane) {
       if (!confirm("Spend " + cost + " DPS for " + kind + "?")) return;
       const pin = CONFIG.adminPass || "";
       const reason = kind === "spin" ? "room-buy-spin" : kind === "still" ? "room-buy-still" : "room-buy-speed";
-      const { data, error } = await sb.rpc("desk_adjust_dps", { p_name: pid, p_player: pid, p_delta: -cost, p_reason: reason });
+      const { data, error } = await sb.rpc("add_dps", { p_player: pid, p_points: -cost, p_reason: reason, p_model: String((room && room.model_slug) || "").toLowerCase() || null });
       if (!error && !(data && data.ok === false)) {
-        try { await sb.rpc("model_add_earned", { p_slug: String((room && room.model_slug) || slug || "").toLowerCase(), p_amount: cost }); } catch (e) {}
+        try { await addToHerPool(cost); } catch (e) {}
       }
       if (error || (data && data.ok === false)) {
         alert((error && error.message) || (data && data.error) || "Cut failed.");
@@ -2542,7 +2643,7 @@ function openPlay(kind, lane) {
         const hit = bag[playRand(bag.length)] || "TEASE";
         const slot = (await spinsUsed()) + 1;
         const code = "SPIN3-" + hit + "-" + slot + "-" + spinSlutToken() + "-" + spinPlayerToken();
-        await postPlay('The code is "' + code + '". She will evaluate the prize by hand.');
+        await postPlay('Desire Scout\nThe code is "' + code + '". She will evaluate the prize by hand.');
         if (box) box.remove();
         celebrate("offer", "Spin bought", code, false, true);
         return;
@@ -2628,6 +2729,7 @@ function openPlay(kind, lane) {
       idleNresPosted = false;
       if (nresTimer) { clearInterval(nresTimer); nresTimer = null; }
       nresDeadline = 0;
+      try { const ban = $("nresBan"); if (ban) ban.remove(); } catch (e) {}
       if (was && $("pop")) {
         const title = ($("popTitle") && $("popTitle").textContent) || "";
         if (/No response|Waiting on him|90 second/i.test(title)) {
@@ -2883,18 +2985,39 @@ function openPlay(kind, lane) {
         if ($("popKicker")) $("popKicker").textContent = "No response";
         if ($("popTitle")) $("popTitle").textContent = isDesk ? "Waiting on him" : "No response from you";
         }
+      function paintNresBanner(s) {
+        if (isDesk) return;
+        let ban = $("nresBan");
+        if (!ban) {
+          ban = document.createElement("div");
+          ban.id = "nresBan";
+          ban.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:2147482000;background:#5a1020;color:#fff;text-align:center;padding:.55rem .8rem;font-weight:800;letter-spacing:.02em;";
+          document.body.appendChild(ban);
+        }
+        ban.textContent = "No response from you — " + s + "s. Type now or the room ends.";
+      }
+      function clearNresBanner() {
+        const ban = $("nresBan"); if (ban) ban.remove();
+      }
       function tick() {
-        if (cmrIsLocked()) { clearNresWatch(); return; }
-        if (!nresLive) return;
+        if (cmrIsLocked()) { clearNresWatch(); clearNresBanner(); return; }
+        if (!nresLive) { clearNresBanner(); return; }
         const left = nresDeadline - Date.now();
         if (left <= 0) {
           nresLive = false;
           if (nresTimer) { clearInterval(nresTimer); nresTimer = null; }
+          clearNresBanner();
           lastEndReason = "No response from you.";
-          keepEndgameOnly();
+          endKept = true;
+          try { snapshotRecap(); } catch (e) {}
+          try {
+            sb.from("rooms").update({ status: "closing", ends_at: new Date(Date.now() + 5000).toISOString(), decline_note: lastEndReason }).eq("id", room.id);
+          } catch (e) {}
+          setTimeout(() => { try { wipeRoom(true); } catch (e) {} }, 5000);
           return;
         }
         const s = Math.ceil(left / 1000);
+        paintNresBanner(s);
         const box = $("pop");
         if (box) {
           box.className = "alert";
@@ -3101,7 +3224,13 @@ function openPlay(kind, lane) {
       if (room && room.scout_line) applyOwnFlags(room.scout_line);
       paintDpsPill();
       const pid = housePlayerId();
-      if (!pid) return null;
+      if (!pid) {
+        const m = parseScoutMap(room && room.scout_line);
+        if (m.dps) dpsPoints = Number(m.dps) || 0;
+        if (m.st) dpsStatus = m.st;
+        paintDpsPill();
+        return null;
+      }
       try {
         const { data } = await sb.rpc("player_dps_card", { p_id: pid });
         const d = Array.isArray(data) ? data[0] : data;
@@ -3109,6 +3238,17 @@ function openPlay(kind, lane) {
         if (d) {
           if (d.points != null) dpsPoints = Number(d.points) || 0;
           if (d.status) dpsStatus = String(d.status);
+        }
+        if (!dpsPoints && room && room.scout_line) {
+          const m = parseScoutMap(room.scout_line);
+          if (m.dps) dpsPoints = Number(m.dps) || 0;
+          if (!dpsStatus && m.st) dpsStatus = m.st;
+        }
+        if (!dpsPoints && pid) {
+          try {
+            const pr = await sb.from("profiles").select("dps").eq("id", pid).maybeSingle();
+            if (pr.data && pr.data.dps != null) dpsPoints = Number(pr.data.dps) || 0;
+          } catch (e) {}
         }
         paintDpsPill();
         if (dpsPoints >= 10) dpsTenDone = true;
@@ -3192,6 +3332,7 @@ function openPlay(kind, lane) {
       );
     }
     function openHtp() {
+      if (isDesk) return;
       const box = $("htpPop");
       if (!box) return;
       if ($("htpBody")) $("htpBody").innerHTML = htpCopy();
@@ -3202,6 +3343,7 @@ function openPlay(kind, lane) {
       if ($("htpPop")) $("htpPop").classList.add("hidden");
     }
     function maybeHtpFromModel(text) {
+      if (isDesk) return;
       const raw = String(text || "");
       if (/#HTP\b|HOW TO PLAY/i.test(raw)) {
         htpWaitNo = /do you know how to play|know how to play/i.test(raw);
@@ -3209,8 +3351,9 @@ function openPlay(kind, lane) {
       }
     }
     function maybeHtpFromPlayer(text) {
+      if (isDesk) return;
       const raw = String(text || "").toLowerCase();
-      if (/#htp\b|how to play/.test(raw)) { openHtp(); return; }
+      if (/#help\b|#htp\b|how to play/.test(raw)) { openHtp(); return; }
       if (!htpWaitNo) return;
       if (/^(no|nope|nah|not really|i don't|i dont|idk|don't know|dont know)\b/.test(raw.trim()) || /don't know how|dont know how|not sure how/.test(raw)) {
         htpWaitNo = false;
@@ -3220,7 +3363,7 @@ function openPlay(kind, lane) {
 
     function loveLine(text) {
       const t = String(text || "").toLowerCase();
-      const devotion = /\bi love you\b|\blove you\b|\blove u\b|\bin love with you\b|\byou are mine\b|\bi am yours\b|\bmiss you\b|can'?t stop thinking|cannot stop thinking|\bmarry you\b|take you home|\bi need you\b|\bonly you\b|\bworship you\b|\bdevotee\b|rest of my life|\bforever\b/.test(t);
+      const devotion = /\bi love you\b|\blove you\b|\blove u\b|\bi luv you\b|\bluv you\b|\bluv u\b|\bin love with you\b|\byou are mine\b|\bi am yours\b|\bmiss you\b|can'?t stop thinking|cannot stop thinking|\bmarry you\b|take you home|\bi need you\b|\bonly you\b|\bworship you\b|\bdevotee\b|rest of my life|\bforever\b/.test(t);
       if (devotion) return true;
       if (/love this saree|love this blouse|love this look|so hot|sexy|nice ass|love your body/.test(t)) return false;
       return false;
@@ -3295,6 +3438,7 @@ function openPlay(kind, lane) {
         saveHeartSent();
         const total = d && d.hearts != null ? d.hearts : "";
         celebrate("mile", "Heart sent", total !== "" ? ("Her board is at " + total + ".") : "She felt that.", false, false);
+        try { await addToHerPool(50); } catch (e) {}
         try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: "ADMIN ALERT Heart landed on her board. Do not name the button." }); } catch (e) {}
       } catch (e) {
         celebrate("alert", "Not sent", "Try again in a minute.", false, false);
@@ -3315,6 +3459,42 @@ function openPlay(kind, lane) {
         el.textContent = ownUsual ? "Your usual" : "You own her";
       }
     }
+    let herPool = 0;
+    async function loadHerPool() {
+      if (!room || !room.model_slug || !sb) return;
+      const slug = String(room.model_slug || "").toLowerCase();
+      if (slug === "anu" || slug === "meenakshi") { herPool = 0; paintPoolPill(); return; }
+      try {
+        const { data } = await sb.from("model_dps_pool").select("pool").eq("slug", slug).maybeSingle();
+        herPool = data && data.pool != null ? Number(data.pool) : 2000;
+      } catch (e) { herPool = 2000; }
+      paintPoolPill();
+    }
+    async function addToHerPool(amount) {
+      if (!room || !room.model_slug || !sb || amount <= 0) return;
+      const slug = String(room.model_slug || "").toLowerCase();
+      if (slug === "anu" || slug === "meenakshi") return;
+      const next = (Number(herPool) || 0) + amount;
+      let ok = false;
+      try {
+        const { data, error } = await sb.rpc("add_to_model_pool", { p_slug: slug, p_amount: amount });
+        if (!error && data != null) { ok = true; herPool = Number(data) || next; }
+      } catch (e) {}
+      if (!ok) {
+        try {
+          const { error } = await sb.from("model_dps_pool").upsert({ slug: slug, pool: next, updated_at: new Date().toISOString() }, { onConflict: "slug" });
+          if (!error) { ok = true; herPool = next; }
+        } catch (e2) {}
+      }
+      if (!ok) herPool = next;
+      paintPoolPill();
+    }
+    function paintPoolPill() {
+      const el = $("poolPill");
+      if (!el) return;
+      const name = ((room && (room.display_name || room.slut_name || room.model_slug)) || "Her").split(/\s/)[0];
+      el.textContent = name + "'s DPS " + herPool;
+    }
     function paintDpsPill() {
       const el = $("dpsPill");
       if (!el) return;
@@ -3329,6 +3509,7 @@ function openPlay(kind, lane) {
         $("sub").innerHTML = base + " · <b style='color:#ffe566'>DPS " + dpsPoints + " · " + (dpsStatus || "DesireMember") + "</b>";
       }
       try { paintMeFace(); } catch (e) {}
+      try { paintPoolPill(); } catch (e) {}
     }
     function maybeDpsReadPop() {
       if (isDesk || hydrating) return;
@@ -3393,16 +3574,18 @@ function openPlay(kind, lane) {
       return "dpsAwarded:" + String((room && room.id) || slug || "") + ":" + String(key || "");
     }
     async function takeFromModelPool(amount) {
-      if (!room || !room.model_slug || amount <= 0) return amount;
+      if (!room || !room.model_slug || amount <= 0) return 0;
+      if (herPool <= 0) return 0;
       try {
-        const { data } = await sb.from("board").select("dps_pool").eq("slug", room.model_slug).maybeSingle();
-        if (!data || data.dps_pool == null) return amount;
-        const pool = Number(data.dps_pool) || 0;
-        if (pool <= 0) return 0;
-        const take = Math.min(pool, amount);
-        await sb.from("board").update({ dps_pool: pool - take }).eq("slug", room.model_slug);
-        return take;
-      } catch (e) { return amount; }
+        const slug = String(room.model_slug || "").toLowerCase();
+        const { data } = await sb.rpc("take_from_model_pool", { p_slug: slug, p_amount: amount });
+        const took = Number(data) || 0;
+        if (took <= 0) { herPool = 0; paintPoolPill(); return 0; }
+        herPool = Math.max(0, herPool - took);
+        paintPoolPill();
+        try { loadHerPool(); } catch (e) {}
+        return took;
+      } catch (e) { return herPool > 0 ? amount : 0; }
     }
     function awardDpsOnce(key, amount, reason) {
       if (isGuestRoom()) return;
@@ -3414,10 +3597,23 @@ function openPlay(kind, lane) {
         }
       } catch (e) {}
       if (awardedDps[key]) return;
+      if (amount > 0 && herPool <= 0) {
+        if (!isDesk) celebrate("alert", "Model out of DPS", "Cannot add more. The night continues.", false, false);
+        return;
+      }
       awardedDps[key] = true;
       try { sessionStorage.setItem(dpsAwardStoreKey(key), "1"); } catch (e) {}
-      if (amount > 0 && /level/.test(String(reason || ""))) {
-        takeFromModelPool(amount).then((took) => { if (took > 0) addDps(took, reason); });
+      if (amount > 0 && /level|review|soft|mini/.test(String(reason || ""))) {
+        takeFromModelPool(amount).then((took) => {
+          if (took > 0) {
+            addDps(took, reason);
+            if (/level/.test(String(reason || ""))) {
+              const left = Math.max(0, herPool);
+              const line = "DESK ONLY\nHe earned " + took + " from you. Yours is down to " + left + ".\nSay it plain. One line. Do not say pool, DPS, or score.";
+              try { sb.from("messages").insert({ room_id: room.id, sender: "model", body: line }); } catch (e) {}
+            }
+          } else if (!isDesk) celebrate("alert", "Model out of DPS", "Cannot add more. The night continues.", false, false);
+        });
         return;
       }
       addDps(amount, reason);
@@ -3431,12 +3627,12 @@ function openPlay(kind, lane) {
       if (mileLv) lvN = Number(mileLv[1]);
       else if (wonLv) lvN = Number(wonLv[1]);
       if (lvN >= 1) return { def: levelPay(lvN), reason: "level", key: "l" + lvN };
-      if (/SOFT\s*SPOT/i.test(s)) return { def: 8, reason: "soft", key: "soft" };
-      if (/JACKPOT|MINI\s*JACKPOT|\bMINI\b/i.test(s) && !/\b100\+/.test(s) && !/\bSPIN3-/i.test(s)) return { def: 12, reason: "mini", key: "mini" };
+      if (/SOFT\s*SPOT/i.test(s)) return { def: slabPay(8), reason: "soft", key: "soft" };
+      if (/JACKPOT|MINI\s*JACKPOT|\bMINI\b/i.test(s) && !/\b100\+/.test(s) && !/\bSPIN3-/i.test(s)) return { def: slabPay(12), reason: "mini", key: "mini" };
       if (/\bSPIN3-DPS10-/i.test(s)) return { def: -10, reason: "spin-cold", key: "spin-dps10-" + (s.match(/\bSPIN3-DPS10-[A-Z0-9-]+/i) || ["spin-dps10"])[0] };
       if (/\bSPIN3-AFF25-/i.test(s)) return null;
-      if (/OFFERWON/i.test(s) && /spin|SPIN3-/i.test(s) && !/cut ten points|cooled me|twenty-five off/i.test(s)) return { def: 10, reason: "spin", key: "spin" };
-      if (/\bSPIN3-/i.test(s) && /honou?r|prize|evaluate/i.test(s)) return { def: 10, reason: "spin", key: "spin" };
+      if (/OFFERWON/i.test(s) && /spin|SPIN3-/i.test(s) && !/cut ten points|cooled me|twenty-five off/i.test(s)) return { def: slabPay(10), reason: "spin", key: "spin" };
+      if (/\bSPIN3-/i.test(s) && /honou?r|prize|evaluate/i.test(s)) return { def: slabPay(10), reason: "spin", key: "spin" };
       return null;
     }
     function defaultDpsForText(raw) {
@@ -3468,11 +3664,52 @@ function openPlay(kind, lane) {
       if (!ev) return null;
       return { amount: ev.def, reason: ev.reason, key: ev.key };
     }
+    function cleanScoutLine(raw) {
+      let line = String(raw || "");
+      line = line.replace(/\[object Object\]/gi, "");
+      line = line.replace(/owns=([^|]*)/i, function (_, val) {
+        const clean = String(val || "")
+          .replace(/,+/g, ",")
+          .replace(/^,|,$/g, "")
+          .trim();
+        return "owns=" + (clean || "none");
+      });
+      return line;
+    }
     async function bootScoutCard() {
       if (!isDesk || !room) return;
       const log = $("log");
       if (log && /DDS1\|/.test(log.textContent || "")) return;
-      let line = String(room.scout_line || "").trim();
+      let line = cleanScoutLine(String(room.scout_line || "").trim());
+      if (line !== String(room.scout_line || "").trim()) {
+        try { await sb.from("rooms").update({ scout_line: line }).eq("id", room.id); room.scout_line = line; } catch (e) {}
+      }
+      // Own was missing. Re-check owner_prefs and player_owned before the model reads the line.
+      if (line && !/(?:^|\|)own=1(?:\||$)/i.test(line) && room.player_id && room.model_slug) {
+        try {
+          const pid = room.player_id;
+          const slug = String(room.model_slug || "").toLowerCase();
+          let owned = false;
+          const pref = await sb.from("owner_prefs").select("bought,owned_nights,start_usual").eq("player_id", pid).eq("model_slug", slug).maybeSingle();
+          const row = pref && pref.data;
+          if (row && (row.bought === true || Number(row.owned_nights || 0) > 0)) owned = true;
+          if (!owned) {
+            const { data } = await sb.rpc("player_owned", { p_id: pid });
+            const models = (data && data.models) || [];
+            owned = models.some(function (m) {
+              const s = String((m && (m.slug || m.model_slug)) || "").toLowerCase();
+              return s === slug && (m.bought === true || Number(m.owned_nights || m.sessions || 0) > 0);
+            });
+          }
+          if (owned) {
+            if (/(?:^|\|)own=0(?:\||$)/i.test(line)) line = line.replace(/(?:^|\|)own=0(?=\||$)/i, "|own=1");
+            else line = line.replace(/\|p=/, "|own=1|ownn=1|broken=1|usual=0|p=");
+            if (!/ownn=/.test(line)) line = line.replace(/\|own=1/, "|own=1|ownn=1");
+            try { await sb.from("rooms").update({ scout_line: line }).eq("id", room.id); } catch (e) {}
+            room.scout_line = line;
+          }
+        } catch (e) {}
+      }
       if (isGuestRoom() || /^DDS1\|GUEST\|/i.test(line)) {
         if (!line) line = "DDS1|GUEST|m=" + (room.model_slug || "") + "|nick=Guest|age=?|about=|likes=|fav=none|owns=none|dps=0|st=Guest|toff=2|tmax=30|ext=0|bump=0|last=none|n=0|own=0|broken=0|usual=0|p=guest";
         room.scout_line = line;
@@ -3519,7 +3756,7 @@ function openPlay(kind, lane) {
         draw({
           id: "scout-dds1",
           sender: "model",
-          body: "DESIRE SCOUT\n" + line + ready + "\nTRAINER ROOM. Not a model door. No modelready. No level, affinity, strikes, spin, own, or review key. Brace is Call / Door / Drill / Clothes. One covered still if the drill needs it. End pops a trainer rating. Guests do not rate. Wipe thanks him and returns to the house. Do not send a URL. DPS " + dps + " · Status " + st + ". Use DPS and status to know which doors he can open (Member/Bronze limited, Silver+ more, Gold+ owns after nights). To raise DPS: finish nights, leave reviews, send hearts, get owns, request stills. Do not invent numbers."
+          body: "DESIRE SCOUT\n" + line + ready + "\nTRAINER ROOM. Not a model door. No modelready. No level, affinity, strikes, spin, own, or review key. Brace is Call / Door / Drill / Clothes. One covered still if the drill needs it. End pops a trainer rating. Guests do not rate. Wipe thanks him and returns to the house. Do not send a URL. DPS " + dps + " · Status " + st + ". Use DPS and status to know which doors he can open (Member/Bronze limited, Silver+ more, Gold+ owns after nights). To raise DPS: finish nights, win levels, soft spots, jackpots, and honoured spins. Reviews and hearts do not move his DPS. Do not invent numbers."
         });
         const el = log && log.querySelector('[data-mid="scout-dds1"]');
         if (el && log.firstChild !== el) log.insertBefore(el, log.firstChild);
@@ -3527,7 +3764,7 @@ function openPlay(kind, lane) {
       }
       const soonDoors = ["navya","simran","chandana","aleena"];
       const isSoon = soonDoors.indexOf(slug) !== -1;
-      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE. Open base once, then the door page once, then STOP. Do not browse again. Do not re-open. Do not follow links. Only #refresh re-opens base." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
+      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE. Open base once, then the door page once, then STOP. Do not browse again. Do not re-open. Do not follow links. Only #refresh re-opens base. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
       if (slug === "anu") line = line.replace(/\nDPS .+/, "");
       room.scout_line = line;
       draw({ id: "scout-dds1", sender: "model", body: "DESIRE SCOUT\n" + line + ready });
@@ -3584,29 +3821,13 @@ function openPlay(kind, lane) {
       if ($("giftBtn")) {
         $("giftBtn").classList.remove("hidden");
         if (isDesk) {
-          $("giftBtn").textContent = "Gift tickets";
-          bindGift();
+          $("giftBtn").textContent = "Tips";
+          $("giftBtn").onclick = (e) => { e.preventDefault(); e.stopPropagation(); openDeskTips(); };
+        } else if (isGuestRoom()) {
+          $("giftBtn").classList.add("hidden");
         } else {
-          const who = (slut || room.model_slug || "").toLowerCase();
-          var closed = []
-            .concat(window.DDS_CLOSED || [])
-            .concat((window.DDS_CFG && window.DDS_CFG.unavailable) || [])
-            .map(function (s) { return String(s || "").toLowerCase(); });
-          var owns = false;
-          try {
-            var acc = JSON.parse(localStorage.getItem("dds_account") || "null");
-            var raw = (acc && (acc.owns || acc.owned)) || localStorage.getItem("dds_owns") || "";
-            owns = String(raw).toLowerCase().split(/[,|\s]+/).indexOf(who) !== -1;
-          } catch (e) {}
-          if (window.DDS_playerOwns) owns = window.DDS_playerOwns(who);
-          if (owns || closed.indexOf(who) !== -1) {
-            $("giftBtn").classList.add("hidden");
-          } else {
-            $("giftBtn").textContent = "Own her";
-            $("giftBtn").onclick = () => {
-              openHousePop("Own " + (room.display_name || who), "https://desireclubhouse.netlify.app/send_gift.html?slut=" + encodeURIComponent(who));
-            };
-          }
+          $("giftBtn").textContent = "Add tip";
+          $("giftBtn").onclick = (e) => { e.preventDefault(); e.stopPropagation(); openGift(); };
         }
       }
       if ($("buySpinBtn") && !isDesk && !isGuestRoom()) {
@@ -3682,6 +3903,9 @@ function openPlay(kind, lane) {
       startClock();
       await fetchDpsCard();
       try { await loadModelSlab(); } catch (e) {}
+      try { await loadHerPool(); } catch (e) {}
+      try { await addRoomEntryToPool(); } catch (e) {}
+      try { startTipIdeas(); } catch (e) {}
       maybeDpsReadPop();
     }
 
@@ -3729,12 +3953,13 @@ function openPlay(kind, lane) {
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           return;
         }
-        if (isTrainerRoom() && /^TRAINGIFT:THROW/i.test(note)) {
-          openTrainerSpinner();
+        if (/^TRAINGIFT:/i.test(note) && !/^TRAINGIFT:ASK/i.test(note)) {
+          const k = (note.split(":")[1] || "GIFT").toUpperCase();
+          showTrainCard(k, TRAIN_GIFTS[k] || "She threw something.");
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           return;
         }
-        if (isTrainerRoom() && /^TRAINGIFT:ASK/i.test(note)) {
+        if (/^TRAINGIFT:ASK/i.test(note)) {
           openTrainerPuzzle("One question. Answer it.");
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           return;
@@ -3816,10 +4041,11 @@ function openPlay(kind, lane) {
       if (data && typeof data.time_extends === "number") room.time_extends = data.time_extends;
       if (data && data.hide_portrait === true) applyHidePortrait();
       paintClock();
-      if (!isDesk && data && isTrainerRoom()) {
+      if (!isDesk && data) {
         const note = String(data.decline_note || "");
-        if (/^TRAINGIFT:THROW/i.test(note)) {
-          openTrainerSpinner();
+        if (/^TRAINGIFT:/i.test(note) && !/^TRAINGIFT:ASK/i.test(note)) {
+          const k = (note.split(":")[1] || "GIFT").toUpperCase();
+          showTrainCard(k, TRAIN_GIFTS[k] || "She threw something.");
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
         } else if (/^TRAINGIFT:ASK/i.test(note)) {
           openTrainerPuzzle("One question. Answer it.");
@@ -4247,7 +4473,7 @@ function openPlay(kind, lane) {
         return { who: "Admin", scout: false, admin: true };
       }
       if (/^Desire Scout\b/i.test(lead)) {
-        return { who: "Admin", scout: false, admin: true };
+        return { who: "Desire Scout", scout: true, admin: false };
       }
       const model = (room && room.display_name) || "";
       return { who: model || "Model", scout: false };
@@ -4493,48 +4719,40 @@ function openPlay(kind, lane) {
       try { sessionStorage.setItem("trainerGift:" + ((room && room.id) || ""), String(n)); } catch (e) {}
       return n;
     }
-    function openTrainerSpinner() {
-      if (isDesk) return;
-      if (trainerGiftCount() >= 2) return;
-      trainerGiftUsed();
+    function pickTrainGift() {
       const keys = Object.keys(TRAIN_GIFTS);
       const key = keys[Math.floor(Math.random() * keys.length)];
-      const prize = TRAIN_GIFTS[key] || "We keep going.";
-      try { if ($("pop")) $("pop").classList.add("hidden"); } catch (e) {}
+      return { key: key, prize: TRAIN_GIFTS[key] || "We keep going." };
+    }
+    function showTrainCard(key, prize) {
+      if (isDesk) return;
       const old = document.getElementById("trainSpin");
       if (old) old.remove();
       const wrap = document.createElement("div");
       wrap.id = "trainSpin";
-      wrap.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(6,4,10,.78);display:grid;place-items:center;padding:1rem;";
+      wrap.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.82);display:grid;place-items:center;padding:1rem;";
       wrap.innerHTML =
-        "<div style='background:#1b1028;color:#f6eefe;border:1px solid #c9a6ff;border-radius:16px;padding:1.1rem;max-width:360px;text-align:center'>" +
-        "<b style='font-size:1.15rem'>She threw something</b>" +
-        "<div id='trainWheel' style='width:150px;height:150px;border-radius:50%;border:7px solid #d4af37;margin:.8rem auto;background:conic-gradient(#7c3aed 0 45deg,#c9a6ff 45deg 90deg,#7c3aed 90deg 135deg,#c9a6ff 135deg 180deg,#7c3aed 180deg 225deg,#c9a6ff 225deg 270deg,#7c3aed 270deg 315deg,#c9a6ff 315deg 360deg);transition:transform 2.4s cubic-bezier(.2,.8,.2,1)'></div>" +
-        "<p id='trainLand' style='min-height:2.6rem;margin:.5rem 0;font-size:1rem'></p>" +
-        "<button type='button' id='trainSpinGo' style='background:#d4af37;color:#1b1028;border:0;border-radius:999px;padding:.5rem 1.2rem;font-weight:700;font-size:1rem'>Spin the wheel</button>" +
+        "<div style='background:#1b1028;color:#f6eefe;border:2px solid #d4af37;border-radius:16px;padding:1.2rem 1.1rem;max-width:380px;text-align:center;box-shadow:0 0 40px rgba(212,175,55,.35)'>" +
+        "<b style='font-size:1.2rem;color:#ffe566'>She threw something</b>" +
+        "<p style='margin:.7rem 0 .35rem;font-size:1.05rem;color:#fff6e8'><b>You won: " + key + "</b></p>" +
+        "<p style='margin:0 0 .9rem;font-size:1rem;line-height:1.4'>" + prize + "</p>" +
+        "<button type='button' id='trainSpinGo' style='background:#d4af37;color:#1b1028;border:0;border-radius:999px;padding:.55rem 1.4rem;font-weight:800;font-size:1rem'>I see it</button>" +
         "</div>";
       document.body.appendChild(wrap);
-      const wheel = wrap.querySelector("#trainWheel");
-      const land = wrap.querySelector("#trainLand");
       const go = wrap.querySelector("#trainSpinGo");
-      go.onclick = () => {
-        go.disabled = true;
-        go.textContent = "Spinning…";
-        const turns = 1260 + Math.floor(Math.random() * 360);
-        wheel.style.transform = "rotate(" + turns + "deg)";
-        setTimeout(() => {
-          land.innerHTML = "<b>You won: " + key + "</b><br>" + prize;
-          go.textContent = "Close";
-          go.disabled = false;
-          go.onclick = () => wrap.remove();
-          try { sb.from("messages").insert({ room_id: room.id, sender: "model", body: "You won: " + prize }); } catch (e) {}
-          try { postPlay("DESK ONLY TRAIN " + key); } catch (e) {}
-        }, 2400);
-      };
+      go.onclick = () => wrap.remove();
+    }
+    function openTrainerSpinner(forced) {
+      if (isDesk) return;
+      if (document.getElementById("trainSpin")) return;
+      if (!forced && trainerGiftCount() >= 4) return;
+      if (!forced) trainerGiftUsed();
+      const gift = forced || pickTrainGift();
+      showTrainCard(gift.key, gift.prize);
     }
     function openTrainerPuzzle(q) {
-      if (!isTrainerRoom() || isDesk) return;
-      if (trainerGiftCount() >= 2) return;
+      if (isDesk) return;
+      if (document.getElementById("trainPop")) return;
       trainerGiftUsed();
       const ask = String(q || "One question. Answer it.").slice(0, 180);
       const wrap = document.createElement("div");
@@ -4548,16 +4766,23 @@ function openPlay(kind, lane) {
         if (ans) try { postPlay("DESK ONLY ANSWER " + ans.slice(0, 240)); } catch (e) {}
       };
     }
-    function maybeTrainerGift(body) {
+    const trainerGiftSeen = new Set();
+    function maybeTrainerGift(body, mid) {
       if (isDesk) return;
       const line = String(body || "");
-      if (/throwing something|throw something|play it|whatever it lands|train throw/i.test(line)) {
-        if (!isTrainerRoom()) return;
-        openTrainerSpinner();
+      const key = String(mid || line.slice(0, 80));
+      if (/threw something|throwing something|throw something|\bplay it\b|whatever it lands|train throw|you won:/i.test(line)) {
+        if (trainerGiftSeen.has("throw:" + key)) return;
+        trainerGiftSeen.add("throw:" + key);
+        const m = line.match(/you won:\s*([A-Z0-9]+)/i);
+        const k = m && m[1] ? m[1].toUpperCase() : "";
+        const prize = (k && TRAIN_GIFTS[k]) || "She threw something. Read the line.";
+        showTrainCard(k || "GIFT", prize);
         return;
       }
       if (/one question|ask a question|answer it|train ask/i.test(line)) {
-        if (!isTrainerRoom()) return;
+        if (trainerGiftSeen.has("ask:" + key)) return;
+        trainerGiftSeen.add("ask:" + key);
         openTrainerPuzzle(line);
       }
     }
@@ -4568,8 +4793,11 @@ function openPlay(kind, lane) {
       const a = document.createElement("button");
       a.type = "button"; a.id = "trainThrow"; a.className = "ghost"; a.textContent = "Throw something";
       a.onclick = async () => {
-        try { await sb.from("rooms").update({ decline_note: "TRAINGIFT:THROW" }).eq("id", room.id); } catch (e) {}
-        try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: "I am throwing something for you. Play it." }); } catch (e) {}
+        const gift = pickTrainGift();
+        const line = "She threw something. You won: " + gift.key + ". " + gift.prize;
+        try { await sb.from("rooms").update({ decline_note: "TRAINGIFT:" + gift.key }).eq("id", room.id); } catch (e) {}
+        try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: line }); } catch (e) {}
+        try { postPlay("DESK ONLY TRAIN " + gift.key); } catch (e) {}
       };
       const b = document.createElement("button");
       b.type = "button"; b.id = "trainAsk"; b.className = "ghost"; b.textContent = "Ask a question";
@@ -4723,6 +4951,9 @@ function openPlay(kind, lane) {
     }
 
     function draw(m) {
+      if (m && m.body && /\[object Object\]/i.test(m.body)) {
+        m.body = cleanScoutLine(m.body);
+      }
       try { drawUnsafe(m); } catch (err) {
         try {
           const log = $("log");
@@ -4754,7 +4985,10 @@ function openPlay(kind, lane) {
         if (drawnIds.has(m.id)) return;
         drawnIds.add(m.id);
       }
-      if (m && m.sender === "model") extractCallName(m.body || "");
+      if (m && m.sender === "model") {
+        extractCallName(m.body || "");
+        try { maybeAutoUpload(m.body || ""); } catch (e) {}
+      }
       const rawHideTok = String(m.body || "");
       if (/WAITNODE/i.test(rawHideTok)) noteWaitNode(rawHideTok);
       if (!isDesk && isAdminControlLine(rawHideTok)) {
@@ -4823,6 +5057,9 @@ function openPlay(kind, lane) {
         try { askPlayerSpin(); } catch (e) {}
         return;
       }
+      if (!isDesk && m && m.sender === "model" && m.body) {
+        try { maybeTrainerGift(m.body, m.id); } catch (e) {}
+      }
       if (!isDesk && /opened the link|on the disclaimer|Player in the room|getting ready for you|DDS1\||MODELREADY|mready-4k9p|DESIRE SCOUT/i.test(String(m.body || ""))) return;
       if (m && m.sender === "player") { notePlayerAct(msgTime(m)); if (!hydrating) clearNresWatch(); }
       if (m && m.sender === "model") {
@@ -4869,14 +5106,8 @@ function openPlay(kind, lane) {
       if (m.sender === "player" && m.body) { maybeHeartOffer(m.body); maybeHtpFromPlayer(m.body); if (/^\s*#(END|DONE)\b/i.test(m.body)) openTrainerReview(); }
       if (m.sender === "model" && m.body) {
         maybeHtpFromModel(m.body);
-        maybeTrainerGift(m.body);
+        maybeTrainerGift(m.body, m.id);
         if (!isDesk && isTrainerRoom() && /OPEN TRAINER REVIEW/i.test(m.body)) openTrainerReview();
-        if (!isDesk && /throwing something for you|play it/i.test(String(m.body))) {
-          try { openTrainerSpinner(); } catch (e) {}
-        }
-        if (!isDesk && /One question\. Answer it/i.test(String(m.body))) {
-          try { openTrainerPuzzle(String(m.body)); } catch (e) {}
-        }
       }
       if (split.metrics.length) setRibbon(split.metrics);
       let body = split.text;
@@ -4917,7 +5148,8 @@ function openPlay(kind, lane) {
       } else {
         who = isDesk ? gateName() : "You";
       }
-      const beats = (isModel && body && !adminVoice) ? splitNpcBeats(body) : [{ kind: adminVoice ? "admin" : (scout ? "scout" : (isModel ? "model" : "player")), who: adminVoice ? "Admin" : who, text: body || "" }];
+      const isDds = /DDS1\||MODELREADY|mready-4k9p/i.test(String(m.body || ""));
+      const beats = (isModel && body && !adminVoice && !isDds && !scout) ? splitNpcBeats(body) : [{ kind: adminVoice ? "admin" : (scout || isDds ? "scout" : (isModel ? "model" : "player")), who: adminVoice ? "Admin" : (isDds || scout ? "Desire Scout" : who), text: isDds ? String(m.body || "") : (body || "") }];
       const modelWho = who;
       beats.forEach((beat, bi) => {
       const el = document.createElement("div");
@@ -4926,7 +5158,7 @@ function openPlay(kind, lane) {
       const adminBeat = beat.kind === "admin" || adminVoice;
       el.className = "bubble " + (adminBeat ? "admin" : (scoutBeat ? "scout" : (npc ? "npc" : (isModel ? "model" : "player"))));
       if (m.id) el.setAttribute("data-mid", String(m.id) + (bi ? ("-n" + bi) : ""));
-      who = adminBeat ? "Admin" : (scoutBeat ? "Scout" : (npc ? beat.who : (isModel ? (callName || modelWho) : who)));
+      who = adminBeat ? "Admin" : (scoutBeat ? "Desire Scout" : (npc ? beat.who : (isModel ? (callName || modelWho) : who)));
       body = beat.text;
       const head = document.createElement("div");
       head.className = "who" + (adminBeat ? " admin" : (scoutBeat ? " scout" : (npc ? " npc" : "")));
@@ -4942,7 +5174,7 @@ function openPlay(kind, lane) {
         btn.addEventListener("click", (ev) => {
           ev.preventDefault();
           ev.stopPropagation();
-          copyText(body || m.body || "", btn);
+          copyText(isDds ? (m.body || body || "") : (body || m.body || ""), btn);
         });
         head.appendChild(btn);
       }
@@ -5185,6 +5417,15 @@ function openPlay(kind, lane) {
             if (!isDesk && !endKept && endgameReview) keepEndgameOnly();
             paintClock();
             return;
+          }
+          if (!isDesk && payload.new && /^TRAINGIFT:/i.test(String(payload.new.decline_note || "")) && !/^TRAINGIFT:ASK/i.test(String(payload.new.decline_note || ""))) {
+            const k = (String(payload.new.decline_note).split(":")[1] || "GIFT").toUpperCase();
+            try { showTrainCard(k, TRAIN_GIFTS[k] || "She threw something."); } catch (e) {}
+            try { sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
+          }
+          if (!isDesk && payload.new && /^TRAINGIFT:ASK/i.test(String(payload.new.decline_note || ""))) {
+            try { openTrainerPuzzle("One question. Answer it."); } catch (e) {}
+            try { sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           }
           if (payload.new && /^REVOPEN:/i.test(String(payload.new.decline_note || ""))) {
             const tok = String(payload.new.decline_note).match(/REVOPEN:\d+/i);
@@ -5678,6 +5919,13 @@ function openPlay(kind, lane) {
       if (btn && isDesk) {
         btn.classList.remove("hidden");
         btn.textContent = playerUploadOn ? "Lock his images" : "Allow his images";
+      }
+    }
+    function maybeAutoUpload(body) {
+      if (isDesk || playerUploadOn) return;
+      const s = String(body || "").toLowerCase();
+      if (/upload\s+the\s+picture|upload\s+a\s+picture|upload\s+the\s+photo|match\s+it\s+if\s+this\s+level|colour\s+and\s+cut|color\s+and\s+cut/.test(s)) {
+        setPlayerUpload(true);
       }
     }
     async function setPlayerUpload(on) {
@@ -6346,7 +6594,10 @@ function openPlay(kind, lane) {
       room.ends_at = ends;
       try { await sb.from("rooms").update({ ends_at: ends }).eq("id", room.id); } catch (e) {}
       paintClock();
+      const her = ((room && (room.display_name || room.slut_name || room.model_slug)) || "She").split(/\s/)[0];
       try { await postPlay("ALERT: GRACE +5"); } catch (e) {}
+      try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: her + " added you 5 minutes." }); } catch (e) {}
+      celebrate("offer", "Time added", her + " added you 5 minutes.", false, true);
       return true;
     }
     async function addFifteen(force) {
@@ -6359,6 +6610,9 @@ function openPlay(kind, lane) {
       room.ends_at = ends;
       try { await sb.from("rooms").update({ time_extends: next, ends_at: ends }).eq("id", room.id); } catch (e) {}
       paintClock();
+      const her = ((room && (room.display_name || room.slut_name || room.model_slug)) || "She").split(/\s/)[0];
+      try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: her + " added you 15 minutes." }); } catch (e) {}
+      celebrate("offer", "Time added", her + " added you 15 minutes.", false, true);
       return true;
     }
     $("anuBtn").onclick = () => sendToAnu();

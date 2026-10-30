@@ -410,10 +410,15 @@
         if (!favs && card && card.fav) favs = Array.isArray(card.fav) ? card.fav.join(",") : String(card.fav);
         var owns = "";
         var ownHit = null;
+        function modelSlug(m) {
+          if (!m) return "";
+          if (typeof m === "string") return m.toLowerCase();
+          return String(m.slug || m.model_slug || m.model || m.slut || "").toLowerCase();
+        }
         if (ownedCard && ownedCard.models && ownedCard.models.length) {
-          owns = ownedCard.models.map(function (m) { return m.slug || m; }).filter(Boolean).join(",");
+          owns = ownedCard.models.map(modelSlug).filter(Boolean).join(",");
           ownedCard.models.forEach(function (m) {
-            if (String(m.slug || "").toLowerCase() === slug) ownHit = m;
+            if (modelSlug(m) === slug) ownHit = m;
           });
         } else if (card && card.owns) {
           owns = Array.isArray(card.owns) ? card.owns.join(",") : String(card.owns);
@@ -436,14 +441,15 @@
         var need = gold ? 3 : (silver ? 5 : 99);
         var ownsThis = nights >= need;
         if (card && card.owned === true) ownsThis = true;
-        if (card && card.owned === false && nights < need) ownsThis = false;
-        if (ownHit && Number(ownHit.sessions || 0) >= need) ownsThis = true;
+        if (ownHit && Number(ownHit.sessions || ownHit.owned_nights || 0) >= need) ownsThis = true;
         // Bought ownership counts even with no nights.
-        if (ownHit && (ownHit.bought === true || ownHit.owned === true || ownHit.bought === "true")) ownsThis = true;
+        if (ownHit && (ownHit.bought === true || ownHit.owned === true || ownHit.bought === "true" || Number(ownHit.owned_nights || 0) > 0)) ownsThis = true;
         if (!ownsThis && owns) {
           var ownList = String(owns).toLowerCase().split(/[,|\s]+/).filter(Boolean);
           if (ownList.indexOf(slug) !== -1) ownsThis = true;
         }
+        // A direct owner_prefs hit from the room create overrides everything.
+        if (ownedCard && ownedCard.boughtRow) ownsThis = true;
         var usual = !!(card && card.start_usual) || !!(ownHit && ownHit.usual);
         var broken = ownsThis && !usual;
         var ownn = 0;
@@ -587,10 +593,12 @@
                 }).then(function (r) { return r.json(); }).then(function (v) { return v === true || v === "true"; }).catch(function () { return false; })
               : Promise.resolve(false);
             var boughtP = (!guest && pid)
-              ? fetch(base() + "/rest/v1/owner_prefs?player_id=eq." + encodeURIComponent(pid) + "&model_slug=eq." + encodeURIComponent(slug) + "&bought=eq.true&select=bought,owned_nights,start_usual", {
-                  headers: headers(true)
-                }).then(function (r) { return r.json(); }).then(function (rows) {
-                  return Array.isArray(rows) && rows.length && rows[0].bought === true;
+              ? fetch(base() + "/rest/v1/owner_prefs?player_id=eq." + encodeURIComponent(pid) + "&model_slug=eq." + encodeURIComponent(slug) + "&select=bought,owned_nights,start_usual", {
+                  headers: headers(false)
+                }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+                  var row = Array.isArray(rows) ? rows[0] : null;
+                  if (!row) return false;
+                  return row.bought === true || row.bought === "true" || Number(row.owned_nights || 0) > 0;
                 }).catch(function () { return false; })
               : Promise.resolve(false);
             return Promise.all([cardP, dpsP, ownP, fanP, boughtP]).then(function (pair) {
@@ -604,8 +612,9 @@
                 card.owned = true;
                 if (!ownedCard) ownedCard = { models: [] };
                 if (!ownedCard.models) ownedCard.models = [];
-                var has = ownedCard.models.some(function (m) { return String(m.slug || "").toLowerCase() === slug; });
-                if (!has) ownedCard.models.push({ slug: slug, bought: true, owned: true });
+                ownedCard.boughtRow = true;
+                var has = ownedCard.models.some(function (m) { return String(m.slug || m.model_slug || "").toLowerCase() === slug; });
+                if (!has) ownedCard.models.push({ slug: slug, bought: true, owned: true, owned_nights: 1 });
               }
               var line = guest ? guestLine() : scoutLine(card, pid, dps, ownedCard, isFan);
               function quiet(p) { return Promise.resolve(p).catch(function () { return null; }); }
