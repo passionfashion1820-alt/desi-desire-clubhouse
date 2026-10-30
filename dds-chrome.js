@@ -1017,11 +1017,17 @@ function canAccess(slug) {
                   (level === "silver") ? her + " is open for Silver and above only." :
                   (level === "elite") ? her + " is open for Elite and above only." :
                   her + " needs more Desire points.";
+      var priceHead = gap > 0
+        ? ('<div style="margin:0 0 .2rem">' +
+            '<span style="color:#fde68a;font-size:1.55rem;font-weight:800">' + gap + '</span>' +
+            '<span style="color:#e9d5ff;font-size:.95rem;margin-left:.3rem">DPS</span>' +
+          '</div>' +
+          '<p style="margin:0 0 .45rem;font-size:.85rem;color:#b9a892">more to get there</p>')
+        : '';
       box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
-        '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your status: <b>' + st + '</b></p>' +
-        '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
-        '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + (needLine || title) + '</p>' +
-        (gap > 0 ? '<p style="margin:0 0 .6rem;font-size:.95rem;color:#e8c4a8">You need <b>' + gap + '</b> more Desire points.</p>' : '') +
+        priceHead +
+        '<p style="margin:0 0 .25rem;font-size:.95rem;color:#f3e9d7">' + (needLine || title) + '</p>' +
+        '<p style="margin:0 0 .45rem;font-size:.88rem;color:#b9a892">Your status: <b style="color:#e9d5ff">' + st + '</b> · You have <b style="color:#e9d5ff">' + myPts + '</b> DPS.</p>' +
         ways +
         '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
           '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
@@ -1156,7 +1162,11 @@ function canAccess(slug) {
                 '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.28rem .6rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase;font-size:.72rem">🔥 On Sale Today · ' + salePct + '% OFF</span>' +
               '</div>' +
               '<p style="margin:0 0 .35rem;font-size:.78rem;color:#b9a892">Full price ' + rawBeforeSale + '. Sale price <b style="color:#fde68a">' + cost + '</b>.</p>')
-            : ('<p style="margin:0 0 .35rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS for the night.</p>' +
+            : ('<div style="margin:0 0 .25rem">' +
+                '<span style="color:#fde68a;font-size:1.55rem;font-weight:800">' + cost + '</span>' +
+                '<span style="color:#e9d5ff;font-size:.95rem;margin-left:.3rem">DPS</span>' +
+              '</div>' +
+              '<p style="margin:0 0 .35rem;font-size:.88rem;color:#b9a892">' + name + ' charges this for the night.</p>' +
                (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : ''))) +
           '<p style="margin:0 0 .55rem;font-size:.82rem;color:#b9a892;line-height:1.35">If you win levels you can earn up to <b>' + fullPay + '</b> DPS from ' + name + '. She gives it if she likes you.</p>' +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Proceed?</p>' +
@@ -1324,11 +1334,18 @@ function canAccess(slug) {
         title = her + " is open for " + need + " only.";
         needLine = title;
       }
+      var gap2 = (floor > pts) ? (floor - pts) : 0;
+      var priceHead2 = gap2 > 0
+        ? ('<div style="margin:0 0 .2rem">' +
+            '<span style="color:#fde68a;font-size:1.55rem;font-weight:800">' + gap2 + '</span>' +
+            '<span style="color:#e9d5ff;font-size:.95rem;margin-left:.3rem">DPS</span>' +
+          '</div>' +
+          '<p style="margin:0 0 .45rem;font-size:.85rem;color:#b9a892">more to get there</p>')
+        : '';
       box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
-        '<p style="margin:0 0 .35rem;font-size:1.02rem;color:#e9d5ff">Your status: <b>' + (st || "") + '</b></p>' +
-        '<p style="margin:0 0 .35rem;font-size:1.02rem;color:#e9d5ff">Your DPS: <b>' + pts + '</b></p>' +
-        '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + title + '</p>' +
-        (floor > pts ? '<p style="margin:0 0 .5rem;font-size:.95rem;color:#e8c4a8">You need <b>' + (floor - pts) + '</b> more Desire points.</p>' : '') +
+        priceHead2 +
+        '<p style="margin:0 0 .25rem;font-size:.95rem;color:#f3e9d7">' + title + '</p>' +
+        '<p style="margin:0 0 .45rem;font-size:.88rem;color:#b9a892">Your status: <b style="color:#e9d5ff">' + (st || "") + '</b> · You have <b style="color:#e9d5ff">' + pts + '</b> DPS.</p>' +
         '<p style="margin:0 0 .4rem;font-size:.86rem;color:#b9a892">Ways to get there:<br>· Play the models you can open and finish nights.<br>· Win levels — she pays from her pool if she likes you.<br>· Own a woman — buy her. No nights path.<br>· Or buy DPS if you want the points now.</p>' +
         '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">' +
           '<a href="index.html#tips" style="flex:1;min-width:120px;text-align:center;background:#6b3fa0;color:#fff;padding:.5rem .8rem;border-radius:8px;text-decoration:none">How to earn DPS</a>' +
