@@ -218,6 +218,7 @@
     #clockPill.warn { color:#1a1408; background:#ffd36a; border-color:#ffd36a; }
     #clockPill.hot { color:#fff; background:#c45c5c; border-color:#c45c5c; }
     #clientHint { margin:.15rem 0 0; color:#e8c98a; font-size:.78rem; line-height:1.35; }
+    #rolePill { margin-left:.25rem; font-size:.72rem; font-weight:700; letter-spacing:.02em; padding:.24rem .55rem; border-radius:999px; border:1px solid #c4a24a; color:#1a1408; background:#f3d27a; white-space:nowrap; }
     #livePill.on { color:#0b1a10; background:#7dff9a; border-color:#7dff9a; }
     #livePill.idle { color:#1a1408; background:#ffd36a; border-color:#ffd36a; }
     #livePill.off { color:#fff; background:#c45c5c; border-color:#c45c5c; }
@@ -618,6 +619,7 @@
         <button type="button" id="meFace" title="Your account"><img id="meImg" alt="" /></button>
         <b id="meName">You</b>
       </div>
+      <div id="rolePill" class="hidden">Role</div>
       <div id="meMenu" class="hidden">
         <div class="st" id="meStatus">DesireMember</div>
         <a id="meAccount" href="https://desireclubhouse.netlify.app/account.html" target="_blank" rel="noopener">Account page</a>
@@ -3191,15 +3193,33 @@ function openPlay(kind, lane) {
       return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23241612'/%3E%3Ccircle cx='100' cy='78' r='30' fill='%23e6d3b0'/%3E%3Cpath d='M46 176c6-36 26-52 54-52s48 16 54 52' fill='%23e6d3b0'/%3E%3C/svg%3E";
     }
     let meFaceLoaded = false;
+    function roomRoleLabel() {
+      if (isTrainerRoom()) return "";
+      const blob = String((room && room.scout_line) || "") + "|" + String((room && room.admin_note) || "");
+      const m = blob.match(/(?:^|\|)role=([^|\n]+)/i);
+      if (!m) return "";
+      const raw = m[1].trim();
+      if (!raw || /^trainer$/i.test(raw)) return "";
+      return raw.charAt(0).toUpperCase() + raw.slice(1);
+    }
+    function paintRole() {
+      const el = $("rolePill");
+      if (!el) return;
+      const role = roomRoleLabel();
+      if (!role) { el.classList.add("hidden"); return; }
+      el.textContent = "Role: " + role;
+      el.classList.remove("hidden");
+    }
     function paintMeFace() {
       const chip = $("meChip");
       if (!chip) return;
-      if (isDesk) { chip.classList.add("hidden"); if ($("meMenu")) $("meMenu").classList.add("hidden"); return; }
+      if (isDesk) { chip.classList.add("hidden"); if ($("meMenu")) $("meMenu").classList.add("hidden"); paintRole(); return; }
       chip.classList.remove("hidden");
       const name = String(gateName() || (room && room.player_name) || "You").split(/[·,]/)[0].trim() || "You";
       if ($("meName")) $("meName").textContent = name;
       if ($("meStatus")) $("meStatus").textContent = (dpsStatus || "DesireMember") + " · DPS " + (dpsPoints || 0);
       if ($("meImg") && !$("meImg").src) $("meImg").src = meFallbackFace();
+      paintRole();
     }
     async function loadMeFace() {
       if (isDesk || meFaceLoaded) { paintMeFace(); return; }
@@ -3828,16 +3848,21 @@ function openPlay(kind, lane) {
       }
       var roleNote = "";
       try {
-        var note = String((room && room.admin_note) || "");
+        var note = String((room && room.admin_note) || "") + "|" + String((room && room.scout_line) || "");
         var rm = note.match(/role=([^|]+)/i);
         if (rm) roleNote = rm[1].trim();
       } catch (e) {}
-      if (roleNote && !/(?:^|\|)role=/.test(line)) {
+      if (roleNote && !/^trainer$/i.test(roleNote) && !/(?:^|\|)role=/.test(line)) {
         line = line.replace(/\|p=/, "|role=" + roleNote + "|p=");
+        if (!/(?:^|\|)role=/.test(line)) line = line + "|role=" + roleNote;
       }
+      try { paintRole(); } catch (e) {}
       const soonDoors = ["navya","simran","chandana","aleena"];
       const isSoon = soonDoors.indexOf(slug) !== -1;
-      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE ONLY. Read base once, then the door page once, then STOP BROWSING. Do not open any page again. Do not follow links. Do not call the browse tool again. Do not loop. Only #refresh re-opens base once. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
+      var roleMatch = line.match(/(?:^|\|)role=([^|\n]+)/i);
+      var roleId = roleMatch ? roleMatch[1].toLowerCase() : "";
+      var rolePage = (roleId && roleId !== "herself") ? (slug + "_" + roleId + ".html") : (slug + ".html");
+      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + rolePage + "\nLOOK UP ONCE ONLY. Read base once, then the role page once, then STOP BROWSING. Do not open any page again. Do not follow links. Do not call the browse tool again. Do not loop. Only #refresh re-opens base once. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough. ROLE PAGE: if role= is set and not herself, this page overrides open, costume, MIF, and path. Do not ask call name or costume unless role is herself or custom. Start already in the role and in the house-owned costume." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
       if (slug === "anu") line = line.replace(/\nDPS .+/, "");
       room.scout_line = line;
       draw({ id: "scout-dds1", sender: "model", body: "DESIRE SCOUT\n" + line + ready });
@@ -3869,6 +3894,7 @@ function openPlay(kind, lane) {
     }
     async function openChatUi() {
       $("app").classList.remove("hidden");
+      try { paintRole(); } catch (e) {}
       document.title = room.display_name;
       const slut = (room.model_slug || (card && card.slug) || "").toLowerCase();
       const cardUrl = slut
