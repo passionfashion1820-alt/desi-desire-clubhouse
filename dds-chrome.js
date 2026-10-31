@@ -1157,13 +1157,15 @@ function canAccess(slug) {
             { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
           ];
       var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
-      var hasDoorRoles = Object.keys(doorRoles).length > 0;
-      console.log("doorRoles for", slug, doorRoles, "has", hasDoorRoles);
-      if (hasDoorRoles) {
-        ROLES = ROLES.filter(function (r) {
-          var dr = doorRoles[r.id];
-          return dr && dr.on === true;
-        });
+      console.log("doorRoles for", slug, doorRoles);
+      // Only show roles the admin has explicitly turned on for this door.
+      ROLES = ROLES.filter(function (r) {
+        var dr = doorRoles[r.id];
+        return dr && dr.on === true;
+      });
+      // Herself is always free and always available if nothing else is on.
+      if (!ROLES.length) {
+        ROLES = [{ id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock.", need: "" }];
       }
       var rankOk = function (need) {
         if (!need) return true;
