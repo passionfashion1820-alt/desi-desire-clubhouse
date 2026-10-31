@@ -1093,8 +1093,6 @@ function canAccess(slug) {
       var doorPrice = (window.DDS_CFG && window.DDS_CFG.doorPrice && Number(window.DDS_CFG.doorPrice[slug])) || 0;
       var raw = doorPrice > 0 ? doorPrice : (base + prem);
       var salePct = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
-      var rawBeforeSale = raw;
-      if (salePct > 0) raw = Math.max(0, Math.round(raw * (100 - salePct) / 100));
       var owned = (typeof playerOwns === "function") && playerOwns(slug);
       var st = (typeof playerStatus === "function") ? playerStatus() : "";
       var pct = 0;
@@ -1106,6 +1104,7 @@ function canAccess(slug) {
         else if (st === "silver") pct = 25;
         else if (st === "gold" || st === "elite" || st === "platinum") pct = 30;
       }
+      // Full price first: door + status + nights + busy. Sale applies last.
       var cost = owned ? 0 : Math.max(0, Math.round(raw * (100 + pct) / 100));
       var sltStep = Number((window.DDS_CFG && window.DDS_CFG.sltStep) || 10) || 10;
       var sltLevels = 0;
@@ -1129,9 +1128,15 @@ function canAccess(slug) {
         else mult = 2;
         cost = Math.round(cost * mult);
       }
+      var fullBeforeSale = cost;
+      if (salePct > 0 && !owned) {
+        cost = Math.max(0, Math.round(fullBeforeSale * (100 - salePct) / 100));
+      }
+      var rawBeforeSale = fullBeforeSale;
       var name = slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : "She";
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
+      else if (isBusy && salePct > 0) disc = "She is busy (" + mult + "×). Sale takes " + salePct + "% off the busy price.";
       else if (isBusy) disc = "She is busy, so she charges " + mult + "×.";
       else if (salePct > 0) disc = '<span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:800;letter-spacing:.04em;padding:.25rem .55rem;border-radius:8px;box-shadow:0 0 12px rgba(239,68,68,.55);text-transform:uppercase">🔥 On Sale Today · ' + salePct + '% OFF</span> <span style="color:#fca5a5;text-decoration:line-through;margin-left:.35rem">' + rawBeforeSale + '</span>' + (pct > 0 ? (' <span style="color:#e8c45a">' + st.charAt(0).toUpperCase() + st.slice(1) + ' +' + pct + '%.</span>') : '');
       else if (doorPrice > 0) disc = "Door price." + (pct > 0 ? (" " + st.charAt(0).toUpperCase() + st.slice(1) + " +" + pct + "%. Was " + raw + ".") : "");
@@ -4157,9 +4162,9 @@ setInterval(function () {
       s.textContent =
         ".play-cta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}" +
         ".play-cta a{flex:1 1 120px;text-align:center;justify-content:center}" +
-        ".play-cta a.heart-btn{flex:0 0 46px !important;width:46px !important;height:46px !important;min-width:46px !important;padding:0 !important;margin:0 !important;border-radius:50% !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;background:#2a1a32 !important;border:1px solid rgba(192,132,252,.55) !important;line-height:0 !important;font-size:0 !important;animation:none !important;box-shadow:0 0 12px rgba(192,132,252,.35) !important}" +
-        ".play-cta a.heart-btn span{display:none !important}" +
-        ".play-cta a.heart-btn svg{width:26px !important;height:26px !important;margin:0 !important;display:block !important;transform-origin:center center}" +
+        ".heart-btn{flex:0 0 46px !important;width:46px !important;height:46px !important;min-width:46px !important;padding:0 !important;margin:0 !important;border-radius:50% !important;display:inline-flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;background:#2a1a32 !important;border:1px solid rgba(192,132,252,.55) !important;line-height:0 !important;font-size:0 !important;animation:none !important;box-shadow:0 0 12px rgba(192,132,252,.35) !important;gap:0 !important}" +
+        ".heart-btn span{display:none !important}" +
+        ".heart-btn svg{width:24px !important;height:24px !important;margin:0 !important;display:block !important;transform:none !important;animation:none !important}" +
         ".queen-tag{display:inline-block!important;width:auto!important;margin:.35rem 0 .2rem!important;padding:.22rem .6rem!important;font-size:.68rem!important;letter-spacing:.12em!important;text-transform:uppercase;border-radius:999px!important;border:1px solid rgba(240,208,96,.55)!important;background:rgba(240,208,96,.08)!important}" +
         ".filth-line{margin:1.2rem 0 1.4rem}";
       document.head.appendChild(s);
@@ -4172,8 +4177,7 @@ setInterval(function () {
     var cta = document.querySelector(".play-cta");
     var heart = document.querySelector("a.heart-btn");
     if (cta && heart) {
-      var cap = heart.querySelector("span");
-      if (cap) cap.style.display = "none";
+      heart.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><path fill="#e9d5ff" d="M32 52C32 52 14 38 14 26C14 18.5 19.5 13 27 13C30.2 13 32.4 15.4 32 18.2C31.6 15.4 33.8 13 37 13C44.5 13 50 18.5 50 26C50 38 32 52 32 52Z"/></svg>';
       cta.appendChild(heart);
     }
   }
