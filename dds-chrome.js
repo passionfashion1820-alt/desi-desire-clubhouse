@@ -494,11 +494,19 @@ function canAccess(slug) {
       label = rs.label;
       step = rs.step;
     }
-    var hall = (typeof halloweenPct === "function") ? halloweenPct() : 0;
-    if (hall > 0 && !(door > 0)) base = Math.max(0, Math.round(base * (100 - hall) / 100));
     var pct = statusPct();
-    var cost = Math.max(0, Math.round(base * (100 + pct) / 100));
-    return { cost: cost, base: base, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
+    // Final price first (base + status). Sale cuts the final number.
+    var full = Math.max(0, Math.round(base * (100 + pct) / 100));
+    var sale = 0;
+    if (!(door > 0)) {
+      sale = (typeof halloweenPct === "function") ? halloweenPct() : 0;
+    } else {
+      var tierBase = soon ? 1500 : (1000 + step * 150);
+      var tierFull = Math.max(0, Math.round(tierBase * (100 + pct) / 100));
+      if (tierFull > full && tierFull > 0) sale = Math.round((tierFull - full) / tierFull * 100);
+    }
+    var cost = sale > 0 ? Math.max(0, Math.round(full * (100 - sale) / 100)) : full;
+    return { cost: cost, base: base, full: full, sale: sale, pct: pct, label: label, step: step, soon: !!soon, door: door > 0 };
   }
   window.DDS_ownDpsCost = ownDpsCost;
 
@@ -567,12 +575,11 @@ function canAccess(slug) {
     var box = document.createElement("div");
     box.id = "ddsOwnModal";
     box.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
-    var salePctOwn = (typeof ownSalePct === "function") ? ownSalePct(slug) : 0;
+    var salePctOwn = info.sale || 0;
     var rs = (typeof ownRankStep === "function") ? ownRankStep(slug) : { step: info.step || 0, label: info.label || "New" };
-    var tierBase = info.soon ? 1500 : (1000 + (rs.step || 0) * 150);
     var statusPctOwn = info.pct || 0;
-    var fullPrice = Math.round(tierBase * (100 + statusPctOwn) / 100);
-    var wasPrice = salePctOwn > 0 ? fullPrice : (info.door ? info.base : fullPrice);
+    var fullPrice = info.full || info.cost;
+    var wasPrice = salePctOwn > 0 ? fullPrice : fullPrice;
     var priceBlock = "";
     if (salePctOwn > 0) {
       priceBlock =
