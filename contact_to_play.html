@@ -531,6 +531,7 @@
         var note = (!acc.id ? "GUEST" : (chosen === "anu" ? ("Train first. door=" + (door || "house")) : (roomCost ? ("dps=" + roomCost) : null)));
         if (roomRole && note) note = note + "|role=" + roomRole;
         else if (roomRole) note = "role=" + roomRole;
+        console.log("Room role", roomRole, "note", note);
         return window.DDS_INBOX.create({
           slut: chosen,
           player_name: name,

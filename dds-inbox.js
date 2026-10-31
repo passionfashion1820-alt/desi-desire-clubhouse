@@ -516,6 +516,13 @@
         parts.push("broken=" + (broken ? "1" : "0"));
         parts.push("usual=" + (usual ? "1" : "0"));
         parts.push("fan=" + (isFan ? "1" : "0"));
+        var roleNote = "";
+        try {
+          var rm = String((row && row.admin_note) || "").match(/role=([^|]+)/i);
+          if (rm) roleNote = rm[1].trim();
+        } catch (e) {}
+        console.log("scoutLine roleNote", roleNote, "admin_note", row && row.admin_note);
+        if (roleNote && !/^trainer$/i.test(roleNote)) parts.push("role=" + clip(roleNote, 24));
         parts.push("p=" + (pid || ""));
         return parts.join("|");
       }

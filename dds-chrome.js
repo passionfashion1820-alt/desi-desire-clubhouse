@@ -1157,12 +1157,14 @@ function canAccess(slug) {
             { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
           ];
       var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
-      console.log("doorRoles for", slug, doorRoles);
-      ROLES = ROLES.filter(function (r) {
-        var dr = doorRoles[r.id];
-        if (dr && dr.on === false) return false;
-        return true;
-      });
+      var hasDoorRoles = Object.keys(doorRoles).length > 0;
+      console.log("doorRoles for", slug, doorRoles, "has", hasDoorRoles);
+      if (hasDoorRoles) {
+        ROLES = ROLES.filter(function (r) {
+          var dr = doorRoles[r.id];
+          return dr && dr.on === true;
+        });
+      }
       var rankOk = function (need) {
         if (!need) return true;
         if (need === "owner") return !!owned;
