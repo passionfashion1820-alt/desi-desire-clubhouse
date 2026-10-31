@@ -1175,7 +1175,7 @@ function canAccess(slug) {
       ROLES.forEach(function (r) {
         var open = rankOk(r.need);
         var price = owned ? 0 : (cost + r.add);
-        var lock = open ? "" : (' <span style="color:#fca5a5;font-size:.75rem">· ' + (r.need === "owner" ? "Owners only" : (r.need === "gold" ? "Gold+" : "Silver+")) + '</span>');
+        var lock = open ? "" : (' <span style="color:#fca5a5;font-size:.75rem">· ' + (need === "owner" ? "Owners only" : (need === "gold" ? "Gold+" : "Silver+")) + '</span>');
         roleHtml += '<button type="button" data-role="' + r.id + '" ' + (open ? "" : 'disabled') + ' style="text-align:left;background:' + (open ? "#2a1a32" : "#1a1218") + ';color:' + (open ? "#f3e9d7" : "#6b5a6e") + ';border:1px solid ' + (open ? "#4a2c5f" : "#2a1a32") + ';border-radius:8px;padding:.5rem .7rem;cursor:' + (open ? "pointer" : "not-allowed") + '">' +
           '<b>' + r.label + '</b> <span style="color:#e9d5ff">+' + r.add + ' DPS</span>' + lock + '<br><span style="font-size:.8rem;color:#b9a892">' + r.desc + '</span></button>';
       });
