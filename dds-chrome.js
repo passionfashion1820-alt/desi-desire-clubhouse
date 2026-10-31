@@ -1200,10 +1200,10 @@ function canAccess(slug) {
       if (roleBox) roleBox.remove();
       roleBox = document.createElement("div");
       roleBox.id = "ddsRolePick";
-      roleBox.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.78);display:flex;align-items:center;justify-content:center;padding:1rem";
-      var roleHtml = '<div style="max-width:440px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
-        '<p style="margin:0 0 .5rem;font-size:1.05rem;color:#e9d5ff">What do you want ' + name + ' as tonight?</p>' +
-        '<div id="ddsRoleList" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.7rem">';
+      roleBox.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.78);display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto";
+      var roleHtml = '<div style="max-width:440px;max-height:min(86vh,720px);overflow:auto;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1rem 1.1rem;color:#f3e9d7;box-shadow:0 12px 40px rgba(0,0,0,.5)">' +
+        '<p style="margin:0 0 .6rem;font-size:1.05rem;color:#e9d5ff;position:sticky;top:0;background:#1a1020;padding-bottom:.3rem;z-index:1">What do you want ' + name + ' as tonight?</p>' +
+        '<div id="ddsRoleList" style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.6rem">';
       ROLES.forEach(function (r) {
         var dr = doorRoles[r.id] || {};
         var need = dr.need !== undefined ? dr.need : r.need;
