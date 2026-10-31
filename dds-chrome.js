@@ -71,7 +71,7 @@
       .concat(window.DDS_CLOSED || [])
       .concat((window.DDS_CFG && window.DDS_CFG.unavailable) || [])
       .map(function (s) { return String(s || "").toLowerCase(); });
-    if (closed.indexOf(slug) !== -1) {
+    if (closed.indexOf(slug) !== -1 && !a.getAttribute("data-dps-ok")) {
       if (!signed()) {
         e.preventDefault();
         e.stopPropagation();
@@ -1202,7 +1202,9 @@ function canAccess(slug) {
           box.remove();
           try { sessionStorage.setItem("dds_room_cost", String(cost)); } catch (e) {}
           a.setAttribute("data-dps-ok", "1");
-          a.click();
+          var dest = a.getAttribute("href") || ("contact_to_play.html?slut=" + slug);
+          if (dest.indexOf("contact_to_play") === -1) dest = "contact_to_play.html?slut=" + slug;
+          location.href = dest;
         };
         document.getElementById("ddsDpsNo").onclick = function () { box.remove(); };
         box.onclick = function (ev) { if (ev.target === box) box.remove(); };
@@ -3206,7 +3208,7 @@ setInterval(function () {
       rate.className = "dds-ratebar dds-ratebar-bottom";
       rate.innerHTML =
         "<p>If you had a session with her, submit a review. Better reviews win real perks — IP off, lingerie by wish, one piece, or a talk-style shift.</p>" +
-        '<div><a href="' + (pageSlug === "anu" || pageSlug === "meenakshi" ? "#train" : "contact_to_play.html?slut=" + pageSlug) + '">' + (pageSlug === "anu" || pageSlug === "meenakshi" ? "Get trained" : "Click Here To Play") + '</a> · <a href="rate.html?slut=' + pageSlug + '">Submit review</a> · <a href="feedback.html?slut=' + pageSlug + '">Send feedback</a>' + ((ownHerOpen(pageSlug) || playerOwns(pageSlug)) ? ' · <a href="#" data-own-dps="' + pageSlug + '">' + (playerOwns(pageSlug) ? "Own Perks" : "Own her") + '</a>' : '') + '</div>';
+        '<div><a href="' + (pageSlug === "anu" || pageSlug === "meenakshi" ? ("contact_to_play.html?slut=" + pageSlug) : ("contact_to_play.html?slut=" + pageSlug)) + '" class="dds-play-mid">' + (pageSlug === "anu" || pageSlug === "meenakshi" ? "Get trained" : "Click Here To Play") + '</a> · <a href="rate.html?slut=' + pageSlug + '">Submit review</a> · <a href="feedback.html?slut=' + pageSlug + '">Send feedback</a>' + ((ownHerOpen(pageSlug) || playerOwns(pageSlug)) ? ' · <a href="#" data-own-dps="' + pageSlug + '">' + (playerOwns(pageSlug) ? "Own Perks" : "Own her") + '</a>' : '') + '</div>';
       var rateHost = document.querySelector("main") || document.body;
       rateHost.appendChild(rate);
     }
@@ -4073,6 +4075,17 @@ setInterval(function () {
     }
     document.getElementById("dds-anu-train").onclick = function () {
       mask.style.display = "none";
+      var price = (window.DDS_CFG && window.DDS_CFG.doorPrice && Number(window.DDS_CFG.doorPrice[trainer])) || 0;
+      if (price > 0) {
+        var a = document.createElement("a");
+        a.href = "contact_to_play.html?slut=" + trainer;
+        a.setAttribute("data-slut", trainer);
+        a.className = "dds-play-mid";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        return;
+      }
       location.href = trainHref(trainer);
     };
     document.getElementById("dds-anu-go").onclick = function () {
@@ -4169,9 +4182,10 @@ setInterval(function () {
       s.textContent =
         ".play-cta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}" +
         ".play-cta a{flex:1 1 120px;text-align:center;justify-content:center}" +
-        ".heart-btn{flex:0 0 46px !important;width:46px !important;height:46px !important;min-width:46px !important;padding:0 !important;margin:0 !important;border-radius:50% !important;display:inline-flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;background:#2a1a32 !important;border:1px solid rgba(192,132,252,.55) !important;line-height:0 !important;font-size:0 !important;animation:none !important;box-shadow:0 0 12px rgba(192,132,252,.35) !important;gap:0 !important}" +
+        "@keyframes ddsHeartBeat{0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px #ff4d8d)}14%{transform:scale(1.18);filter:drop-shadow(0 0 14px #ff4d8d)}28%{transform:scale(1);filter:drop-shadow(0 0 6px #c084fc)}42%{transform:scale(1.12);filter:drop-shadow(0 0 12px #ff4d8d)}56%{transform:scale(1);filter:drop-shadow(0 0 4px #c084fc)}}" +
+        ".heart-btn{flex:0 0 46px !important;width:46px !important;height:46px !important;min-width:46px !important;padding:0 !important;margin:0 !important;border-radius:50% !important;display:inline-flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;background:radial-gradient(circle at 50% 40%,#4a1a3a,#1a0a14) !important;border:1px solid rgba(255,77,141,.7) !important;line-height:0 !important;font-size:0 !important;animation:ddsHeartBeat 1.1s ease-in-out infinite !important;box-shadow:0 0 18px rgba(255,77,141,.55),0 0 6px rgba(192,132,252,.4) !important;gap:0 !important}" +
         ".heart-btn span{display:none !important}" +
-        ".heart-btn svg{width:24px !important;height:24px !important;margin:0 !important;display:block !important;transform:none !important;animation:none !important}" +
+        ".heart-btn svg{width:26px !important;height:26px !important;margin:0 !important;display:block !important;transform:none !important;animation:none !important;filter:drop-shadow(0 0 6px #ff4d8d)}" +
         ".queen-tag{display:inline-block!important;width:auto!important;margin:.35rem 0 .2rem!important;padding:.22rem .6rem!important;font-size:.68rem!important;letter-spacing:.12em!important;text-transform:uppercase;border-radius:999px!important;border:1px solid rgba(240,208,96,.55)!important;background:rgba(240,208,96,.08)!important}" +
         ".filth-line{margin:1.2rem 0 1.4rem}";
       document.head.appendChild(s);
@@ -4184,7 +4198,7 @@ setInterval(function () {
     var cta = document.querySelector(".play-cta");
     var heart = document.querySelector("a.heart-btn");
     if (cta && heart) {
-      heart.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><path fill="#e9d5ff" d="M32 52C32 52 14 38 14 26C14 18.5 19.5 13 27 13C30.2 13 32.4 15.4 32 18.2C31.6 15.4 33.8 13 37 13C44.5 13 50 18.5 50 26C50 38 32 52 32 52Z"/></svg>';
+      heart.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><path fill="#ff4d8d" d="M32 52C32 52 14 38 14 26C14 18.5 19.5 13 27 13C30.2 13 32.4 15.4 32 18.2C31.6 15.4 33.8 13 37 13C44.5 13 50 18.5 50 26C50 38 32 52 32 52Z"/></svg>';
       cta.appendChild(heart);
     }
   }
