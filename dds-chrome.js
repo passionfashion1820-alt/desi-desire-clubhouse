@@ -1141,14 +1141,21 @@ function canAccess(slug) {
       }
       var rawBeforeSale = fullBeforeSale;
       var name = slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : "She";
-      var ROLES = [
-        { id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock.", need: "" },
-        { id: "maid", label: "Maid", add: 15, desc: "Maid costume. She keeps the act.", need: "silver" },
-        { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone.", need: "gold" },
-        { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky.", need: "gold" },
-        { id: "teacher", label: "Teacher", add: 15, desc: "School / after-hours tone.", need: "silver" },
-        { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
-      ];
+      var ROLES = (window.DDS_CFG && Array.isArray(window.DDS_CFG.roles) && window.DDS_CFG.roles.length)
+        ? window.DDS_CFG.roles
+        : [
+            { id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock.", need: "" },
+            { id: "maid", label: "Maid", add: 15, desc: "Maid costume. She keeps the act.", need: "silver" },
+            { id: "teacher", label: "Teacher", add: 15, desc: "School / after-hours tone.", need: "silver" },
+            { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone.", need: "gold" },
+            { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky.", need: "gold" },
+            { id: "prostitute", label: "Prostitute", add: 30, desc: "She is paid. Transactional, cold.", need: "gold" },
+            { id: "mom", label: "Mom", add: 25, desc: "Older. Soft. Domestic.", need: "silver" },
+            { id: "girlfriend", label: "Girlfriend", add: 10, desc: "Dating. Casual. Warm.", need: "" },
+            { id: "wife", label: "Wife", add: 20, desc: "Married. Home. Familiar.", need: "silver" },
+            { id: "boss", label: "Office Boss", add: 25, desc: "She is the boss. Formal, power.", need: "gold" },
+            { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
+          ];
       var rankOk = function (need) {
         if (!need) return true;
         if (need === "owner") return !!owned;
