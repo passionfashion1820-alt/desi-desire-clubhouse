@@ -525,8 +525,12 @@
         waiting = true;
         var door = (q.get("door") || "").trim().toLowerCase();
         var roomCost = "";
+        var roomRole = "";
         try { roomCost = sessionStorage.getItem("dds_room_cost") || ""; sessionStorage.removeItem("dds_room_cost"); } catch (e) {}
+        try { roomRole = sessionStorage.getItem("dds_room_role") || ""; sessionStorage.removeItem("dds_room_role"); } catch (e) {}
         var note = (!acc.id ? "GUEST" : (chosen === "anu" ? ("Train first. door=" + (door || "house")) : (roomCost ? ("dps=" + roomCost) : null)));
+        if (roomRole && note) note = note + "|role=" + roomRole;
+        else if (roomRole) note = "role=" + roomRole;
         return window.DDS_INBOX.create({
           slut: chosen,
           player_name: name,

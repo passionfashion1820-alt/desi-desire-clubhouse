@@ -142,6 +142,21 @@
     #playPop .bar span { color:var(--gold); font-weight:800; }
     #playPop select, #playPop input { width:100%; background:#161114; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:.5rem; }
     #revForce { position:fixed; inset:0; z-index:2147483000; display:flex; align-items:center; justify-content:center; background:rgba(20,10,16,.82); padding:16px; }
+    #trainRev { position:fixed; inset:0; z-index:9998; background:rgba(8,4,12,.78); display:grid; place-items:center; padding:1rem; }
+    #trainRev .houseRev { width:min(460px,94vw); max-height:92vh; overflow:auto; background:#fff; color:#3a1c28; border-radius:4px; box-shadow:0 18px 50px rgba(0,0,0,.45); font-family:Georgia,"Times New Roman",serif; }
+    #trainRev .houseRevHead { padding:18px 22px 12px; border-bottom:1px solid #e6d6d8; }
+    #trainRev .houseRevHead h2 { margin:0; font-size:1.35rem; color:#6b1c32; }
+    #trainRev .houseRevHead p { margin:4px 0 0; font-size:.8rem; color:#8a6a72; }
+    #trainRev .houseRevBody { padding:14px 22px 20px; }
+    #trainRev .houseRevRow { margin:0 0 12px; }
+    #trainRev .houseRevRow label { display:block; font-size:.82rem; font-weight:700; margin:0 0 4px; }
+    #trainRev .houseRevStars { display:flex; gap:6px; }
+    #trainRev .houseRevStars button { background:none; border:0; padding:0; font-size:26px; color:#d8d0d2; cursor:pointer; }
+    #trainRev .houseRevStars button.on { color:#c4a24a; }
+    #trainRev textarea { width:100%; box-sizing:border-box; border:1px solid #e0d0d4; border-radius:4px; padding:8px; font:16px/1.4 Georgia,serif; }
+    #trainRev .houseRevActs { display:flex; justify-content:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
+    #trainRev .houseRevActs button, #trainRev .houseRevActs a { background:#6b1c32; color:#fff; border:0; border-radius:999px; padding:.5rem 1rem; font-weight:700; text-decoration:none; }
+    #trainRev #trainRevErr { color:#9b1c1c; min-height:1.2em; margin:0; }
     #revForce .houseRev { width:min(460px,94vw); max-height:92vh; overflow:auto; background:#fff; color:#3a1c28; border-radius:4px; box-shadow:0 18px 50px rgba(0,0,0,.45); font-family:Georgia,"Times New Roman",serif; }
     #revForce .houseRevHead { padding:18px 22px 12px; border-bottom:1px solid #e6d6d8; }
     #revForce .houseRevHead h2 { margin:0; font-size:1.35rem; color:#6b1c32; font-weight:700; }
@@ -1486,6 +1501,24 @@ function openPlay(kind, lane) {
       if (!room) return;
       const slug = String(room.model_slug || "").toLowerCase();
       const name = String(room.player_name || "player").split("·")[0].trim() || "player";
+      var roleShow = "";
+      try {
+        var rn = String((room && room.admin_note) || "");
+        var rmm = rn.match(/role=([^|]+)/i);
+        if (rmm) roleShow = rmm[1].trim();
+      } catch (e) {}
+      if (roleShow) {
+        var roleChip = document.getElementById("deskRoleChip");
+        if (!roleChip) {
+          roleChip = document.createElement("div");
+          roleChip.id = "deskRoleChip";
+          roleChip.style.cssText = "margin:.3rem 0;padding:.25rem .55rem;background:#6b3fa0;color:#fff;border-radius:8px;font-size:.82rem;display:inline-block";
+          var anchor = document.querySelector(".player-name, .desk-player, h1, h2");
+          if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(roleChip, anchor.nextSibling);
+          else document.body.appendChild(roleChip);
+        }
+        roleChip.textContent = "Role: " + roleShow;
+      }
       const key = "room:" + room.id;
       const row = {
         account_key: key,
@@ -3679,36 +3712,67 @@ function openPlay(kind, lane) {
     async function bootScoutCard() {
       if (!isDesk || !room) return;
       const log = $("log");
-      if (log && /DDS1\|/.test(log.textContent || "")) return;
+      const alreadyDrawn = !!(log && /DDS1\|/.test(log.textContent || ""));
       let line = cleanScoutLine(String(room.scout_line || "").trim());
       if (line !== String(room.scout_line || "").trim()) {
         try { await sb.from("rooms").update({ scout_line: line }).eq("id", room.id); room.scout_line = line; } catch (e) {}
       }
-      // Own was missing. Re-check owner_prefs and player_owned before the model reads the line.
+      // Own was missing. Re-check owner_prefs and player_owned before she reads the line.
       if (line && !/(?:^|\|)own=1(?:\||$)/i.test(line) && room.player_id && room.model_slug) {
         try {
           const pid = room.player_id;
           const slug = String(room.model_slug || "").toLowerCase();
-          let owned = false;
+          let row = null;
           const pref = await sb.from("owner_prefs").select("bought,owned_nights,start_usual").eq("player_id", pid).eq("model_slug", slug).maybeSingle();
-          const row = pref && pref.data;
-          if (row && (row.bought === true || Number(row.owned_nights || 0) > 0)) owned = true;
-          if (!owned) {
+          row = pref && pref.data;
+          let owned = !!(row && (row.bought === true || row.bought === "true" || Number(row.owned_nights || 0) > 0));
+          let owns = [];
+          try {
             const { data } = await sb.rpc("player_owned", { p_id: pid });
             const models = (data && data.models) || [];
-            owned = models.some(function (m) {
+            models.forEach(function (m) {
               const s = String((m && (m.slug || m.model_slug)) || "").toLowerCase();
-              return s === slug && (m.bought === true || Number(m.owned_nights || m.sessions || 0) > 0);
+              if (!s) return;
+              owns.push(s);
+              if (s === slug && (m.bought === true || m.owned === true || Number(m.owned_nights || m.sessions || 0) > 0)) {
+                owned = true;
+                if (!row) row = m;
+              }
             });
-          }
+          } catch (e) {}
           if (owned) {
+            const ownn = Math.max(1, Number((row && (row.owned_nights || row.sessions)) || 1));
+            const usual = !!(row && (row.start_usual === true || row.usual === true || row.start_usual === "true"));
+            const broken = usual ? 0 : 1;
             if (/(?:^|\|)own=0(?:\||$)/i.test(line)) line = line.replace(/(?:^|\|)own=0(?=\||$)/i, "|own=1");
-            else line = line.replace(/\|p=/, "|own=1|ownn=1|broken=1|usual=0|p=");
-            if (!/ownn=/.test(line)) line = line.replace(/\|own=1/, "|own=1|ownn=1");
+            else if (!/(?:^|\|)own=1(?:\||$)/i.test(line)) line = line.replace(/\|p=/, "|own=1|p=");
+            line = line.replace(/(?:^|\|)ownn=[^|]*/i, "");
+            line = line.replace(/\|own=1/, "|own=1|ownn=" + ownn);
+            if (/(?:^|\|)broken=/.test(line)) line = line.replace(/(?:^|\|)broken=[^|]*/i, "|broken=" + broken);
+            else line = line.replace(/\|ownn=\d+/, function (m) { return m + "|broken=" + broken; });
+            if (/(?:^|\|)usual=/.test(line)) line = line.replace(/(?:^|\|)usual=[^|]*/i, "|usual=" + (usual ? "1" : "0"));
+            else line = line.replace(/\|broken=\d/, function (m) { return m + "|usual=" + (usual ? "1" : "0"); });
+            if (owns.length) {
+              const list = owns.join(",") || "none";
+              if (/(?:^|\|)owns=/.test(line)) line = line.replace(/(?:^|\|)owns=[^|]*/i, "|owns=" + list);
+            }
+            line = cleanScoutLine(line);
             try { await sb.from("rooms").update({ scout_line: line }).eq("id", room.id); } catch (e) {}
             room.scout_line = line;
+            if (alreadyDrawn && log) {
+              const card = log.querySelector('[data-mid="scout-dds1"]') || log.querySelector(".bubble");
+              if (card) {
+                const body = card.querySelector(".body") || card;
+                const txt = body.textContent || "";
+                if (/own=0/.test(txt)) body.textContent = txt.replace(/own=0/, "own=1");
+              }
+            }
           }
         } catch (e) {}
+      }
+      if (alreadyDrawn) {
+        applyOwnFlags(line);
+        return;
       }
       if (isGuestRoom() || /^DDS1\|GUEST\|/i.test(line)) {
         if (!line) line = "DDS1|GUEST|m=" + (room.model_slug || "") + "|nick=Guest|age=?|about=|likes=|fav=none|owns=none|dps=0|st=Guest|toff=2|tmax=30|ext=0|bump=0|last=none|n=0|own=0|broken=0|usual=0|p=guest";
@@ -3719,7 +3783,7 @@ function openPlay(kind, lane) {
         applyGuestLocks();
         const slug = String(room.model_slug || "").toLowerCase();
         const ready = slug
-          ? ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE. Open base once: https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/base.html Then open the door page once. Then STOP. Do not browse again. Do not open base.html again. Do not open the door page again. Do not follow links on those pages. Do not call the browse tool on these URLs after the first read. Do not loop the lookups. A later paste is talk. Only #refresh re-opens base. Every paste is three ```text code blocks: block 1 HERNAME then brace then talk, block 2 IMAGE then NONE or the prompt, block 3 ADMIN. The turn the look locks, write the L0 IMAGE prompt in Grok and lock that costume. Guest night. No account. No DPS. No spin. No own. Affinity moves from her door page table. Strikes still run. Clock 30. Strikes 2. Open is six lines: read him, name herself, the door, what he owns, she is not them, call and look. Do not rewrite this as NEW. Do not ask his account name. Ask what to call her. Do not send the URL.")
+          ? ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE ONLY. Read base once, then the door page once, then STOP BROWSING. Do not open base.html again. Do not open the door page again. Do not follow any link. Do not call the browse tool again. Do not loop. If you are about to browse, stop and write the reply. A later paste is talk. Only #refresh re-opens base once. Every paste is three ```text code blocks: block 1 HERNAME then brace then talk, block 2 IMAGE then NONE or the prompt, block 3 ADMIN. The turn the look locks, write the L0 IMAGE prompt in Grok and lock that costume. Guest night. No account. No DPS. No spin. No own. Affinity moves from her door page table. Strikes still run. Clock 30. Strikes 2. Open is six lines: read him, name herself, the door, what he owns, she is not them, call and look. Do not rewrite this as NEW. Do not ask his account name. Ask what to call her. Do not send the URL.")
           : "";
         draw({ id: "scout-dds1", sender: "model", body: "DESIRE SCOUT\n" + line + ready });
         const el = log && log.querySelector('[data-mid="scout-dds1"]');
@@ -3762,9 +3826,18 @@ function openPlay(kind, lane) {
         if (el && log.firstChild !== el) log.insertBefore(el, log.firstChild);
         return;
       }
+      var roleNote = "";
+      try {
+        var note = String((room && room.admin_note) || "");
+        var rm = note.match(/role=([^|]+)/i);
+        if (rm) roleNote = rm[1].trim();
+      } catch (e) {}
+      if (roleNote && !/(?:^|\|)role=/.test(line)) {
+        line = line.replace(/\|p=/, "|role=" + roleNote + "|p=");
+      }
       const soonDoors = ["navya","simran","chandana","aleena"];
       const isSoon = soonDoors.indexOf(slug) !== -1;
-      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE. Open base once, then the door page once, then STOP. Do not browse again. Do not re-open. Do not follow links. Only #refresh re-opens base. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
+      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + slug + ".html\nLOOK UP ONCE ONLY. Read base once, then the door page once, then STOP BROWSING. Do not open any page again. Do not follow links. Do not call the browse tool again. Do not loop. Only #refresh re-opens base once. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
       if (slug === "anu") line = line.replace(/\nDPS .+/, "");
       room.scout_line = line;
       draw({ id: "scout-dds1", sender: "model", body: "DESIRE SCOUT\n" + line + ready });
@@ -3949,7 +4022,7 @@ function openPlay(kind, lane) {
         const { data } = await sb.from("rooms").select("decline_note").eq("id", room.id).maybeSingle();
         const note = String((data && data.decline_note) || "");
         if (isTrainerRoom() && /^TRAINREV:/i.test(note)) {
-          openTrainerReview();
+          openTrainerReview(true);
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           return;
         }
@@ -3975,7 +4048,7 @@ function openPlay(kind, lane) {
       if (isDesk || reviewWatchOn) return;
       reviewWatchOn = true;
       pullOpenReview();
-      if (isTrainerRoom()) setInterval(pullOpenReview, 8000);
+      if (isTrainerRoom()) setInterval(pullOpenReview, 3000);
     }
     function startHeartbeat() {
       if (isDesk || window.__hbOn) return;
@@ -4051,7 +4124,7 @@ function openPlay(kind, lane) {
           openTrainerPuzzle("One question. Answer it.");
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
         } else if (/^TRAINREV:/i.test(note)) {
-          openTrainerReview();
+          openTrainerReview(true);
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
         }
       }
@@ -4671,8 +4744,10 @@ function openPlay(kind, lane) {
       if (isDesk && $("offerRevBtn")) {
         $("offerRevBtn").classList.remove("hidden");
         $("offerRevBtn").textContent = "Offer review";
-        $("offerRevBtn").onclick = () => {
-          try { sb.from("messages").insert({ room_id: room.id, sender: "model", body: "ADMIN ALERT OPEN TRAINER REVIEW" }); } catch (e) {}
+        $("offerRevBtn").onclick = async () => {
+          const token = "TRAINREV:" + Date.now();
+          try { await sb.from("rooms").update({ decline_note: token }).eq("id", room.id); } catch (e) { alert(e.message || e); }
+          try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: "ADMIN ALERT OPEN TRAINER REVIEW" }); } catch (e) {}
         };
       }
       if (isDesk && $("waitNodeBtn")) $("waitNodeBtn").classList.remove("hidden");
@@ -4728,19 +4803,41 @@ function openPlay(kind, lane) {
       if (isDesk) return;
       const old = document.getElementById("trainSpin");
       if (old) old.remove();
+      const keys = Object.keys(TRAIN_GIFTS);
+      const land = (key && TRAIN_GIFTS[key]) ? key : keys[Math.floor(Math.random() * keys.length)];
+      const won = TRAIN_GIFTS[land] || prize || "We keep going.";
       const wrap = document.createElement("div");
       wrap.id = "trainSpin";
       wrap.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.82);display:grid;place-items:center;padding:1rem;";
       wrap.innerHTML =
-        "<div style='background:#1b1028;color:#f6eefe;border:2px solid #d4af37;border-radius:16px;padding:1.2rem 1.1rem;max-width:380px;text-align:center;box-shadow:0 0 40px rgba(212,175,55,.35)'>" +
-        "<b style='font-size:1.2rem;color:#ffe566'>She threw something</b>" +
-        "<p style='margin:.7rem 0 .35rem;font-size:1.05rem;color:#fff6e8'><b>You won: " + key + "</b></p>" +
-        "<p style='margin:0 0 .9rem;font-size:1rem;line-height:1.4'>" + prize + "</p>" +
-        "<button type='button' id='trainSpinGo' style='background:#d4af37;color:#1b1028;border:0;border-radius:999px;padding:.55rem 1.4rem;font-weight:800;font-size:1rem'>I see it</button>" +
+        "<div style='background:#1b1028;color:#f6eefe;border:2px solid #d4af37;border-radius:16px;padding:1.2rem 1.1rem;max-width:420px;width:100%;text-align:center;box-shadow:0 0 40px rgba(212,175,55,.35)'>" +
+        "<b style='font-size:1.15rem;color:#ffe566'>She threw something. Spin it.</b>" +
+        "<div id='trainWheel' style='margin:.8rem auto;width:220px;height:220px;border-radius:50%;border:8px solid #d4af37;background:conic-gradient(#5b2a86 0 45deg,#2a1840 45deg 90deg,#7a3ea8 90deg 135deg,#1b1028 135deg 180deg,#c9a227 180deg 225deg,#3d2458 225deg 270deg,#8a5a1a 270deg 315deg,#241433 315deg 360deg);display:grid;place-items:center;box-shadow:0 0 24px rgba(212,175,55,.45);transition:transform 2.2s cubic-bezier(.15,.8,.2,1)'>" +
+        "<span style='width:70px;height:70px;border-radius:50%;background:#120a1a;border:3px solid #ffe566;display:grid;place-items:center;font-weight:800;color:#ffe566'>SPIN</span></div>" +
+        "<p id='trainLand' style='min-height:3.2rem;margin:.4rem 0 .8rem;font-size:1rem;line-height:1.4'></p>" +
+        "<button type='button' id='trainSpinGo' style='background:#d4af37;color:#1b1028;border:0;border-radius:999px;padding:.55rem 1.4rem;font-weight:800;font-size:1rem'>Spin</button>" +
         "</div>";
       document.body.appendChild(wrap);
+      const wheel = wrap.querySelector("#trainWheel");
+      const landEl = wrap.querySelector("#trainLand");
       const go = wrap.querySelector("#trainSpinGo");
-      go.onclick = () => wrap.remove();
+      let spun = false;
+      go.onclick = () => {
+        if (spun) { wrap.remove(); return; }
+        spun = true;
+        go.textContent = "Spinning…";
+        go.disabled = true;
+        const turns = 4 + Math.floor(Math.random() * 3);
+        const idx = Math.max(0, keys.indexOf(land));
+        const slice = 360 / Math.max(1, keys.length);
+        wheel.style.transform = "rotate(" + (turns * 360 + idx * slice) + "deg)";
+        setTimeout(() => {
+          landEl.innerHTML = "<b style='color:#fff6e8'>You won: " + land + "</b><br>" + won;
+          go.disabled = false;
+          go.textContent = "I see it";
+          try { postPlay("DESK ONLY TRAIN " + land); } catch (e) {}
+        }, 2300);
+      };
     }
     function openTrainerSpinner(forced) {
       if (isDesk) return;
@@ -4768,10 +4865,10 @@ function openPlay(kind, lane) {
     }
     const trainerGiftSeen = new Set();
     function maybeTrainerGift(body, mid) {
-      if (isDesk) return;
+      if (isDesk || !isTrainerRoom()) return;
       const line = String(body || "");
       const key = String(mid || line.slice(0, 80));
-      if (/threw something|throwing something|throw something|\bplay it\b|whatever it lands|train throw|you won:/i.test(line)) {
+      if (/threw something|throwing something|throw something|i throw|you play it|\bplay it\b|whatever it lands|train throw|you won this one|you won:/i.test(line)) {
         if (trainerGiftSeen.has("throw:" + key)) return;
         trainerGiftSeen.add("throw:" + key);
         const m = line.match(/you won:\s*([A-Z0-9]+)/i);
@@ -4991,6 +5088,9 @@ function openPlay(kind, lane) {
       }
       const rawHideTok = String(m.body || "");
       if (/WAITNODE/i.test(rawHideTok)) noteWaitNode(rawHideTok);
+      if (!isDesk && isTrainerRoom() && /OPEN TRAINER REVIEW|OFFER TRAINER REVIEW|OFFER REVIEW/i.test(rawHideTok)) {
+        try { openTrainerReview(true); } catch (e) {}
+      }
       if (!isDesk && isAdminControlLine(rawHideTok)) {
         if (!hydrating && /Review card sent|REVOPEN:\d+/i.test(rawHideTok) && !/Player has the review form|Review closed/i.test(rawHideTok)) {
           const tok = (rawHideTok.match(/REVOPEN:\d+/i) || [])[0];
@@ -5107,7 +5207,7 @@ function openPlay(kind, lane) {
       if (m.sender === "model" && m.body) {
         maybeHtpFromModel(m.body);
         maybeTrainerGift(m.body, m.id);
-        if (!isDesk && isTrainerRoom() && /OPEN TRAINER REVIEW/i.test(m.body)) openTrainerReview();
+        if (!isDesk && isTrainerRoom() && /OPEN TRAINER REVIEW|OFFER TRAINER REVIEW|OFFER REVIEW|rate this training/i.test(m.body)) openTrainerReview(true);
       }
       if (split.metrics.length) setRibbon(split.metrics);
       let body = split.text;
@@ -5253,8 +5353,9 @@ function openPlay(kind, lane) {
     function trainerReviewDone() {
       try { return sessionStorage.getItem(trainerReviewKey()) === "1"; } catch (e) { return false; }
     }
-    function openTrainerReview() {
-      if (isDesk || !isTrainerRoom() || isGuestRoom() || trainerReviewDone()) return;
+    function openTrainerReview(force) {
+      if (isDesk || !isTrainerRoom() || isGuestRoom()) return;
+      if (!force && trainerReviewDone()) return;
       if (document.getElementById("trainRev")) return;
       const s = trainerSlug();
       const who = trainerCard().name;
@@ -5421,6 +5522,10 @@ function openPlay(kind, lane) {
           if (!isDesk && payload.new && /^TRAINGIFT:/i.test(String(payload.new.decline_note || "")) && !/^TRAINGIFT:ASK/i.test(String(payload.new.decline_note || ""))) {
             const k = (String(payload.new.decline_note).split(":")[1] || "GIFT").toUpperCase();
             try { showTrainCard(k, TRAIN_GIFTS[k] || "She threw something."); } catch (e) {}
+            try { sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
+          }
+          if (!isDesk && isTrainerRoom() && /^TRAINREV:/i.test(String(payload.new.decline_note || ""))) {
+            try { openTrainerReview(true); } catch (e) {}
             try { sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           }
           if (!isDesk && payload.new && /^TRAINGIFT:ASK/i.test(String(payload.new.decline_note || ""))) {

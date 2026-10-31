@@ -1141,6 +1141,66 @@ function canAccess(slug) {
       }
       var rawBeforeSale = fullBeforeSale;
       var name = slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : "She";
+      var ROLES = [
+        { id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock." },
+        { id: "maid", label: "Maid", add: 15, desc: "Maid costume. She keeps the act." },
+        { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone." },
+        { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky." },
+        { id: "teacher", label: "Teacher", add: 15, desc: "School / after-hours tone." },
+        { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it." }
+      ];
+      var picked = null;
+      var roleBox = document.getElementById("ddsRolePick");
+      if (roleBox) roleBox.remove();
+      roleBox = document.createElement("div");
+      roleBox.id = "ddsRolePick";
+      roleBox.style.cssText = "position:fixed;inset:0;z-index:95;background:rgba(8,4,12,.78);display:flex;align-items:center;justify-content:center;padding:1rem";
+      var roleHtml = '<div style="max-width:440px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
+        '<p style="margin:0 0 .5rem;font-size:1.05rem;color:#e9d5ff">What do you want ' + name + ' as tonight?</p>' +
+        '<div id="ddsRoleList" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.7rem">';
+      ROLES.forEach(function (r) {
+        var price = owned ? 0 : (cost + r.add);
+        roleHtml += '<button type="button" data-role="' + r.id + '" style="text-align:left;background:#2a1a32;color:#f3e9d7;border:1px solid #4a2c5f;border-radius:8px;padding:.5rem .7rem;cursor:pointer">' +
+          '<b>' + r.label + '</b> <span style="color:#e9d5ff">+' + r.add + ' DPS</span><br><span style="font-size:.8rem;color:#b9a892">' + r.desc + '</span></button>';
+      });
+      roleHtml += '</div>' +
+        '<div id="ddsCustomWrap" style="display:none;margin-bottom:.6rem"><input id="ddsCustomRole" type="text" placeholder="Type the role" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #4a2c5f;background:#120c18;color:#f3e9d7"/></div>' +
+        '<button type="button" id="ddsRoleCancel" style="background:#2a1a32;color:#fff;padding:.45rem .8rem;border-radius:8px;border:1px solid #4a2c5f">Cancel</button>' +
+        '</div>';
+      roleBox.innerHTML = roleHtml;
+      document.body.appendChild(roleBox);
+      roleBox.onclick = function (ev) { if (ev.target === roleBox) roleBox.remove(); };
+      document.getElementById("ddsRoleCancel").onclick = function () { roleBox.remove(); };
+      document.getElementById("ddsRoleList").onclick = function (ev) {
+        var btn = ev.target.closest && ev.target.closest("button[data-role]");
+        if (!btn) return;
+        var id = btn.getAttribute("data-role");
+        var role = ROLES.filter(function (r) { return r.id === id; })[0];
+        if (!role) return;
+        if (id === "custom") {
+          document.getElementById("ddsCustomWrap").style.display = "block";
+          document.getElementById("ddsCustomRole").focus();
+          document.getElementById("ddsCustomRole").onkeydown = function (e) {
+            if (e.key === "Enter") {
+              var txt = (document.getElementById("ddsCustomRole").value || "").trim();
+              if (!txt) return;
+              picked = { id: "custom", label: txt, add: 30 };
+              roleBox.remove();
+              finishRole(picked);
+            }
+          };
+          return;
+        }
+        picked = role;
+        roleBox.remove();
+        finishRole(picked);
+      };
+      function finishRole(role) {
+        if (!owned) cost = cost + role.add;
+        try { sessionStorage.setItem("dds_room_role", role.id === "custom" ? role.label : role.id); } catch (e) {}
+        showDpsConfirm(role);
+      }
+      function showDpsConfirm(role) {
       var disc = "";
       if (owned) disc = "You own her. Free entry. Status does not matter.";
       else if (isBusy && salePct > 0) disc = "She is busy (" + mult + "×). Sale takes " + salePct + "% off the busy price.";
@@ -1206,6 +1266,7 @@ function canAccess(slug) {
           if (dest.indexOf("contact_to_play") === -1) dest = "contact_to_play.html?slut=" + slug;
           location.href = dest;
         };
+        }
         document.getElementById("ddsDpsNo").onclick = function () { box.remove(); };
         box.onclick = function (ev) { if (ev.target === box) box.remove(); };
       }
