@@ -1150,6 +1150,7 @@ function canAccess(slug) {
             { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone.", need: "gold" },
             { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky.", need: "gold" },
             { id: "prostitute", label: "Prostitute", add: 30, desc: "She is paid. Transactional, cold.", need: "gold" },
+            { id: "airhostess", label: "Air Hostess", add: 20, desc: "Uniform. Flight. Public risk.", need: "silver" },
             { id: "mom", label: "Mom", add: 40, desc: "Older. Soft. Domestic.", need: "" },
             { id: "girlfriend", label: "Girlfriend", add: 10, desc: "Dating. Casual. Warm.", need: "" },
             { id: "wife", label: "Wife", add: 20, desc: "Married. Home. Familiar.", need: "silver" },
@@ -1158,7 +1159,7 @@ function canAccess(slug) {
           ];
       // Hardcoded 6 roles per model until door saves work.
       // Herself and Custom are mandatory. Prices from house.
-      var HARD_ROLES = {
+      var BASE_ROLES = {
         herself: { on: true, need: "" },
         maid: { on: true, need: "silver" },
         teacher: { on: true, need: "silver" },
@@ -1167,7 +1168,20 @@ function canAccess(slug) {
         mom: { on: true, need: "" },
         custom: { on: true, need: "owner" }
       };
-      var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || HARD_ROLES;
+      var EXTRA = {
+        preethi: { inspector: { on: true, need: "gold" } },
+        natasha: { inspector: { on: true, need: "gold" }, airhostess: { on: true, need: "silver" } },
+        meghana: { inspector: { on: true, need: "gold" }, prostitute: { on: true, need: "gold" }, airhostess: { on: true, need: "silver" } },
+        diya: { prostitute: { on: true, need: "gold" } },
+        ayesha: { prostitute: { on: true, need: "gold" } },
+        chandana: { airhostess: { on: true, need: "silver" } },
+        aleena: { airhostess: { on: true, need: "silver" } },
+        simran: { airhostess: { on: true, need: "silver" } }
+      };
+      var doorRoles = Object.assign({}, BASE_ROLES, EXTRA[slug] || {});
+      if (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) {
+        doorRoles = window.DDS_CFG.doorRoles[slug];
+      }
       console.log("doorRoles for", slug, doorRoles);
       // Only show roles that are on.
       ROLES = ROLES.filter(function (r) {
