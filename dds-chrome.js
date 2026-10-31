@@ -1142,13 +1142,20 @@ function canAccess(slug) {
       var rawBeforeSale = fullBeforeSale;
       var name = slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : "She";
       var ROLES = [
-        { id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock." },
-        { id: "maid", label: "Maid", add: 15, desc: "Maid costume. She keeps the act." },
-        { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone." },
-        { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky." },
-        { id: "teacher", label: "Teacher", add: 15, desc: "School / after-hours tone." },
-        { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it." }
+        { id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock.", need: "" },
+        { id: "maid", label: "Maid", add: 15, desc: "Maid costume. She keeps the act.", need: "silver" },
+        { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone.", need: "gold" },
+        { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky.", need: "gold" },
+        { id: "teacher", label: "Teacher", add: 15, desc: "School / after-hours tone.", need: "silver" },
+        { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
       ];
+      var rankOk = function (need) {
+        if (!need) return true;
+        if (need === "owner") return !!owned;
+        if (need === "silver") return owned || st === "silver" || st === "gold" || st === "elite" || st === "platinum";
+        if (need === "gold") return owned || st === "gold" || st === "elite" || st === "platinum";
+        return true;
+      };
       var picked = null;
       var roleBox = document.getElementById("ddsRolePick");
       if (roleBox) roleBox.remove();
@@ -1159,9 +1166,11 @@ function canAccess(slug) {
         '<p style="margin:0 0 .5rem;font-size:1.05rem;color:#e9d5ff">What do you want ' + name + ' as tonight?</p>' +
         '<div id="ddsRoleList" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.7rem">';
       ROLES.forEach(function (r) {
+        var open = rankOk(r.need);
         var price = owned ? 0 : (cost + r.add);
-        roleHtml += '<button type="button" data-role="' + r.id + '" style="text-align:left;background:#2a1a32;color:#f3e9d7;border:1px solid #4a2c5f;border-radius:8px;padding:.5rem .7rem;cursor:pointer">' +
-          '<b>' + r.label + '</b> <span style="color:#e9d5ff">+' + r.add + ' DPS</span><br><span style="font-size:.8rem;color:#b9a892">' + r.desc + '</span></button>';
+        var lock = open ? "" : (' <span style="color:#fca5a5;font-size:.75rem">· ' + (r.need === "owner" ? "Owners only" : (r.need === "gold" ? "Gold+" : "Silver+")) + '</span>');
+        roleHtml += '<button type="button" data-role="' + r.id + '" ' + (open ? "" : 'disabled') + ' style="text-align:left;background:' + (open ? "#2a1a32" : "#1a1218") + ';color:' + (open ? "#f3e9d7" : "#6b5a6e") + ';border:1px solid ' + (open ? "#4a2c5f" : "#2a1a32") + ';border-radius:8px;padding:.5rem .7rem;cursor:' + (open ? "pointer" : "not-allowed") + '">' +
+          '<b>' + r.label + '</b> <span style="color:#e9d5ff">+' + r.add + ' DPS</span>' + lock + '<br><span style="font-size:.8rem;color:#b9a892">' + r.desc + '</span></button>';
       });
       roleHtml += '</div>' +
         '<div id="ddsCustomWrap" style="display:none;margin-bottom:.6rem"><input id="ddsCustomRole" type="text" placeholder="Type the role" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #4a2c5f;background:#120c18;color:#f3e9d7"/></div>' +
@@ -1173,7 +1182,7 @@ function canAccess(slug) {
       document.getElementById("ddsRoleCancel").onclick = function () { roleBox.remove(); };
       document.getElementById("ddsRoleList").onclick = function (ev) {
         var btn = ev.target.closest && ev.target.closest("button[data-role]");
-        if (!btn) return;
+        if (!btn || btn.disabled) return;
         var id = btn.getAttribute("data-role");
         var role = ROLES.filter(function (r) { return r.id === id; })[0];
         if (!role) return;
@@ -1236,6 +1245,7 @@ function canAccess(slug) {
       } else {
         box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
           '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
+          '<p style="margin:0 0 .25rem;font-size:.95rem;color:#e9d5ff">' + roleLabel + '</p>' +
           (salePct > 0
             ? ('<div style="margin:0 0 .4rem">' +
                 '<span style="color:#fca5a5;text-decoration:line-through;font-size:1.15rem;margin-right:.4rem">' + rawBeforeSale + '</span>' +
@@ -1251,7 +1261,6 @@ function canAccess(slug) {
                 '<span style="color:#fde68a;font-size:1.55rem;font-weight:800">' + cost + '</span>' +
                 '<span style="color:#e9d5ff;font-size:.95rem;margin-left:.3rem">DPS</span>' +
               '</div>' +
-              '<p style="margin:0 0 .25rem;font-size:.95rem;color:#e9d5ff">' + roleLabel + '</p>' +
               '<p style="margin:0 0 .35rem;font-size:.88rem;color:#b9a892">charges this for the night.</p>' +
                (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : ''))) +
           '<p style="margin:0 0 .55rem;font-size:.82rem;color:#b9a892;line-height:1.35">If you win levels you can earn up to <b>' + fullPay + '</b> DPS from ' + name + '. She gives it if she likes you.</p>' +
