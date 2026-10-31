@@ -21,6 +21,7 @@
     header h1 { margin:0; font-size:1.05rem; color:var(--gold); font-family:Georgia,serif; display:inline; }
     header .titleRow { display:flex; align-items:center; gap:.35rem; flex-wrap:nowrap; }
     header .nick { color:#e0c4ff; font-size:.72rem; }
+    #asPill { margin-left:.35rem; font-size:.72rem; font-weight:700; letter-spacing:.02em; padding:.22rem .55rem; border-radius:999px; border:1px solid #c084fc; color:#f4ecff; background:#3a2458; white-space:nowrap; }
     header p { margin:.05rem 0 0; font-size:.7rem; color:var(--muted); }
     header > div:first-of-type { min-width:0; flex:0 1 auto; }
     #ribbon { display:none; padding:.4rem .7rem .45rem; border-bottom:1px solid var(--border); background:linear-gradient(180deg,#1c1418 0%,#100c10 100%); flex-shrink:0; }
@@ -586,7 +587,7 @@
     <header>
       <img class="thumb hidden" id="thumb" alt="" />
       <div>
-        <div class="titleRow"><h1 id="title"><a id="sessionLink" href="#" target="_blank" rel="noopener">Opening…</a></h1></div>
+        <div class="titleRow"><h1 id="title"><a id="sessionLink" href="#" target="_blank" rel="noopener">Opening…</a></h1><span id="asPill" class="hidden">as</span></div>
         <div class="nick" id="nick"></div>
         <p id="sub"></p>
         <p id="clientHint" class="hidden"></p>
@@ -3862,7 +3863,8 @@ function openPlay(kind, lane) {
       var roleMatch = line.match(/(?:^|\|)role=([^|\n]+)/i);
       var roleId = roleMatch ? roleMatch[1].toLowerCase() : "";
       var rolePage = (roleId && roleId !== "herself") ? (slug + "_" + roleId + ".html") : (slug + ".html");
-      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + rolePage + "\nLOOK UP ONCE ONLY. Read base once, then the role page once, then STOP BROWSING. Do not open any page again. Do not follow links. Do not call the browse tool again. Do not loop. Only #refresh re-opens base once. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough. ROLE PAGE: if role= is set and not herself, this page overrides open, costume, MIF, and path. Do not ask call name or costume unless role is herself or custom. Start already in the role and in the house-owned costume." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
+      var roleLine = (roleId && roleId !== "herself") ? ("\nROLE PAGE https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + rolePage + "\nThis is the role page. Open it once. It overrides the normal door page for open, costume, MIF, and path. Do not ask call name or costume. Start already in the role.") : "";
+      const ready = !slug ? "" : ("\nMODELREADY https://desireclubhouse.netlify.app/modelready/k/mready-4k9p/" + rolePage + roleLine + "\nLOOK UP ONCE ONLY. Read base once, then the role page once, then STOP BROWSING. Do not open any page again. Do not follow links. Do not call the browse tool again. Do not loop. Only #refresh re-opens base once. Fan Club and Own may be offered in plain talk when the night is warm or ending. Never say Fan Club, Own, DPS, rank, or status. One offer is enough." + (isSoon ? " OVERRIDE OPEN. Public door is Coming soon. An eligible rank opened this room. Play the night. Do not say coming soon, override, or desk to him." : ""));
       if (slug === "anu") line = line.replace(/\nDPS .+/, "");
       room.scout_line = line;
       draw({ id: "scout-dds1", sender: "model", body: "DESIRE SCOUT\n" + line + ready });
@@ -4053,8 +4055,8 @@ function openPlay(kind, lane) {
           return;
         }
         if (/^TRAINGIFT:/i.test(note) && !/^TRAINGIFT:ASK/i.test(note)) {
-          const k = (note.split(":")[1] || "GIFT").toUpperCase();
-          showTrainCard(k, TRAIN_GIFTS[k] || "She threw something.");
+          const k = (note.split(":")[1] || "SPIN").toUpperCase();
+          showTrainCard(k === "SPIN" ? "" : k, TRAIN_GIFTS[k] || "");
           try { await sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           return;
         }
@@ -4756,12 +4758,46 @@ function openPlay(kind, lane) {
       if (s === "meenakshi") return { name: "Meenakshi", nick: "Trainer · Warm Tamil akka", note: "She trains the night. Ask which woman you want." };
       return { name: "Anu Nair", nick: "Trainer · Kerala Nair", note: "She trained the women. Ask which one you want." };
     }
+    let trainerDoor = "";
+    function doorName(slug) {
+      const key = String(slug || "").toLowerCase().replace(/[^a-z]/g, "");
+      if (!key || /^(none|house|anu|meenakshi|trainer)$/.test(key)) return "";
+      const card = CARDS[key];
+      if (card && card.name) return card.name.split(" ")[0];
+      return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+    function readTrainerDoor(text) {
+      if (!isTrainerRoom()) return "";
+      const m = String(text || "").match(/\bDoor\s*:\s*([^|}]+)/i);
+      if (!m) return "";
+      return doorName(m[1]);
+    }
+    function setTrainerDoor(name) {
+      if (!isTrainerRoom()) return;
+      trainerDoor = String(name || "").trim();
+      try { sessionStorage.setItem("traindoor:" + String((room && room.id) || ""), trainerDoor); } catch (e) {}
+      paintTrainerAs();
+    }
+    function paintTrainerAs() {
+      const pill = $("asPill");
+      if (!isTrainerRoom()) { if (pill) pill.classList.add("hidden"); return; }
+      const who = trainerCard();
+      const door = trainerDoor;
+      if (pill) {
+        if (door) { pill.textContent = "as " + door; pill.classList.remove("hidden"); }
+        else pill.classList.add("hidden");
+      }
+      if ($("nick")) $("nick").textContent = door ? (who.name + " playing as " + door) : who.nick;
+      if ($("title") && !$("sessionLink")) $("title").textContent = who.name;
+      document.title = door ? (who.name + " as " + door) : who.name;
+    }
     function applyTrainerRoom() {
       if (!isTrainerRoom()) return;
       const who = trainerCard();
       document.body.classList.add("trainer-room");
       if ($("title")) $("title").textContent = who.name;
-      if ($("nick")) $("nick").textContent = who.nick;
+      try { trainerDoor = sessionStorage.getItem("traindoor:" + String((room && room.id) || "")) || ""; } catch (e) {}
+      paintTrainerAs();
       if ($("sub")) $("sub").textContent = "Training room. Talk only. No score.";
       if ($("helpHint")) $("helpHint").textContent = "Ask how the game works.";
       ["ribbon", "topChips", "dpsPill", "spinBtn", "buySpinBtn", "buyStillBtn", "buySpeedBtn", "ownPill", "anuBtn", "giftBtn", "htpBtn"].forEach(function (id) {
@@ -4827,19 +4863,24 @@ function openPlay(kind, lane) {
     }
     function showTrainCard(key, prize) {
       if (isDesk) return;
-      const old = document.getElementById("trainSpin");
-      if (old) old.remove();
+      if (document.getElementById("trainSpin")) return;
       const keys = Object.keys(TRAIN_GIFTS);
-      const land = (key && TRAIN_GIFTS[key]) ? key : keys[Math.floor(Math.random() * keys.length)];
-      const won = TRAIN_GIFTS[land] || prize || "We keep going.";
+      const forced = (key && TRAIN_GIFTS[key]) ? key : "";
       const wrap = document.createElement("div");
       wrap.id = "trainSpin";
       wrap.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.82);display:grid;place-items:center;padding:1rem;";
+      const slices = keys.map((k, i) => {
+        const a = i * 45;
+        const colors = ["#5b2a86","#2a1840","#7a3ea8","#1b1028","#c9a227","#3d2458","#8a5a1a","#241433"];
+        return colors[i] + " " + a + "deg " + (a + 45) + "deg";
+      }).join(",");
       wrap.innerHTML =
-        "<div style='background:#1b1028;color:#f6eefe;border:2px solid #d4af37;border-radius:16px;padding:1.2rem 1.1rem;max-width:420px;width:100%;text-align:center;box-shadow:0 0 40px rgba(212,175,55,.35)'>" +
-        "<b style='font-size:1.15rem;color:#ffe566'>She threw something. Spin it.</b>" +
-        "<div id='trainWheel' style='margin:.8rem auto;width:220px;height:220px;border-radius:50%;border:8px solid #d4af37;background:conic-gradient(#5b2a86 0 45deg,#2a1840 45deg 90deg,#7a3ea8 90deg 135deg,#1b1028 135deg 180deg,#c9a227 180deg 225deg,#3d2458 225deg 270deg,#8a5a1a 270deg 315deg,#241433 315deg 360deg);display:grid;place-items:center;box-shadow:0 0 24px rgba(212,175,55,.45);transition:transform 2.2s cubic-bezier(.15,.8,.2,1)'>" +
-        "<span style='width:70px;height:70px;border-radius:50%;background:#120a1a;border:3px solid #ffe566;display:grid;place-items:center;font-weight:800;color:#ffe566'>SPIN</span></div>" +
+        "<div style='background:#1b1028;color:#f6eefe;border:2px solid #d4af37;border-radius:16px;padding:1.2rem 1.1rem;max-width:440px;width:100%;text-align:center;box-shadow:0 0 40px rgba(212,175,55,.35)'>" +
+        "<b style='font-size:1.15rem;color:#ffe566'>She threw something at you.</b>" +
+        "<p style='margin:.35rem 0 .2rem;font-size:.85rem;color:#e0c4ff'>Spin it. What it lands on is yours.</p>" +
+        "<div id='trainWheel' style='margin:.8rem auto;width:230px;height:230px;border-radius:50%;border:8px solid #d4af37;background:conic-gradient(" + slices + ");display:grid;place-items:center;box-shadow:0 0 24px rgba(212,175,55,.45);transition:transform 2.4s cubic-bezier(.15,.8,.2,1)'>" +
+        "<span style='width:78px;height:78px;border-radius:50%;background:#120a1a;border:3px solid #ffe566;display:grid;place-items:center;font-weight:800;color:#ffe566;font-size:.8rem'>SPIN</span></div>" +
+        "<p style='font-size:.72rem;color:#c9b6e0;margin:0 0 .4rem'>" + keys.join(" · ") + "</p>" +
         "<p id='trainLand' style='min-height:3.2rem;margin:.4rem 0 .8rem;font-size:1rem;line-height:1.4'></p>" +
         "<button type='button' id='trainSpinGo' style='background:#d4af37;color:#1b1028;border:0;border-radius:999px;padding:.55rem 1.4rem;font-weight:800;font-size:1rem'>Spin</button>" +
         "</div>";
@@ -4853,16 +4894,20 @@ function openPlay(kind, lane) {
         spun = true;
         go.textContent = "Spinning…";
         go.disabled = true;
-        const turns = 4 + Math.floor(Math.random() * 3);
+        const land = forced || keys[Math.floor(Math.random() * keys.length)];
+        const won = TRAIN_GIFTS[land] || prize || "We keep going.";
+        const turns = 5 + Math.floor(Math.random() * 3);
         const idx = Math.max(0, keys.indexOf(land));
         const slice = 360 / Math.max(1, keys.length);
-        wheel.style.transform = "rotate(" + (turns * 360 + idx * slice) + "deg)";
+        wheel.style.transform = "rotate(" + (turns * 360 + idx * slice + slice / 2) + "deg)";
         setTimeout(() => {
           landEl.innerHTML = "<b style='color:#fff6e8'>You won: " + land + "</b><br>" + won;
           go.disabled = false;
           go.textContent = "I see it";
+          const line = "The code is \"" + land + "\". She will honor it. " + won;
+          try { postPlay(line); } catch (e) {}
           try { postPlay("DESK ONLY TRAIN " + land); } catch (e) {}
-        }, 2300);
+        }, 2500);
       };
     }
     function openTrainerSpinner(forced) {
@@ -4890,17 +4935,20 @@ function openPlay(kind, lane) {
       };
     }
     const trainerGiftSeen = new Set();
+    function isThrowLine(line) {
+      return /threw something|throwing something|throw something at|throw something|i throw|you play it|\bplay it\b|whatever it lands|train throw|he gets a spin|you get a spin|gets a spin|spin it|take the spin|your spin/i.test(String(line || ""));
+    }
     function maybeTrainerGift(body, mid) {
-      if (isDesk || !isTrainerRoom()) return;
+      if (isDesk || !isTrainerRoom() || hydrating) return;
       const line = String(body || "");
+      if (/The code is /i.test(line)) return;
       const key = String(mid || line.slice(0, 80));
-      if (/threw something|throwing something|throw something|i throw|you play it|\bplay it\b|whatever it lands|train throw|you won this one|you won:/i.test(line)) {
+      if (isThrowLine(line)) {
         if (trainerGiftSeen.has("throw:" + key)) return;
         trainerGiftSeen.add("throw:" + key);
         const m = line.match(/you won:\s*([A-Z0-9]+)/i);
         const k = m && m[1] ? m[1].toUpperCase() : "";
-        const prize = (k && TRAIN_GIFTS[k]) || "She threw something. Read the line.";
-        showTrainCard(k || "GIFT", prize);
+        showTrainCard(k, (k && TRAIN_GIFTS[k]) || "");
         return;
       }
       if (/one question|ask a question|answer it|train ask/i.test(line)) {
@@ -4914,13 +4962,11 @@ function openPlay(kind, lane) {
       const row = ($("waitNodeBtn") && $("waitNodeBtn").parentElement) || document.querySelector(".actions");
       if (!row || row.querySelector("#trainThrow")) return;
       const a = document.createElement("button");
-      a.type = "button"; a.id = "trainThrow"; a.className = "ghost"; a.textContent = "Throw something";
+      a.type = "button"; a.id = "trainThrow"; a.className = "ghost"; a.textContent = "Throw something at him";
       a.onclick = async () => {
-        const gift = pickTrainGift();
-        const line = "She threw something. You won: " + gift.key + ". " + gift.prize;
-        try { await sb.from("rooms").update({ decline_note: "TRAINGIFT:" + gift.key }).eq("id", room.id); } catch (e) {}
+        const line = "I am throwing something for you. Play it.";
+        try { await sb.from("rooms").update({ decline_note: "TRAINGIFT:SPIN" }).eq("id", room.id); } catch (e) {}
         try { await sb.from("messages").insert({ room_id: room.id, sender: "model", body: line }); } catch (e) {}
-        try { postPlay("DESK ONLY TRAIN " + gift.key); } catch (e) {}
       };
       const b = document.createElement("button");
       b.type = "button"; b.id = "trainAsk"; b.className = "ghost"; b.textContent = "Ask a question";
@@ -5111,6 +5157,10 @@ function openPlay(kind, lane) {
       if (m && m.sender === "model") {
         extractCallName(m.body || "");
         try { maybeAutoUpload(m.body || ""); } catch (e) {}
+        if (isTrainerRoom()) {
+          const door = readTrainerDoor(m.body || "");
+          if (door) setTrainerDoor(door);
+        }
       }
       const rawHideTok = String(m.body || "");
       if (/WAITNODE/i.test(rawHideTok)) noteWaitNode(rawHideTok);
@@ -5284,7 +5334,7 @@ function openPlay(kind, lane) {
       const adminBeat = beat.kind === "admin" || adminVoice;
       el.className = "bubble " + (adminBeat ? "admin" : (scoutBeat ? "scout" : (npc ? "npc" : (isModel ? "model" : "player"))));
       if (m.id) el.setAttribute("data-mid", String(m.id) + (bi ? ("-n" + bi) : ""));
-      who = adminBeat ? "Admin" : (scoutBeat ? "Desire Scout" : (npc ? beat.who : (isModel ? (callName || modelWho) : who)));
+      who = adminBeat ? "Admin" : (scoutBeat ? "Desire Scout" : (npc ? beat.who : (isModel ? (isTrainerRoom() && trainerDoor ? (trainerCard().name + " · " + trainerDoor) : (callName || modelWho)) : who)));
       body = beat.text;
       const head = document.createElement("div");
       head.className = "who" + (adminBeat ? " admin" : (scoutBeat ? " scout" : (npc ? " npc" : "")));
@@ -5546,8 +5596,8 @@ function openPlay(kind, lane) {
             return;
           }
           if (!isDesk && payload.new && /^TRAINGIFT:/i.test(String(payload.new.decline_note || "")) && !/^TRAINGIFT:ASK/i.test(String(payload.new.decline_note || ""))) {
-            const k = (String(payload.new.decline_note).split(":")[1] || "GIFT").toUpperCase();
-            try { showTrainCard(k, TRAIN_GIFTS[k] || "She threw something."); } catch (e) {}
+            const k = (String(payload.new.decline_note).split(":")[1] || "SPIN").toUpperCase();
+            try { showTrainCard(k === "SPIN" ? "" : k, TRAIN_GIFTS[k] || ""); } catch (e) {}
             try { sb.from("rooms").update({ decline_note: null }).eq("id", room.id); } catch (e) {}
           }
           if (!isDesk && isTrainerRoom() && /^TRAINREV:/i.test(String(payload.new.decline_note || ""))) {
