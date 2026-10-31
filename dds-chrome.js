@@ -1157,6 +1157,7 @@ function canAccess(slug) {
             { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
           ];
       var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
+      console.log("doorRoles for", slug, doorRoles);
       ROLES = ROLES.filter(function (r) {
         var dr = doorRoles[r.id];
         if (dr && dr.on === false) return false;
