@@ -1159,14 +1159,11 @@ function canAccess(slug) {
       var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
       console.log("doorRoles for", slug, doorRoles);
       // Only show roles the admin has explicitly turned on for this door.
+      // If none are on, show nothing. Do not fall back to all roles.
       ROLES = ROLES.filter(function (r) {
         var dr = doorRoles[r.id];
         return dr && dr.on === true;
       });
-      // Herself is always free and always available if nothing else is on.
-      if (!ROLES.length) {
-        ROLES = [{ id: "herself", label: "Herself", add: 0, desc: "Normal night. No costume lock.", need: "" }];
-      }
       var rankOk = function (need) {
         if (!need) return true;
         if (need === "owner") return !!owned;
@@ -1301,6 +1298,11 @@ function canAccess(slug) {
         }
         document.getElementById("ddsDpsNo").onclick = function () { box.remove(); };
         box.onclick = function (ev) { if (ev.target === box) box.remove(); };
+      }
+      // If no roles are on for this door, skip the picker.
+      if (!ROLES.length) {
+        showDpsConfirm(null);
+        return;
       }
       return;
     }
