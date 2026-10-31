@@ -1652,3 +1652,30 @@ article.profile-hero.dds-soon-blur .portrait {
   letter-spacing: .05em;
   z-index: 5;
 }
+
+.play-cta a.heart-btn{
+  flex:0 0 46px !important;
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:50% !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#2a1a32 !important;
+  border:1px solid rgba(192,132,252,.55) !important;
+  line-height:0 !important;
+  font-size:0 !important;
+  animation:none !important;
+  box-shadow:0 0 12px rgba(192,132,252,.35) !important;
+}
+.play-cta a.heart-btn span{display:none !important}
+.play-cta a.heart-btn svg{
+  width:26px !important;
+  height:26px !important;
+  margin:0 !important;
+  display:block !important;
+  transform-origin:center center;
+}
