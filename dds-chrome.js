@@ -1213,10 +1213,12 @@ function canAccess(slug) {
       var box = document.createElement("div");
       box.id = "ddsDpsConfirm";
       box.style.cssText = "position:fixed;inset:0;z-index:90;background:rgba(8,4,12,.72);display:flex;align-items:center;justify-content:center;padding:1rem";
+      var roleLabel = role && role.id !== "herself" ? (role.label + " " + name) : name;
       if (myPts < cost) {
         box.innerHTML = '<div style="max-width:420px;background:#1a1020;border:1px solid #6b3fa0;border-radius:14px;padding:1.1rem 1.2rem;color:#f3e9d7">' +
           '<p style="margin:0 0 .4rem;font-size:1.05rem;color:#e9d5ff">Your DPS: <b>' + myPts + '</b></p>' +
-          '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">' + name + ' charges <b>' + cost + '</b> DPS.</p>' +
+          '<p style="margin:0 0 .25rem;font-size:.95rem;color:#e9d5ff">' + roleLabel + '</p>' +
+          '<p style="margin:0 0 .5rem;font-size:.95rem;color:#f3e9d7">charges <b>' + cost + '</b> DPS.</p>' +
           (disc ? ('<p style="margin:0 0 .45rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : '') +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">You do not have enough. Buy DPS to continue.</p>' +
           '<div style="display:flex;gap:.5rem;flex-wrap:wrap">' +
@@ -1249,7 +1251,8 @@ function canAccess(slug) {
                 '<span style="color:#fde68a;font-size:1.55rem;font-weight:800">' + cost + '</span>' +
                 '<span style="color:#e9d5ff;font-size:.95rem;margin-left:.3rem">DPS</span>' +
               '</div>' +
-              '<p style="margin:0 0 .35rem;font-size:.88rem;color:#b9a892">' + name + ' charges this for the night.</p>' +
+              '<p style="margin:0 0 .25rem;font-size:.95rem;color:#e9d5ff">' + roleLabel + '</p>' +
+              '<p style="margin:0 0 .35rem;font-size:.88rem;color:#b9a892">charges this for the night.</p>' +
                (disc ? ('<p style="margin:0 0 .4rem;font-size:.82rem;color:#e8c45a">' + disc + '</p>') : ''))) +
           '<p style="margin:0 0 .55rem;font-size:.82rem;color:#b9a892;line-height:1.35">If you win levels you can earn up to <b>' + fullPay + '</b> DPS from ' + name + '. She gives it if she likes you.</p>' +
           '<p style="margin:0 0 .8rem;font-size:.88rem;color:#b9a892">Proceed?</p>' +
