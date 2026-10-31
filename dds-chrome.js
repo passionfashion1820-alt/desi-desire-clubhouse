@@ -1156,6 +1156,12 @@ function canAccess(slug) {
             { id: "boss", label: "Office Boss", add: 25, desc: "She is the boss. Formal, power.", need: "gold" },
             { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
           ];
+      var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
+      ROLES = ROLES.filter(function (r) {
+        var dr = doorRoles[r.id];
+        if (dr && dr.on === false) return false;
+        return true;
+      });
       var rankOk = function (need) {
         if (!need) return true;
         if (need === "owner") return !!owned;
@@ -1173,7 +1179,9 @@ function canAccess(slug) {
         '<p style="margin:0 0 .5rem;font-size:1.05rem;color:#e9d5ff">What do you want ' + name + ' as tonight?</p>' +
         '<div id="ddsRoleList" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.7rem">';
       ROLES.forEach(function (r) {
-        var open = rankOk(r.need);
+        var dr = doorRoles[r.id] || {};
+        var need = dr.need !== undefined ? dr.need : r.need;
+        var open = rankOk(need);
         var price = owned ? 0 : (cost + r.add);
         var lock = open ? "" : (' <span style="color:#fca5a5;font-size:.75rem">· ' + (need === "owner" ? "Owners only" : (need === "gold" ? "Gold+" : "Silver+")) + '</span>');
         roleHtml += '<button type="button" data-role="' + r.id + '" ' + (open ? "" : 'disabled') + ' style="text-align:left;background:' + (open ? "#2a1a32" : "#1a1218") + ';color:' + (open ? "#f3e9d7" : "#6b5a6e") + ';border:1px solid ' + (open ? "#4a2c5f" : "#2a1a32") + ';border-radius:8px;padding:.5rem .7rem;cursor:' + (open ? "pointer" : "not-allowed") + '">' +
