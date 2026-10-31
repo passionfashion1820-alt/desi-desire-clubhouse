@@ -1150,16 +1150,26 @@ function canAccess(slug) {
             { id: "nurse", label: "Nurse", add: 20, desc: "Nurse uniform. Clinic / duty room tone.", need: "gold" },
             { id: "inspector", label: "Inspector", add: 25, desc: "She is the one being checked. Formal, risky.", need: "gold" },
             { id: "prostitute", label: "Prostitute", add: 30, desc: "She is paid. Transactional, cold.", need: "gold" },
-            { id: "mom", label: "Mom", add: 25, desc: "Older. Soft. Domestic.", need: "silver" },
+            { id: "mom", label: "Mom", add: 40, desc: "Older. Soft. Domestic.", need: "" },
             { id: "girlfriend", label: "Girlfriend", add: 10, desc: "Dating. Casual. Warm.", need: "" },
             { id: "wife", label: "Wife", add: 20, desc: "Married. Home. Familiar.", need: "silver" },
             { id: "boss", label: "Office Boss", add: 25, desc: "She is the boss. Formal, power.", need: "gold" },
             { id: "custom", label: "Custom", add: 30, desc: "Type the role. She locks it.", need: "owner" }
           ];
-      var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || {};
+      // Hardcoded 6 roles per model until door saves work.
+      // Herself and Custom are mandatory. Prices from house.
+      var HARD_ROLES = {
+        herself: { on: true, need: "" },
+        maid: { on: true, need: "silver" },
+        teacher: { on: true, need: "silver" },
+        nurse: { on: true, need: "gold" },
+        girlfriend: { on: true, need: "" },
+        mom: { on: true, need: "" },
+        custom: { on: true, need: "owner" }
+      };
+      var doorRoles = (window.DDS_CFG && window.DDS_CFG.doorRoles && window.DDS_CFG.doorRoles[slug]) || HARD_ROLES;
       console.log("doorRoles for", slug, doorRoles);
-      // Only show roles the admin has explicitly turned on for this door.
-      // If none are on, show nothing. Do not fall back to all roles.
+      // Only show roles that are on.
       ROLES = ROLES.filter(function (r) {
         var dr = doorRoles[r.id];
         return dr && dr.on === true;
