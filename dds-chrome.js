@@ -1209,9 +1209,10 @@ function canAccess(slug) {
         var need = dr.need !== undefined ? dr.need : r.need;
         var open = rankOk(need);
         var price = owned ? 0 : (cost + r.add);
-        var lock = open ? "" : (' <span style="color:#fca5a5;font-size:.75rem">· ' + (need === "owner" ? "Owners only" : (need === "gold" ? "Gold+" : "Silver+")) + '</span>');
-        roleHtml += '<button type="button" data-role="' + r.id + '" ' + (open ? "" : 'disabled') + ' style="text-align:left;background:' + (open ? "#2a1a32" : "#1a1218") + ';color:' + (open ? "#f3e9d7" : "#6b5a6e") + ';border:1px solid ' + (open ? "#4a2c5f" : "#2a1a32") + ';border-radius:8px;padding:.5rem .7rem;cursor:' + (open ? "pointer" : "not-allowed") + '">' +
-          '<b>' + r.label + '</b> <span style="color:#e9d5ff">+' + r.add + ' DPS</span>' + lock + '<br><span style="font-size:.8rem;color:#b9a892">' + r.desc + '</span></button>';
+        var lock = open ? "" : (' <span style="color:#f87171;font-size:.72rem;font-weight:700">· ' + (need === "owner" ? "OWNERS ONLY" : (need === "gold" ? "GOLD+" : "SILVER+")) + '</span>');
+        var badge = open ? '<span style="float:right;font-size:.68rem;color:#4ade80;font-weight:700">OPEN</span>' : '<span style="float:right;font-size:.68rem;color:#f87171;font-weight:700">LOCKED</span>';
+        roleHtml += '<button type="button" data-role="' + r.id + '" ' + (open ? "" : 'disabled') + ' style="text-align:left;background:' + (open ? "#2a1a32" : "#141018") + ';color:' + (open ? "#f3e9d7" : "#5a4a5e") + ';border:1.5px solid ' + (open ? "#a78bfa" : "#2a1a32") + ';border-radius:8px;padding:.55rem .7rem;cursor:' + (open ? "pointer" : "not-allowed") + ';opacity:' + (open ? "1" : ".65") + '">' +
+          badge + '<b>' + r.label + '</b> <span style="color:' + (open ? "#e9d5ff" : "#6b5a6e") + '">+' + r.add + ' DPS</span>' + lock + '<br><span style="font-size:.8rem;color:' + (open ? "#c4b5fd" : "#5a4a5e") + '">' + r.desc + '</span></button>';
       });
       roleHtml += '</div>' +
         '<div id="ddsCustomWrap" style="display:none;margin-bottom:.6rem"><input id="ddsCustomRole" type="text" placeholder="Type the role" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #4a2c5f;background:#120c18;color:#f3e9d7"/></div>' +
